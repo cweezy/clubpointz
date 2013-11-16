@@ -1,2 +1,2 @@
-# testSails
-### a Sails application
+# clubpoitnz 
+### an NYRR club points viewer
