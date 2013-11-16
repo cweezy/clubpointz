@@ -12,7 +12,8 @@
         "optimist": "0.3.4",
         "mocha": "1.14.0",
         "zombie": "2.0.0-alpha24",
-        "sails-mongo": "0.9.5"
+        "sails-mongo": "0.9.5",
+        "wrench": "1.5.4"
     },
     "scripts": {
         "start": "node app.js",
