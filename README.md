@@ -1,0 +1,2 @@
+# clubpointz
+### a Sails application
