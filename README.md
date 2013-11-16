@@ -1,2 +1,2 @@
-# clubpointz
+# testSails
 ### a Sails application
