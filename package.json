@@ -9,7 +9,9 @@
         "grunt-cli": "0.1.11",
         "sails-disk": "~0.9.0",
         "ejs": "0.8.4",
-        "optimist": "0.3.4"
+        "optimist": "0.3.4",
+        "mocha": "1.14.0",
+        "zombie": "2.0.0-alpha24"
     },
     "scripts": {
         "start": "node app.js",
