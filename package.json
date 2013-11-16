@@ -1,11 +1,12 @@
 {
-    "name": "testSails",
+    "name": "clubpointz",
     "private": true,
     "version": "0.0.0",
-    "description": "a Sails application",
+    "description": "NYRR club points viewer",
     "dependencies": {
         "sails": "0.9.7",
         "grunt": "0.4.1",
+        "grunt-cli": "0.1.11",
         "sails-disk": "~0.9.0",
         "ejs": "0.8.4",
         "optimist": "0.3.4"
