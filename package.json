@@ -13,7 +13,8 @@
         "mocha": "1.14.0",
         "zombie": "2.0.0-alpha24",
         "sails-mongo": "0.9.5",
-        "wrench": "1.5.4"
+        "wrench": "1.5.4",
+        "underscore" : "1.5.2"
     },
     "scripts": {
         "start": "node app.js",
