@@ -191,6 +191,7 @@ describe('Scraper', function () {
 
     it('gets new race data', function (done) {
         var browser = new Browser();
+        browser.runScripts = false;
         browser.visit(RESULT_MAIN_URL, function () {
             assert.equal(EXPECTED_RESULT_MAIN_TITLE, browser.text('title'));
             var linkHtml = browser.html('td[class="text"] a');
@@ -219,6 +220,7 @@ describe('Scraper', function () {
 
     it('parses and saves data', function (done) {
         var browser = new Browser();
+        browser.runScripts = false;
         var visitRacePage = function (i, savedRaces) {
             if (races[i]) {
                 var race = races[i];
