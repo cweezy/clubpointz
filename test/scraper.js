@@ -38,10 +38,6 @@ var getRaceUrl = function(raceId, year) {
     return RACE_PAGE_BASE_URL + '?' + URL_KEYS.RACE_ID + '=' + raceId + '&' + URL_KEYS.YEAR + '=' + year;
 };
 
-var safeParse = function(str) {
-    return str.replace('.', '\\.');
-};
-
 var parseUrlParams = function (url) {
     var params = {};
     var rawParams = url.split('?')[1].split('&amp;');
