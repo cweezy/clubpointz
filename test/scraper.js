@@ -4,13 +4,13 @@ var assert = require('assert');
 var $ = require('jquery');
 var _ = require('underscore');
 
+// to be skipped, TODO figure out better way to do this
 var MARATHON_ID = 'b31103';
 
+var DB_CONNECT = 'mongodb://localhost:27017/clubpointz';
 var RESULT_MAIN_URL = 'http://web2.nyrrc.org/cgi-bin/htmlos.cgi/aes-programs/results/resultsarchive.htm';
-var EXPECTED_RESULT_MAIN_TITLE = 'NYRR Race Results';
-
 var RACE_PAGE_BASE_URL = 'http://web2.nyrrc.org/cgi-bin/start.cgi/aes-programs/results/startup.html';
-var EXPECTED_RACE_PAGE_TITLE = 'NYRR Race Results Startup';
+var EXPECTED_RESULT_MAIN_TITLE = 'NYRR Race Results';
 
 var URL_KEYS = {
     RACE_ID : 'result.id',
@@ -64,20 +64,17 @@ var parseResults = function (raceId, pageBody) {
     var tbody  = $(pageBody).find('.heading').closest('tbody');
 
     results = [];
-    _.each($(tbody.find('tr')), function (row, i) {
-        // Skip the first row cuz it's headings
-        // TODO this could be done more elegantly
-        if (i > 0) {
-            results[i] = {};
-            _.each($(row).find('td'), function (cell, j) {
-                results[i][resultKeys[j]] = $(cell).html();
-            });        
-        }
+    _.each($(tbody.find('tr').not('.heading')), function (row, i) {
+        results[i] = {};
+        _.each($(row).find('td'), function (cell, j) {
+            results[i][resultKeys[j]] = $(cell).html();
+        });        
     });
     raceData[raceId] = {};
     raceData[raceId][DATA_KEYS.RACE.ID] = raceId;
     raceData[raceId][DATA_KEYS.RACE.RESULTS] = results;
     raceData[raceId][DATA_KEYS.RACE.NAME] = $(pageBody).find('.bighead').text();
+    raceData[raceId][DATA_KEYS.DB_ID] = raceId;
 };
 
 var outputResults = function () {
@@ -87,7 +84,7 @@ var outputResults = function () {
 
 var getSavedRaces = function (callback) {
     var resultsSaved = {};
-    MongoClient.connect('mongodb://localhost:27017/clubpointz', function (err, db) {
+    MongoClient.connect(DB_CONNECT, function (err, db) {
         if (err) throw err;
         var collection = db.collection('race');
         _.each(races, function (race, i) {
@@ -108,7 +105,7 @@ var getSavedRaces = function (callback) {
 
 var saveResults = function (done) {
     if (!_.isEmpty(raceData)) {
-        MongoClient.connect('mongodb://localhost:27017/clubpointz', function (err, db) {
+        MongoClient.connect(DB_CONNECT, function (err, db) {
             if (err) throw err;
             var createDate = new Date();
 
