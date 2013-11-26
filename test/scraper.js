@@ -60,7 +60,7 @@ var getResultKeys = function (headings) {
     var resultKeys = [];
     _.each(headings, function (heading) {
         var text = $(heading).html().replace(/\<br \/\>/g, ' ');
-        var key = text.replace(/\s/g, '_').toLowerCase();
+        var key = text.replace(/\s/g, '_').replace(/\//, '').toLowerCase();
         resultKeys.push(key);
         if (!headingData[key]) {
             headingData[key] = {};
@@ -76,6 +76,7 @@ var parseRaceDetails = function (raceId, pageBody) {
     var details = detailText.split('\r');
     var raceDetails = {};
     _.each(details, function (detail) {
+        // TODO don't split times
         var detailParts = detail.split(':');
         if (detailParts.length > 1) {
             raceDetails[$.trim(detailParts[0])] = $.trim(detailParts[1]);
