@@ -217,7 +217,7 @@ describe('Scraper', function () {
         });
     }),
 
-    it('gets data', function (done) {
+    it('parses and saves data', function (done) {
         var browser = new Browser();
         var visitRacePage = function (i, savedRaces) {
             if (races[i]) {
