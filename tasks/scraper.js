@@ -190,32 +190,40 @@ var saveResults = function (done) {
 describe('Scraper', function () {
 
     it('gets new race data', function (done) {
-        var browser = new Browser();
-        browser.runScripts = false;
-        browser.visit(RESULT_MAIN_URL, function () {
-            assert.equal(EXPECTED_RESULT_MAIN_TITLE, browser.text('title'));
-            var linkHtml = browser.html('td[class="text"] a');
-            var links = linkHtml.split('</a>');
-            _.each(links, function (link) {
-                var matches = link.match(/href="(.+)"/);
-                if (matches !== null) {
-                    var linkUrl = matches[1];             
-                    if (linkUrl && linkUrl.indexOf(RACE_PAGE_BASE_URL) !== -1) {
-                        var urlParams = parseUrlParams(linkUrl);
-                        var raceId = urlParams[URL_KEYS.RACE_ID];
-                        var year = urlParams[URL_KEYS.YEAR];
-                        // Skip the marathon because it's an irregular page
-                        if (raceId !== MARATHON_ID) {
-                            races.push({
-                                'id' : raceId,
-                                'year' : year
-                            });
+        races = eval(process.env.RACES);
+        if (!races || _.isEmpty(races)) {
+            races = [];
+            var browser = new Browser();
+            browser.runScripts = false;
+            browser.visit(RESULT_MAIN_URL, function () {
+                assert.equal(EXPECTED_RESULT_MAIN_TITLE, browser.text('title'));
+                var linkHtml = browser.html('td[class="text"] a');
+                var links = linkHtml.split('</a>');
+                _.each(links, function (link) {
+                    var matches = link.match(/href="(.+)"/);
+                    if (matches !== null) {
+                        var linkUrl = matches[1];             
+                        if (linkUrl && linkUrl.indexOf(RACE_PAGE_BASE_URL) !== -1) {
+                            var urlParams = parseUrlParams(linkUrl);
+                            var raceId = urlParams[URL_KEYS.RACE_ID];
+                            var year = urlParams[URL_KEYS.YEAR];
+                            // Skip the marathon because it's an irregular page
+                            if (raceId !== MARATHON_ID) {
+                                races.push({
+                                    'id' : raceId,
+                                    'year' : year
+                                });
+                            }
                         }
                     }
-                }
+                })
+                console.log('\nFound ' + races.length + ' races on web');
+                done();
             });
+        } else {
+            console.log('\nFound ' + races.length + ' races in file');
             done();
-        });
+        }
     }),
 
     it('parses and saves data', function (done) {
@@ -241,7 +249,12 @@ describe('Scraper', function () {
                     visitRacePage(i+1, savedRaces);
                 }
             } else {
-                console.log('Saving results for ' + _.keys(raceData).length + ' race(s)');
+                var raceCount = _.keys(raceData).length;
+                if (raceCount === 0) {
+                    console.log('\nNo new data to save\n');
+                } else {
+                    console.log('\nSaving new data for ' + raceCount + ' race' + (raceCount === 1 ? '' : 's') + '\n');
+                }
                 saveResults(done);
             }
         };
