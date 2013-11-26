@@ -94,7 +94,7 @@ var parseResults = function (raceId, pageBody, browser, callback) {
     var tbody  = $(pageBody).find('.heading').closest('tbody');
     var raceName = $(pageBody).find('.bighead').text();
 
-    console.log('Parsing results for ' + raceName);
+    console.log('\nParsing results for ' + raceName);
 
     var results = [];
     var parsePage = function (startIndex, callback) {
