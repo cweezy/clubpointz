@@ -1,71 +1,60 @@
 var Browser = require('zombie');
+var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
-var fs = require('fs');
-var path = require('path');
 var $ = require('jquery');
 var _ = require('underscore');
 
 var MARATHON_ID = 'b31103';
 
-var RACE_RESULT_BASE = 'http://web2.nyrrc.org/cgi-bin/htmlos.cgi/aes-programs/results/resultsarchive.htm';
-var EXPECTED_RACE_RESULT_BASE_TITLE = 'NYRR Race Results';
+var RESULT_MAIN_URL = 'http://web2.nyrrc.org/cgi-bin/htmlos.cgi/aes-programs/results/resultsarchive.htm';
+var EXPECTED_RESULT_MAIN_TITLE = 'NYRR Race Results';
 
-var BASE_URL = 'http://web2.nyrrc.org/cgi-bin/start.cgi/aes-programs/results/startup.html';
-var EXPECTED_PAGE_TITLE = 'NYRR Race Results Startup';
+var RACE_PAGE_BASE_URL = 'http://web2.nyrrc.org/cgi-bin/start.cgi/aes-programs/results/startup.html';
+var EXPECTED_RACE_PAGE_TITLE = 'NYRR Race Results Startup';
 
-var RACE_ID_KEY = 'result.id';
-var YEAR_KEY = 'result.year';
+var URL_KEYS = {
+    RACE_ID : 'result.id',
+    YEAR : 'result.year'
+};
 
-var TEMP_DATA_DIR = 'temp';
-var TEMP_DATA_FILE = 'temp.json';
+var DATA_KEYS = {
+    DB_ID : '_id',
+    CREATE_DATE : 'create_date',
+    RACE : {
+        ID : 'id',
+        NAME : 'name',
+        RESULTS : 'results'
+    },
+    HEADING : {
+        TEXT : 'text'
+    }
+};
 
-var browser = new Browser();
 var races = [];
 var raceData = {};
+var headingData = {};
 
-var RACE_NAME_KEY = "raceName";
-var RESULTS_KEY = "results";
-var HEADING_TO_KEY = {
-    'Last Name' : 'lastName',
-    'First Name' : 'firstName',
-    'Sex/Age' : 'sexAge',
-    'Bib' : 'bib',
-    'Team' : 'team',
-    'City' : 'city',
-    'State' : 'state',
-    'Country' : 'country',
-    'OverallPlace' : 'overallPlace',
-    'GenderPlace' : 'genderPlace',
-    'AgePlace' : 'agePlace',
-    'NetTime' : 'netTime',
-    'FinishTime' : 'finishTime',
-    'PaceperMile' : 'pacePerMile',
-    'AGTime' : 'agTime',
-    'AGGenderPlace' : 'agGenderPlace',
-    'AG %' : 'agPercet',
-    '10KSplit' : '10kSplit'
+var getUrl = function(raceId, year) {
+    return RACE_PAGE_BASE_URL + '?' + URL_KEYS.RACE_ID + '=' + raceId + '&' + URL_KEYS.YEAR + '=' + year;
+};
+
+var safeParse = function(str) {
+    return str.replace('.', '\\.');
 };
 
 var getResultKeys = function (headings) {
     var resultKeys = [];
     _.each(headings, function (heading) {
-        var key = HEADING_TO_KEY[$(heading).text()];
-        if (key) {
-            resultKeys.push(key);
-        } else {
-            // TODO: this should probably generate some kind of alert
-            console.log('WARNING: unknown heading: ' + $(heading).text());
+        var text = $(heading).html().replace(/\<br \/\>/g, ' ');
+        var key = text.replace(/\s/g, '_').toLowerCase();
+        resultKeys.push(key);
+        if (!headingData[key]) {
+            headingData[key] = {};
+            headingData[key][DATA_KEYS.HEADING.TEXT] = text;
+            headingData[key][DATA_KEYS.DB_ID] = key;
         }
     });
     return resultKeys;
-};
-
-var getUrl = function(raceId, year) {
-    return BASE_URL + '?' + RACE_ID_KEY + '=' + raceId + '&' + YEAR_KEY + '=' + year;
-};
-
-var safeParse = function(str) {
-    return str.replace('.', '\\.');
 };
 
 var parseResults = function (raceId, pageBody) {
@@ -74,20 +63,21 @@ var parseResults = function (raceId, pageBody) {
     var resultKeys = getResultKeys(headings);
     var tbody  = $(pageBody).find('.heading').closest('tbody');
 
-    results[RACE_NAME_KEY] = $(pageBody).find('.bighead').text();
-    results[RESULTS_KEY] = []
-
+    results = [];
     _.each($(tbody.find('tr')), function (row, i) {
         // Skip the first row cuz it's headings
         // TODO this could be done more elegantly
         if (i > 0) {
-            results[RESULTS_KEY][i] = {};
+            results[i] = {};
             _.each($(row).find('td'), function (cell, j) {
-                results[RESULTS_KEY][i][resultKeys[j]] = $(cell).html();
+                results[i][resultKeys[j]] = $(cell).html();
             });        
         }
     });
-    raceData[raceId] = results;
+    raceData[raceId] = {};
+    raceData[raceId][DATA_KEYS.RACE.ID] = raceId;
+    raceData[raceId][DATA_KEYS.RACE.RESULTS] = results;
+    raceData[raceId][DATA_KEYS.RACE.NAME] = $(pageBody).find('.bighead').text();
 };
 
 var outputResults = function () {
@@ -95,20 +85,69 @@ var outputResults = function () {
     fs.writeFileSync(TEMP_DATA_DIR + path.sep + TEMP_DATA_FILE, JSON.stringify(raceData));
 };
 
+var getSavedRaces = function (callback) {
+    var resultsSaved = {};
+    MongoClient.connect('mongodb://localhost:27017/clubpointz', function (err, db) {
+        if (err) throw err;
+        var collection = db.collection('race');
+        _.each(races, function (race, i) {
+            var raceId = race[DATA_KEYS.RACE.ID];
+            var queryData = {};
+            queryData[DATA_KEYS.RACE.ID] = raceId;
+            collection.find(queryData).toArray(function (err, docs) {
+                if (err) throw err;
+                resultsSaved[raceId] = docs.length > 0;
+                if (_.keys(resultsSaved).length === _.keys(races).length) {
+				   db.close();
+                   callback(resultsSaved);
+                }
+            });
+        });
+    });
+};
+
+var saveResults = function (done) {
+    if (!_.isEmpty(raceData)) {
+        MongoClient.connect('mongodb://localhost:27017/clubpointz', function (err, db) {
+            if (err) throw err;
+            var createDate = new Date();
+
+            var collection = db.collection('race');
+            _.each(raceData, function (race, key) {
+                race[DATA_KEYS.CREATE_DATE] = createDate;
+                collection.insert(race, {w:1}, function (err, objects) {
+                    if (err) console.warn(err.message);
+                });
+            });
+            var collection = db.collection('heading');
+            _.each(headingData, function (heading, key) {
+                heading[DATA_KEYS.CREATE_DATE] = createDate;
+                collection.insert(heading, {w:1}, function (err, objects) {
+                    if (err) console.warn(err.message);
+                });
+            }); 
+
+            db.close();
+            done();
+        });
+    }
+};
+
 describe('Scraper', function () {
 
     it('gets new race data', function (done) {
-        browser.visit(RACE_RESULT_BASE, function () {
-            assert.equal(EXPECTED_RACE_RESULT_BASE_TITLE, browser.text('title'));
+        var browser = new Browser();
+        browser.visit(RESULT_MAIN_URL, function () {
+            assert.equal(EXPECTED_RESULT_MAIN_TITLE, browser.text('title'));
             var linkHtml = browser.html('td[class="text"] a');
             var links = linkHtml.split('</a>');
             _.each(links, function (link) {
                 var matches = link.match(/href="(.+)"/);
                 if (matches !== null) {
                     var linkUrl = matches[1];             
-                    if (linkUrl && linkUrl.indexOf(BASE_URL) !== -1) {
-                        var raceId = linkUrl.match(new RegExp(safeParse(RACE_ID_KEY) + '=(.+)&'))[1];
-                        var year = linkUrl.match(new RegExp(safeParse(YEAR_KEY) + '=(.+)$'))[1];
+                    if (linkUrl && linkUrl.indexOf(RACE_PAGE_BASE_URL) !== -1) {
+                        var raceId = linkUrl.match(new RegExp(safeParse(URL_KEYS.RACE_ID) + '=(.+)&'))[1];
+                        var year = linkUrl.match(new RegExp(safeParse(URL_KEYS.YEAR) + '=(.+)$'))[1];
                         // Skip the marathon because it's an irregular page
                         if (raceId !== MARATHON_ID) {
                             races.push({
@@ -124,24 +163,32 @@ describe('Scraper', function () {
     }),
 
     it('gets data', function (done) {
-        var visitRacePage = function (i) {
+        var browser = new Browser();
+        var visitRacePage = function (i, savedRaces) {
             if (races[i]) {
                 var race = races[i];
-                var url = getUrl(race.id, race.year);
-                browser.visit(url, function () {
-                    var title = browser.html('span[class="bighead"]');
-                    browser.pressButton('input[value="SEARCH"]');
-                    browser.wait(function () {
-                        parseResults(race.id, browser.html());
-                        visitRacePage(i+1);
+                if (!savedRaces[race.id]) {
+                    var url = getUrl(race.id, race.year);
+                    browser.visit(url, function () {
+                        var title = browser.html('span[class="bighead"]');
+                        browser.pressButton('input[value="SEARCH"]');
+                        browser.wait(function () {
+                            var html = browser.html();
+                            parseResults(race.id, html);
+                            visitRacePage(i+1, savedRaces);
+                        });
                     });
-                });
+                } else {
+                    visitRacePage(i+1, savedRaces);
+                }
             } else {
-                // TODO have local vars for results instead of globals
-                outputResults();
-                done();
+                console.log('Saving results for ' + _.keys(raceData).length + ' race(s)');
+                saveResults(done);
             }
         };
-        visitRacePage(0);
+        var getNewResults = function (savedRaces) {
+            visitRacePage(0, savedRaces);
+        }
+        getSavedRaces(getNewResults);
     });
 });
