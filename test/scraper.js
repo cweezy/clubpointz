@@ -133,6 +133,8 @@ var saveResults = function (done) {
             db.close();
             done();
         });
+    } else {
+        done();
     }
 };
 
