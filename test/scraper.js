@@ -23,7 +23,8 @@ var DATA_KEYS = {
     RACE : {
         ID : 'id',
         NAME : 'name',
-        RESULTS : 'results'
+        RESULTS : 'results',
+        DETAILS : 'details'
     },
     HEADING : {
         TEXT : 'text'
@@ -63,6 +64,22 @@ var getResultKeys = function (headings) {
     return resultKeys;
 };
 
+var parseRaceDetails = function (raceId, pageBody) {
+    var detailText = $($(pageBody).find('span.text b').parent()).text();
+    var details = detailText.split('\r');
+    var raceDetails = {};
+    _.each(details, function (detail) {
+        var detailParts = detail.split(':');
+        if (detailParts.length > 1) {
+            raceDetails[$.trim(detailParts[0])] = $.trim(detailParts[1]);
+        }
+    });
+    if (!raceData[raceId]) {
+        raceData[raceId] = {};
+    }
+    raceData[raceId][DATA_KEYS.RACE.DETAILS] = raceDetails;
+};
+
 var parseResults = function (raceId, pageBody) {
     var results = {}; 
     var headings = $(pageBody).find('.heading');
@@ -76,7 +93,9 @@ var parseResults = function (raceId, pageBody) {
             results[i][resultKeys[j]] = $(cell).html();
         });        
     });
-    raceData[raceId] = {};
+    if (!raceData[raceId]) {
+        raceData[raceId] = {};
+    }
     raceData[raceId][DATA_KEYS.RACE.ID] = raceId;
     raceData[raceId][DATA_KEYS.RACE.RESULTS] = results;
     raceData[raceId][DATA_KEYS.RACE.NAME] = $(pageBody).find('.bighead').text();
@@ -177,11 +196,10 @@ describe('Scraper', function () {
                 if (!savedRaces[race.id]) {
                     var url = getRaceUrl(race.id, race.year);
                     browser.visit(url, function () {
-                        var title = browser.html('span[class="bighead"]');
+                        parseRaceDetails(race.id, browser.html());
                         browser.pressButton('input[value="SEARCH"]');
                         browser.wait(function () {
-                            var html = browser.html();
-                            parseResults(race.id, html);
+                            parseResults(race.id, browser.html());
                             visitRacePage(i+1, savedRaces);
                         });
                     });
