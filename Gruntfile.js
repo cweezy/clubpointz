@@ -4,6 +4,7 @@
 
 var fs = require('fs');
 var Mocha = require('mocha');
+var quiet = require('./tasks/quiet');
 
 module.exports = function (grunt) {
 
@@ -14,7 +15,7 @@ module.exports = function (grunt) {
     }
     var done = this.async();
     var mocha = new Mocha({
-      reporter: 'my-reporter',
+      reporter: quiet.reporter,
       timeout: 99999999
     });
     mocha.addFile('tasks/scraper.js');
