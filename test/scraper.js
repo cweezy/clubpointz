@@ -93,6 +93,7 @@ var parseResults = function (raceId, pageBody) {
             results[i][resultKeys[j]] = $(cell).html();
         });        
     });
+    assert.equal(50, results.length);
     if (!raceData[raceId]) {
         raceData[raceId] = {};
     }
