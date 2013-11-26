@@ -6,6 +6,7 @@ var _ = require('underscore');
 
 // to be skipped, TODO figure out better way to do this
 var MARATHON_ID = 'b31103';
+var MAX_RACE_RESULTS = 2500;
 
 var DB_CONNECT = 'mongodb://localhost:27017/clubpointz';
 var RESULT_MAIN_URL = 'http://web2.nyrrc.org/cgi-bin/htmlos.cgi/aes-programs/results/resultsarchive.htm';
@@ -19,7 +20,8 @@ var URL_KEYS = {
 
 var DATA_KEYS = {
     DB_ID : '_id',
-    CREATE_DATE : 'create_date',
+    CREATED_AT : 'createdAt',
+    UPDATED_AT : 'updatedAt',
     RACE : {
         ID : 'id',
         NAME : 'name',
@@ -80,27 +82,46 @@ var parseRaceDetails = function (raceId, pageBody) {
     raceData[raceId][DATA_KEYS.RACE.DETAILS] = raceDetails;
 };
 
-var parseResults = function (raceId, pageBody) {
-    var results = {}; 
+var parseResults = function (raceId, pageBody, browser, callback) {
     var headings = $(pageBody).find('.heading');
     var resultKeys = getResultKeys(headings);
     var tbody  = $(pageBody).find('.heading').closest('tbody');
+    var raceName = $(pageBody).find('.bighead').text();
 
-    results = [];
-    _.each($(tbody.find('tr:not(:has(.heading))')), function (row, i) {
-        results[i] = {};
-        _.each($(row).find('td'), function (cell, j) {
-            results[i][resultKeys[j]] = $(cell).html();
-        });        
-    });
-    assert.equal(50, results.length);
-    if (!raceData[raceId]) {
-        raceData[raceId] = {};
-    }
-    raceData[raceId][DATA_KEYS.RACE.ID] = raceId;
-    raceData[raceId][DATA_KEYS.RACE.RESULTS] = results;
-    raceData[raceId][DATA_KEYS.RACE.NAME] = $(pageBody).find('.bighead').text();
-    raceData[raceId][DATA_KEYS.DB_ID] = raceId;
+    console.log('Parsing results for ' + raceName);
+
+    var results = [];
+    var parsePage = function (startIndex, callback) {
+        console.log('Parsing results ' + startIndex + '-' + parseInt(startIndex+500));
+        _.each($(tbody.find('tr:not(:has(.heading))')), function (row, i) {
+            results[startIndex + i] = {};
+            _.each($(row).find('td'), function (cell, j) {
+                results[startIndex + i][resultKeys[j]] = $(cell).html();
+            });        
+        });
+        if (results.length < MAX_RACE_RESULTS && $(pageBody).find('a:contains("NEXT 500")').length > 0) {
+            $(pageBody).find('a:contains("NEXT 500")').click();
+            browser.wait(function () {
+                parsePage(startIndex+500, callback);
+            });
+        } else {
+            callback();
+        }
+    };
+
+    var storeRaceData = function () {
+        if (!raceData[raceId]) {
+            raceData[raceId] = {};
+        }
+        raceData[raceId][DATA_KEYS.RACE.ID] = raceId;
+        raceData[raceId][DATA_KEYS.RACE.RESULTS] = results;
+        raceData[raceId][DATA_KEYS.RACE.NAME] = raceName;
+        raceData[raceId][DATA_KEYS.DB_ID] = raceId;
+        console.log('Parsed ' + results.length + ' results');
+        callback();
+    };
+
+    parsePage(0, storeRaceData);
 };
 
 var outputResults = function () {
@@ -137,14 +158,16 @@ var saveResults = function (done) {
 
             var collection = db.collection('race');
             _.each(raceData, function (race, key) {
-                race[DATA_KEYS.CREATE_DATE] = createDate;
+                race[DATA_KEYS.CREATED_AT] = createDate;
+                race[DATA_KEYS.UPDATED_AT] = createDate;
                 collection.insert(race, {w:1}, function (err, objects) {
                     if (err) console.warn(err.message);
                 });
             });
             var collection = db.collection('heading');
             _.each(headingData, function (heading, key) {
-                heading[DATA_KEYS.CREATE_DATE] = createDate;
+                heading[DATA_KEYS.CREATED_AT] = createDate;
+                heading[DATA_KEYS.UPDATED_AT] = createDate;
                 collection.insert(heading, {w:1}, function (err, objects) {
                     if (err) console.warn(err.message);
                 });
@@ -197,10 +220,13 @@ describe('Scraper', function () {
                     var url = getRaceUrl(race.id, race.year);
                     browser.visit(url, function () {
                         parseRaceDetails(race.id, browser.html());
+                        browser.choose('input[value="500"]');
                         browser.pressButton('input[value="SEARCH"]');
                         browser.wait(function () {
-                            parseResults(race.id, browser.html());
-                            visitRacePage(i+1, savedRaces);
+                            var visitNextPage = function () {
+                                visitRacePage(i+1, savedRaces);
+                            };
+                            parseResults(race.id, browser.html(), browser, visitNextPage);
                         });
                     });
                 } else {
