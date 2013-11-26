@@ -87,7 +87,7 @@ var parseResults = function (raceId, pageBody) {
     var tbody  = $(pageBody).find('.heading').closest('tbody');
 
     results = [];
-    _.each($(tbody.find('tr').not('.heading')), function (row, i) {
+    _.each($(tbody.find('tr:not(:has(.heading))')), function (row, i) {
         results[i] = {};
         _.each($(row).find('td'), function (cell, j) {
             results[i][resultKeys[j]] = $(cell).html();
@@ -173,7 +173,6 @@ describe('Scraper', function () {
                         var urlParams = parseUrlParams(linkUrl);
                         var raceId = urlParams[URL_KEYS.RACE_ID];
                         var year = urlParams[URL_KEYS.YEAR];
-                        console.log(raceId + " / " + year);
                         // Skip the marathon because it's an irregular page
                         if (raceId !== MARATHON_ID) {
                             races.push({
