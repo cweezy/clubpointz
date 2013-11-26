@@ -1,11 +1,19 @@
 /**
- * HeadingController
+ * RaceResultController
  */
 
 module.exports = {
 
   index : function (req, res) {
-    var raceId = 'b31102';
+    var raceId = String(req.param('raceId')); 
+
+    if (!raceId) {
+     res.view({
+       'error' : 'No race id specified'
+     });
+     return;
+    }
+
     var headingData;
     var raceData;
     var resultsData;
@@ -41,6 +49,7 @@ module.exports = {
         });
 
         res.view({
+          'error' : null,
           'headingMap' : headingMap,
           'race' : raceData,
           'results' : resultsData
