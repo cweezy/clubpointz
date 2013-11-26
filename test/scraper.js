@@ -34,12 +34,22 @@ var races = [];
 var raceData = {};
 var headingData = {};
 
-var getUrl = function(raceId, year) {
+var getRaceUrl = function(raceId, year) {
     return RACE_PAGE_BASE_URL + '?' + URL_KEYS.RACE_ID + '=' + raceId + '&' + URL_KEYS.YEAR + '=' + year;
 };
 
 var safeParse = function(str) {
     return str.replace('.', '\\.');
+};
+
+var parseUrlParams = function (url) {
+    var params = {};
+    var rawParams = url.split('?')[1].split('&amp;');
+    _.each(rawParams, function (param) {
+        var paramParts = param.split('=');
+        params[paramParts[0]] = paramParts[1];
+    });
+    return params;
 };
 
 var getResultKeys = function (headings) {
@@ -143,8 +153,10 @@ describe('Scraper', function () {
                 if (matches !== null) {
                     var linkUrl = matches[1];             
                     if (linkUrl && linkUrl.indexOf(RACE_PAGE_BASE_URL) !== -1) {
-                        var raceId = linkUrl.match(new RegExp(safeParse(URL_KEYS.RACE_ID) + '=(.+)&'))[1];
-                        var year = linkUrl.match(new RegExp(safeParse(URL_KEYS.YEAR) + '=(.+)$'))[1];
+                        var urlParams = parseUrlParams(linkUrl);
+                        var raceId = urlParams[URL_KEYS.RACE_ID];
+                        var year = urlParams[URL_KEYS.YEAR];
+                        console.log(raceId + " / " + year);
                         // Skip the marathon because it's an irregular page
                         if (raceId !== MARATHON_ID) {
                             races.push({
@@ -165,7 +177,7 @@ describe('Scraper', function () {
             if (races[i]) {
                 var race = races[i];
                 if (!savedRaces[race.id]) {
-                    var url = getUrl(race.id, race.year);
+                    var url = getRaceUrl(race.id, race.year);
                     browser.visit(url, function () {
                         var title = browser.html('span[class="bighead"]');
                         browser.pressButton('input[value="SEARCH"]');
