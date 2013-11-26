@@ -7,8 +7,8 @@ var _ = require('underscore');
 // to be skipped, TODO figure out better way to do this
 var MARATHON_ID = 'b31103';
 
-var MAX_RACE_RESULTS = 2500;
-var RESULTS_PER_PAGE = 500;  // can be 50 or 500
+var MAX_RACE_RESULTS = 200;
+var RESULTS_PER_PAGE = 50;  // can be 50 or 500
 
 var DB_CONNECTION = 'mongodb://localhost:27017/clubpointz';
 var RESULT_MAIN_URL = 'http://web2.nyrrc.org/cgi-bin/htmlos.cgi/aes-programs/results/resultsarchive.htm';
