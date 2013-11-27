@@ -3,39 +3,11 @@ var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
 var $ = require('jquery');
 var _ = require('underscore');
+var constants = require('./constants').constants;
 
-// to be skipped, TODO figure out better way to do this
-var MARATHON_ID = 'b31103';
 
-var MONGO_URI = 'mongodb://localhost:27017/clubpointz';
-var RESULT_MAIN_URL = 'http://web2.nyrrc.org/cgi-bin/htmlos.cgi/aes-programs/results/resultsarchive.htm';
-var RACE_PAGE_BASE_URL = 'http://web2.nyrrc.org/cgi-bin/start.cgi/aes-programs/results/startup.html';
-var EXPECTED_RESULT_MAIN_TITLE = 'NYRR Race Results';
-
-var URL_KEYS = {
-    RACE_ID : 'result.id',
-    YEAR : 'result.year'
-};
-
-var DATA_KEYS = {
-    DB_ID : '_id',
-    CREATED_AT : 'createdAt',
-    UPDATED_AT : 'updatedAt',
-    RACE : {
-        ID : 'id',
-        NAME : 'name',
-        DETAILS : 'details'
-    },
-    HEADING : {
-        TEXT : 'text'
-    },
-    RESULT : {
-        RACE_ID : 'raceId'
-    }
-};
-
-var maxResults = 200;
-var resultsPerPage = 50;  // can be 50 or 500
+var maxResults = constants.MAX_RESULTS;
+var resultsPerPage = constants.RESULTS_PER_PAGE;
 
 var db;
 var races = [];
@@ -44,7 +16,10 @@ var raceData = {};
 var headingData = {};
 
 var getRaceUrl = function(raceId, year) {
-    return RACE_PAGE_BASE_URL + '?' + URL_KEYS.RACE_ID + '=' + raceId + '&' + URL_KEYS.YEAR + '=' + year;
+    return constants.RACE_PAGE_BASE_URL + '?' +
+           constants.URL_KEYS.RACE_ID + '=' +
+           raceId + '&' + constants.URL_KEYS.YEAR +
+           '=' + year;
 };
 
 var parseUrlParams = function (url) {
@@ -65,8 +40,8 @@ var getResultKeys = function (headings) {
         resultKeys.push(key);
         if (!headingData[key]) {
             headingData[key] = {};
-            headingData[key][DATA_KEYS.HEADING.TEXT] = text;
-            headingData[key][DATA_KEYS.DB_ID] = key;
+            headingData[key][constants.DATA_KEYS.HEADING.TEXT] = text;
+            headingData[key][constants.DATA_KEYS.DB_ID] = key;
         }
     });
     return resultKeys;
@@ -86,7 +61,7 @@ var parseRaceDetails = function (raceId, pageBody) {
     if (!raceData[raceId]) {
         raceData[raceId] = {};
     }
-    raceData[raceId][DATA_KEYS.RACE.DETAILS] = raceDetails;
+    raceData[raceId][constants.DATA_KEYS.RACE.DETAILS] = raceDetails;
 };
 
 var parseResults = function (raceId, pageBody, browser, callback) {
@@ -102,7 +77,7 @@ var parseResults = function (raceId, pageBody, browser, callback) {
         console.log('Parsing results ' + startIndex + '-' + parseInt(startIndex + resultsPerPage));
         _.each($(tbody.find('tr:not(:has(.heading))')), function (row, i) {
             results[startIndex + i] = {};
-            results[startIndex + i][DATA_KEYS.RESULT.RACE_ID] = raceId;
+            results[startIndex + i][constants.DATA_KEYS.RESULT.RACE_ID] = raceId;
             _.each($(row).find('td'), function (cell, j) {
                 results[startIndex + i][resultKeys[j]] = $(cell).html();
             });        
@@ -121,9 +96,9 @@ var parseResults = function (raceId, pageBody, browser, callback) {
         if (!raceData[raceId]) {
             raceData[raceId] = {};
         }
-        raceData[raceId][DATA_KEYS.RACE.ID] = raceId;
-        raceData[raceId][DATA_KEYS.DB_ID] = raceId;
-        raceData[raceId][DATA_KEYS.RACE.NAME] = raceName;
+        raceData[raceId][constants.DATA_KEYS.RACE.ID] = raceId;
+        raceData[raceId][constants.DATA_KEYS.DB_ID] = raceId;
+        raceData[raceId][constants.DATA_KEYS.RACE.NAME] = raceName;
         raceResults = raceResults.concat(results);
 
         console.log('Parsed ' + results.length + ' results');
@@ -137,9 +112,9 @@ var getSavedRaces = function (callback) {
     var resultsSaved = {};
     var collection = db.collection('race');
     _.each(races, function (race, i) {
-        var raceId = race[DATA_KEYS.RACE.ID];
+        var raceId = race[constants.DATA_KEYS.RACE.ID];
         var queryData = {};
-        queryData[DATA_KEYS.RACE.ID] = raceId;
+        queryData[constants.DATA_KEYS.RACE.ID] = raceId;
         collection.find(queryData).toArray(function (err, docs) {
             if (err) throw err;
             resultsSaved[raceId] = docs.length > 0;
@@ -159,8 +134,8 @@ var saveResults = function (done) {
 
         var collection = db.collection('race');
         _.each(raceData, function (race, key) {
-            race[DATA_KEYS.CREATED_AT] = createDate;
-            race[DATA_KEYS.UPDATED_AT] = createDate;
+            race[constants.DATA_KEYS.CREATED_AT] = createDate;
+            race[constants.DATA_KEYS.UPDATED_AT] = createDate;
             collection.insert(race, {w:1}, onDbError); 
         });
         var collection = db.collection('heading');
@@ -181,7 +156,7 @@ var saveResults = function (done) {
 describe('Scraper', function () {
 
     it('sets up db connection', function (done) {
-        MongoClient.connect(MONGO_URI, function (err, database) {
+        MongoClient.connect(constants.MONGO_URI, function (err, database) {
             if (err) throw err;
             db = database;
             done();
@@ -200,20 +175,20 @@ describe('Scraper', function () {
             races = [];
             var browser = new Browser();
             browser.runScripts = false;
-            browser.visit(RESULT_MAIN_URL, function () {
-                assert.equal(EXPECTED_RESULT_MAIN_TITLE, browser.text('title'));
+            browser.visit(constants.RESULT_MAIN_URL, function () {
+                assert.equal(constants.EXPECTED_RESULT_MAIN_TITLE, browser.text('title'));
                 var linkHtml = browser.html('td[class="text"] a');
                 var links = linkHtml.split('</a>');
                 _.each(links, function (link) {
                     var matches = link.match(/href="(.+)"/);
                     if (matches !== null) {
                         var linkUrl = matches[1];             
-                        if (linkUrl && linkUrl.indexOf(RACE_PAGE_BASE_URL) !== -1) {
+                        if (linkUrl && linkUrl.indexOf(constants.RACE_PAGE_BASE_URL) !== -1) {
                             var urlParams = parseUrlParams(linkUrl);
-                            var raceId = urlParams[URL_KEYS.RACE_ID];
-                            var year = urlParams[URL_KEYS.YEAR];
+                            var raceId = urlParams[constants.URL_KEYS.RACE_ID];
+                            var year = urlParams[constants.URL_KEYS.YEAR];
                             // Skip the marathon because it's an irregular page
-                            if (raceId !== MARATHON_ID) {
+                            if (!_.contains(constants.IRREGULAR_RACES, raceId)) {
                                 races.push({
                                     'id' : raceId,
                                     'year' : year
