@@ -1,4 +1,4 @@
-# clubpointz: An NYRR Club Points Viewer
+# An NYRR Club Points Viewer
 
 This'll be cool.
 
@@ -10,10 +10,10 @@ Result scraping can be done by running the following grunt commands. Currently w
 ```
 > grunt scrape
 ```
-Visits [NYRR Race Results page](http://web2.nyrrc.org/cgi-bin/start.cgi/aes-programs/results/resultsarchive.htm) and parses info to scrape the races displayed (latest 10 NYRR races).
+Visits [NYRR Race Results page](http://web2.nyrrc.org/cgi-bin/start.cgi/aes-programs/results/resultsarchive.htm) and scrapes the races displayed (latest 10 NYRR races).
 
 #### From a File
 ```
 > grunt scrape:from_file
 ```
-Reads from <code>tasks/scraper/races.json</code> and parses info to scrape the races in this file.
+Reads from <code>tasks/scraper/races.json</code> and scrapes the races in this file.
