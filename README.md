@@ -1,5 +1,5 @@
 # clubpointz 
-### An NYRR club points viewer
+### An NYRR Club Points Viewer
 
 This'll be cool.
 
