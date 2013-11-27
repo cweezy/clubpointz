@@ -1,5 +1,5 @@
 # clubpointz 
-## An NYRR Club Points Viewer
+<h2>An NYRR Club Points Viewer</h2>
 
 This'll be cool.
 
