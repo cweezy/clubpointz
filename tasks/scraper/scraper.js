@@ -48,7 +48,7 @@ var getResultKeys = function (headings) {
 };
 
 var parseRaceDetails = function (raceId, pageBody) {
-    var detailText = $($(pageBody).find('span.text b').parent()).text();
+    var detailText = $($(pageBody).find(constants.SELECTORS.RACE_DETAILS).parent()).text();
     var details = detailText.split('\r');
     var raceDetails = {};
     _.each(details, function (detail) {
@@ -65,25 +65,28 @@ var parseRaceDetails = function (raceId, pageBody) {
 };
 
 var parseResults = function (raceId, pageBody, browser, callback) {
-    var headings = $(pageBody).find('.heading');
+    var headings = $(pageBody).find(constants.SELECTORS.HEADING);
+    var raceName = $(pageBody).find(constants.SELECTORS.RACE_NAME).text();
+    var tbody  = $(pageBody).find(constants.SELECTORS.HEADING).closest('tbody');
     var resultKeys = getResultKeys(headings);
-    var tbody  = $(pageBody).find('.heading').closest('tbody');
-    var raceName = $(pageBody).find('.bighead').text();
 
     console.log('\nParsing results for ' + raceName);
 
     var results = [];
     var parsePage = function (startIndex, callback) {
+
         console.log('Parsing results ' + startIndex + '-' + parseInt(startIndex + resultsPerPage));
-        _.each($(tbody.find('tr:not(:has(.heading))')), function (row, i) {
+
+        _.each($(tbody.find('tr:not(:has(' + constants.SELECTORS.HEADING + '))')), function (row, i) {
             results[startIndex + i] = {};
             results[startIndex + i][constants.DATA_KEYS.RESULT.RACE_ID] = raceId;
             _.each($(row).find('td'), function (cell, j) {
                 results[startIndex + i][resultKeys[j]] = $(cell).html();
             });        
         });
-        if (results.length < maxResults && $(pageBody).find('a:contains("NEXT ' + resultsPerPage + '")').length > 0) {
-            $(pageBody).find('a:contains("NEXT ' + resultsPerPage + '")').click();
+        var nextButton = $(pageBody).find('a:contains("' + constants.NEXT_BTN_TEXT + ' ' + resultsPerPage + '")')
+        if (results.length < maxResults && nextButton) {
+            nextButton.click();
             browser.wait(function () {
                 parsePage(startIndex + resultsPerPage, callback);
             });
@@ -110,7 +113,7 @@ var parseResults = function (raceId, pageBody, browser, callback) {
 
 var getSavedRaces = function (callback) {
     var resultsSaved = {};
-    var collection = db.collection('race');
+    var collection = db.collection(constants.DB_COLLECTIONS.RACE);
     _.each(races, function (race, i) {
         var raceId = race[constants.DATA_KEYS.RACE.ID];
         var queryData = {};
@@ -132,17 +135,17 @@ var saveResults = function (done) {
             if (err) console.log(err);
         };
 
-        var collection = db.collection('race');
+        var collection = db.collection(constants.DB_COLLECTIONS.RACE);
         _.each(raceData, function (race, key) {
             race[constants.DATA_KEYS.CREATED_AT] = createDate;
             race[constants.DATA_KEYS.UPDATED_AT] = createDate;
             collection.insert(race, {w:1}, onDbError); 
         });
-        var collection = db.collection('heading');
+        var collection = db.collection(constants.DB_COLLECTIONS.HEADING);
         _.each(headingData, function (heading, key) {
             collection.update(heading, {upsert:true}, onDbError);
         });
-        var collection = db.collection('result');
+        var collection = db.collection(constants.DB_COLLECTIONS.RESULT);
         _.each(raceResults, function (result) {
             collection.insert(result, {w:1}, onDbError);
         });
@@ -177,7 +180,7 @@ describe('Scraper', function () {
             browser.runScripts = false;
             browser.visit(constants.RESULT_MAIN_URL, function () {
                 assert.equal(constants.EXPECTED_RESULT_MAIN_TITLE, browser.text('title'));
-                var linkHtml = browser.html('td[class="text"] a');
+                var linkHtml = browser.html(constants.SELECTORS.RACE_LINK);
                 var links = linkHtml.split('</a>');
                 _.each(links, function (link) {
                     var matches = link.match(/href="(.+)"/);
@@ -217,7 +220,7 @@ describe('Scraper', function () {
                     browser.visit(url, function () {
                         parseRaceDetails(race.id, browser.html());
                         browser.choose('input[value="' + resultsPerPage + '"]');
-                        browser.pressButton('input[value="SEARCH"]');
+                        browser.pressButton(constants.SELECTORS.SEARCH_BUTTON);
                         browser.wait(function () {
                             var visitNextPage = function () {
                                 visitRacePage(i+1, savedRaces);
