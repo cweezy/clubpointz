@@ -14,6 +14,7 @@ var races = [];
 var raceResults = [];
 var raceData = {};
 var headingData = {};
+var savedRaces = {};
 
 var getRaceUrl = function(raceId, year) {
     return constants.RACE_PAGE_BASE_URL + '?' +
@@ -64,7 +65,8 @@ var parseRaceDetails = function (raceId, pageBody) {
     raceData[raceId][constants.DATA_KEYS.RACE.DETAILS] = raceDetails;
 };
 
-var parseResults = function (raceId, pageBody, browser, callback) {
+var parseResults = function (raceId, browser, callback) {
+    var pageBody = browser.html();
     var headings = $(pageBody).find(constants.SELECTORS.HEADING);
     var raceName = $(pageBody).find(constants.SELECTORS.RACE_NAME).text();
     var tbody  = $(pageBody).find(constants.SELECTORS.HEADING).closest('tbody');
@@ -109,51 +111,6 @@ var parseResults = function (raceId, pageBody, browser, callback) {
     };
 
     parsePage(0, storeRaceData);
-};
-
-var getSavedRaces = function (callback) {
-    var resultsSaved = {};
-    var collection = db.collection(constants.DB_COLLECTIONS.RACE);
-    _.each(races, function (race, i) {
-        var raceId = race[constants.DATA_KEYS.RACE.ID];
-        var queryData = {};
-        queryData[constants.DATA_KEYS.RACE.ID] = raceId;
-        collection.find(queryData).toArray(function (err, docs) {
-            if (err) throw err;
-            resultsSaved[raceId] = docs.length > 0;
-            if (_.keys(resultsSaved).length === races.length) {
-                callback(resultsSaved);
-            }
-        });
-    });
-};
-
-var saveResults = function (done) {
-    if (!_.isEmpty(raceData)) {
-        var createDate = new Date();
-        var onDbError = function (err, objects) {
-            if (err) console.log(err);
-        };
-
-        var collection = db.collection(constants.DB_COLLECTIONS.RACE);
-        _.each(raceData, function (race, key) {
-            race[constants.DATA_KEYS.CREATED_AT] = createDate;
-            race[constants.DATA_KEYS.UPDATED_AT] = createDate;
-            collection.insert(race, {w:1}, onDbError); 
-        });
-        var collection = db.collection(constants.DB_COLLECTIONS.HEADING);
-        _.each(headingData, function (heading, key) {
-            collection.update(heading, {upsert:true}, onDbError);
-        });
-        var collection = db.collection(constants.DB_COLLECTIONS.RESULT);
-        _.each(raceResults, function (result) {
-            collection.insert(result, {w:1}, onDbError);
-        });
-
-        done();
-    } else {
-        done();
-    }
 };
 
 describe('Scraper', function () {
@@ -209,10 +166,27 @@ describe('Scraper', function () {
         }
     }),
 
+    it('finds saved races', function (done) {
+        var collection = db.collection(constants.DB_COLLECTIONS.RACE);
+        _.each(races, function (race, i) {
+            var raceId = race[constants.DATA_KEYS.RACE.ID];
+            var queryData = {};
+            queryData[constants.DATA_KEYS.RACE.ID] = raceId;
+            collection.find(queryData).toArray(function (err, docs) {
+                if (err) throw err;
+                savedRaces[raceId] = docs.length > 0;
+                if (_.keys(savedRaces).length === races.length) {
+                    done();
+                }
+            });
+        });
+    }),
+
     it('parses and saves data', function (done) {
         var browser = new Browser();
         browser.runScripts = false;
-        var visitRacePage = function (i, savedRaces) {
+
+        var visitRacePage = function (i) {
             if (races[i]) {
                 var race = races[i];
                 if (!savedRaces[race.id]) {
@@ -223,13 +197,13 @@ describe('Scraper', function () {
                         browser.pressButton(constants.SELECTORS.SEARCH_BUTTON);
                         browser.wait(function () {
                             var visitNextPage = function () {
-                                visitRacePage(i+1, savedRaces);
+                                visitRacePage(i+1);
                             };
-                            parseResults(race.id, browser.html(), browser, visitNextPage);
+                            parseResults(race.id, browser, visitNextPage);
                         });
                     });
                 } else {
-                    visitRacePage(i+1, savedRaces);
+                    visitRacePage(i+1);
                 }
             } else {
                 var raceCount = _.keys(raceData).length;
@@ -238,12 +212,38 @@ describe('Scraper', function () {
                 } else {
                     console.log('\nSaving new data for ' + raceCount + ' race' + (raceCount === 1 ? '' : 's') + '\n');
                 }
-                saveResults(done);
+                done();
             }
         };
-        var getNewResults = function (savedRaces) {
-            visitRacePage(0, savedRaces);
+
+        visitRacePage(0);
+    }),
+
+    it('saves results', function (done) {
+        if (!_.isEmpty(raceData)) {
+            var createDate = new Date();
+            var onDbError = function (err, objects) {
+                if (err) console.log(err);
+            };
+
+            var collection = db.collection(constants.DB_COLLECTIONS.RACE);
+            _.each(raceData, function (race, key) {
+                race[constants.DATA_KEYS.CREATED_AT] = createDate;
+                race[constants.DATA_KEYS.UPDATED_AT] = createDate;
+                collection.insert(race, {w:1}, onDbError); 
+            });
+            var collection = db.collection(constants.DB_COLLECTIONS.HEADING);
+            _.each(headingData, function (heading, key) {
+                collection.update(heading, {upsert:true}, onDbError);
+            });
+            var collection = db.collection(constants.DB_COLLECTIONS.RESULT);
+            _.each(raceResults, function (result) {
+                collection.insert(result, {w:1}, onDbError);
+            });
+
+            done();
+        } else { 
+            done();
         }
-        getSavedRaces(getNewResults);
     });
 });
