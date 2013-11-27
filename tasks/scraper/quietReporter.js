@@ -1,4 +1,8 @@
-function quiet(runner) {
+/**
+ * A mocha reporter that logs nothing but test failures.
+ */
+
+function reporter(runner) {
   var failures = 0;
 
   runner.on('fail', function(test, err){
@@ -11,4 +15,4 @@ function quiet(runner) {
   });
 }
 
-exports.reporter = quiet;
+exports.quietReporter = reporter;

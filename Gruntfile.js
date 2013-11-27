@@ -3,22 +3,27 @@
  */
 
 var fs = require('fs');
+var path = require('path');
 var Mocha = require('mocha');
-var quiet = require('./tasks/quiet');
+
+var SCRAPER_FILE_DIR = 'tasks/scraper';
+
 
 module.exports = function (grunt) {
 
   grunt.registerTask('scrape', "Scrapes recent race results", function (args) {
+    var quietReporter = require('./' + path.join(SCRAPER_FILE_DIR, 'quietReporter')).quietReporter;
+
     if (args === 'from_file') {
-      var file = fs.readFileSync('tasks/races.json');
+      var file = fs.readFileSync(path.join(SCRAPER_FILE_DIR, 'races.json'));
       process.env['RACES'] = file;
     }
     var done = this.async();
     var mocha = new Mocha({
-      reporter: quiet.reporter,
+      reporter: quietReporter,
       timeout: 99999999
     });
-    mocha.addFile('tasks/scraper.js');
+    mocha.addFile(path.join(SCRAPER_FILE_DIR, 'scraper.js'));
     mocha.run(function (failures) {
       done();
     });
