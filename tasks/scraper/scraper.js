@@ -7,9 +7,6 @@ var _ = require('underscore');
 // to be skipped, TODO figure out better way to do this
 var MARATHON_ID = 'b31103';
 
-var MAX_RACE_RESULTS = 200;
-var RESULTS_PER_PAGE = 50;  // can be 50 or 500
-
 var MONGO_URI = 'mongodb://localhost:27017/clubpointz';
 var RESULT_MAIN_URL = 'http://web2.nyrrc.org/cgi-bin/htmlos.cgi/aes-programs/results/resultsarchive.htm';
 var RACE_PAGE_BASE_URL = 'http://web2.nyrrc.org/cgi-bin/start.cgi/aes-programs/results/startup.html';
@@ -36,6 +33,9 @@ var DATA_KEYS = {
         RACE_ID : 'raceId'
     }
 };
+
+var maxResults = 200;
+var resultsPerPage = 50;  // can be 50 or 500
 
 var db;
 var races = [];
@@ -99,7 +99,7 @@ var parseResults = function (raceId, pageBody, browser, callback) {
 
     var results = [];
     var parsePage = function (startIndex, callback) {
-        console.log('Parsing results ' + startIndex + '-' + parseInt(startIndex + RESULTS_PER_PAGE));
+        console.log('Parsing results ' + startIndex + '-' + parseInt(startIndex + resultsPerPage));
         _.each($(tbody.find('tr:not(:has(.heading))')), function (row, i) {
             results[startIndex + i] = {};
             results[startIndex + i][DATA_KEYS.RESULT.RACE_ID] = raceId;
@@ -107,10 +107,10 @@ var parseResults = function (raceId, pageBody, browser, callback) {
                 results[startIndex + i][resultKeys[j]] = $(cell).html();
             });        
         });
-        if (results.length < MAX_RACE_RESULTS && $(pageBody).find('a:contains("NEXT ' + RESULTS_PER_PAGE + '")').length > 0) {
-            $(pageBody).find('a:contains("NEXT ' + RESULTS_PER_PAGE + '")').click();
+        if (results.length < maxResults && $(pageBody).find('a:contains("NEXT ' + resultsPerPage + '")').length > 0) {
+            $(pageBody).find('a:contains("NEXT ' + resultsPerPage + '")').click();
             browser.wait(function () {
-                parsePage(startIndex + RESULTS_PER_PAGE, callback);
+                parsePage(startIndex + resultsPerPage, callback);
             });
         } else {
             callback();
@@ -143,7 +143,7 @@ var getSavedRaces = function (callback) {
         collection.find(queryData).toArray(function (err, docs) {
             if (err) throw err;
             resultsSaved[raceId] = docs.length > 0;
-            if (_.keys(resultsSaved).length === _.keys(races).length) {
+            if (_.keys(resultsSaved).length === races.length) {
                 callback(resultsSaved);
             }
         });
@@ -186,6 +186,12 @@ describe('Scraper', function () {
             db = database;
             done();
         });
+    }),
+
+    it('sets max race results', function (done) {
+        maxResults = process.env.MAX_RESULTS ? parseInt(process.env.MAX_RESULTS) : maxResults;
+        // resultsPerPage = maxResults >= 500 ? 500 : resultsPerPage;
+        done();
     }),
 
     it('gets new race data', function (done) {
@@ -235,7 +241,7 @@ describe('Scraper', function () {
                     var url = getRaceUrl(race.id, race.year);
                     browser.visit(url, function () {
                         parseRaceDetails(race.id, browser.html());
-                        browser.choose('input[value="' + RESULTS_PER_PAGE + '"]');
+                        browser.choose('input[value="' + resultsPerPage + '"]');
                         browser.pressButton('input[value="SEARCH"]');
                         browser.wait(function () {
                             var visitNextPage = function () {
