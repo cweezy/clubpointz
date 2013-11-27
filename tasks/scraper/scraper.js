@@ -234,7 +234,9 @@ describe('Scraper', function () {
             });
             var collection = db.collection(constants.DB_COLLECTIONS.HEADING);
             _.each(headingData, function (heading, key) {
-                collection.update(heading, {upsert:true}, onDbError);
+                var query = {};
+                query[constants.DATA_KEYS.DB_ID] = heading[constants.DATA_KEYS.DB_ID];
+                collection.update(query, heading, {upsert:true}, onDbError);
             });
             var collection = db.collection(constants.DB_COLLECTIONS.RESULT);
             _.each(raceResults, function (result) {
