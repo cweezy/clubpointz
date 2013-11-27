@@ -53,9 +53,9 @@ var parseRaceDetails = function (raceId, pageBody) {
     var details = detailText.split('\r');
     var raceDetails = {};
     _.each(details, function (detail) {
-        // TODO don't split times
-        var detailParts = detail.split(':');
-        if (detailParts.length > 1) {
+        var i = detail.indexOf(':');
+        var detailParts = [detail.slice(0, i), detail.slice(i+1)]; 
+        if (detailParts && detailParts.length > 1) {
             raceDetails[$.trim(detailParts[0])] = $.trim(detailParts[1]);
         }
     });
