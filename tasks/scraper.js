@@ -10,7 +10,7 @@ var MARATHON_ID = 'b31103';
 var MAX_RACE_RESULTS = 200;
 var RESULTS_PER_PAGE = 50;  // can be 50 or 500
 
-var DB_CONNECTION = 'mongodb://localhost:27017/clubpointz';
+var MONGO_URI = 'mongodb://localhost:27017/clubpointz';
 var RESULT_MAIN_URL = 'http://web2.nyrrc.org/cgi-bin/htmlos.cgi/aes-programs/results/resultsarchive.htm';
 var RACE_PAGE_BASE_URL = 'http://web2.nyrrc.org/cgi-bin/start.cgi/aes-programs/results/startup.html';
 var EXPECTED_RESULT_MAIN_TITLE = 'NYRR Race Results';
@@ -37,6 +37,7 @@ var DATA_KEYS = {
     }
 };
 
+var db;
 var races = [];
 var raceResults = [];
 var raceData = {};
@@ -134,60 +135,58 @@ var parseResults = function (raceId, pageBody, browser, callback) {
 
 var getSavedRaces = function (callback) {
     var resultsSaved = {};
-    MongoClient.connect(DB_CONNECTION, function (err, db) {
-        if (err) throw err;
-        var collection = db.collection('race');
-        _.each(races, function (race, i) {
-            var raceId = race[DATA_KEYS.RACE.ID];
-            var queryData = {};
-            queryData[DATA_KEYS.RACE.ID] = raceId;
-            collection.find(queryData).toArray(function (err, docs) {
-                if (err) throw err;
-                resultsSaved[raceId] = docs.length > 0;
-                if (_.keys(resultsSaved).length === _.keys(races).length) {
-                   db.close();
-                   callback(resultsSaved);
-                }
-            });
+    var collection = db.collection('race');
+    _.each(races, function (race, i) {
+        var raceId = race[DATA_KEYS.RACE.ID];
+        var queryData = {};
+        queryData[DATA_KEYS.RACE.ID] = raceId;
+        collection.find(queryData).toArray(function (err, docs) {
+            if (err) throw err;
+            resultsSaved[raceId] = docs.length > 0;
+            if (_.keys(resultsSaved).length === _.keys(races).length) {
+                callback(resultsSaved);
+            }
         });
     });
 };
 
 var saveResults = function (done) {
     if (!_.isEmpty(raceData)) {
-        MongoClient.connect(DB_CONNECTION, function (err, db) {
-            if (err) throw err;
-            var onDbError = function (err, objects) {
-                if (err) console.warn(err.message);
-            }
-            var createDate = new Date();
+        var createDate = new Date();
+        var onDbError = function (err, objects) {
+            if (err) console.log(err);
+        };
 
-            var collection = db.collection('race');
-            _.each(raceData, function (race, key) {
-                race[DATA_KEYS.CREATED_AT] = createDate;
-                race[DATA_KEYS.UPDATED_AT] = createDate;
-                collection.insert(race, {w:1}, onDbError); 
-            });
-            var collection = db.collection('heading');
-            _.each(headingData, function (heading, key) {
-                heading[DATA_KEYS.CREATED_AT] = createDate;
-                heading[DATA_KEYS.UPDATED_AT] = createDate;
-                collection.insert(heading, {w:1}, onDbError);
-            });
-            var collection = db.collection('result');
-            _.each(raceResults, function (result) {
-                collection.insert(result, {w:1}, onDbError);
-            });
-
-            db.close();
-            done();
+        var collection = db.collection('race');
+        _.each(raceData, function (race, key) {
+            race[DATA_KEYS.CREATED_AT] = createDate;
+            race[DATA_KEYS.UPDATED_AT] = createDate;
+            collection.insert(race, {w:1}, onDbError); 
         });
+        var collection = db.collection('heading');
+        _.each(headingData, function (heading, key) {
+            collection.update(heading, {upsert:true}, onDbError);
+        });
+        var collection = db.collection('result');
+        _.each(raceResults, function (result) {
+            collection.insert(result, {w:1}, onDbError);
+        });
+
+        done();
     } else {
         done();
     }
 };
 
 describe('Scraper', function () {
+
+    it('sets up db connection', function (done) {
+        MongoClient.connect(MONGO_URI, function (err, database) {
+            if (err) throw err;
+            db = database;
+            done();
+        });
+    }),
 
     it('gets new race data', function (done) {
         races = eval(process.env.RACES);
