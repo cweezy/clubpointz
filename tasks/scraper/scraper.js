@@ -15,6 +15,7 @@ var raceResults = [];
 var raceData = {};
 var headingData = {};
 var savedRaces = {};
+var raceOverrideData = {};
 
 var getRaceUrl = function(raceId, year) {
     return constants.RACE_PAGE_BASE_URL + '?' +
@@ -87,7 +88,7 @@ var parseResults = function (raceId, browser, callback) {
         var tbody  = $(pageBody).find(constants.SELECTORS.HEADING).closest('tbody');
         _.each($(tbody.find('tr:not(:has(' + constants.SELECTORS.HEADING + '))')), function (row, i) {
             results[startIndex + i] = {};
-            results[startIndex + i][constants.DATA_KEYS.RESULT.RACE_ID] = raceId;
+            results[startIndex + i][constants.DATA_KEYS.RACE_ID] = raceId;
             _.each($(row).find('td'), function (cell, j) {
                 results[startIndex + i][resultKeys[j]] = $(cell).html();
             });        
@@ -117,11 +118,23 @@ var parseResults = function (raceId, browser, callback) {
         raceData[raceId][constants.DATA_KEYS.RACE.IS_CLUB_POINTS] = isClubPoints;
         raceResults = raceResults.concat(results);
 
+        raceData[raceId] = overrideRaceData(raceData[raceId]);
+
         console.log('Parsed ' + results.length + ' results');
         callback();
     };
 
     parsePage(0, storeRaceData);
+};
+
+var overrideRaceData = function (raceData) {
+    var overrideData = raceOverrideData[raceData[constants.DATA_KEYS.RACE.ID]];
+    if (overrideData) {
+       _.each(overrideData, function (item, key) {
+           raceData[key] = item;
+       });
+    }
+    return raceData;
 };
 
 describe('Scraper', function () {
@@ -190,6 +203,16 @@ describe('Scraper', function () {
                     done();
                 }
             });
+        });
+    }),
+
+    it('finds manual race override data', function (done) {
+        var collection = db.collection(constants.DB_COLLECTIONS.RACE_OVERRIDE);
+        collection.find().toArray(function (err, docs) {
+            _.each(docs, function (item) {
+                raceOverrideData[item[DATA_KEYS.RACE_ID]] = item[DATA_KEYS.OVERRIDE.DATA];
+            });
+            done();
         });
     }),
 

@@ -9,7 +9,8 @@ var constants = function () {
     this.DB_COLLECTIONS = {
         RACE : 'race',
         RESULT : 'result',
-        HEADING : 'heading'
+        HEADING : 'heading',
+        RACE_OVERRIDE : 'race_override'
     };
 
     this.RESULT_MAIN_URL = 'http://web2.nyrrc.org/cgi-bin/htmlos.cgi/aes-programs/results/resultsarchive.htm';
@@ -34,6 +35,7 @@ var constants = function () {
         DB_ID : '_id',
         CREATED_AT : 'createdAt',
         UPDATED_AT : 'updatedAt',
+        RACE_ID : 'raceId',
         RACE : {
             ID : 'id',
             NAME : 'name',
@@ -43,8 +45,8 @@ var constants = function () {
         HEADING : {
             TEXT : 'text'
         },
-        RESULT : {
-            RACE_ID : 'raceId'
+        OVERRIDE : {
+            DATA : 'data'
         }
     };
 
