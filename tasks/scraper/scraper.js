@@ -69,16 +69,16 @@ var parseResults = function (raceId, browser, callback) {
     var pageBody = browser.html();
     var headings = $(pageBody).find(constants.SELECTORS.HEADING);
     var raceName = $(pageBody).find(constants.SELECTORS.RACE_NAME).text();
-    var tbody  = $(pageBody).find(constants.SELECTORS.HEADING).closest('tbody');
     var resultKeys = getResultKeys(headings);
 
     console.log('\nParsing results for ' + raceName);
 
     var results = [];
     var parsePage = function (startIndex, callback) {
-
         console.log('Parsing results ' + startIndex + '-' + parseInt(startIndex + resultsPerPage));
 
+        var pageBody = browser.html();
+        var tbody  = $(pageBody).find(constants.SELECTORS.HEADING).closest('tbody');
         _.each($(tbody.find('tr:not(:has(' + constants.SELECTORS.HEADING + '))')), function (row, i) {
             results[startIndex + i] = {};
             results[startIndex + i][constants.DATA_KEYS.RESULT.RACE_ID] = raceId;
@@ -88,8 +88,8 @@ var parseResults = function (raceId, browser, callback) {
         });
         var nextButton = $(pageBody).find('a:contains("' + constants.NEXT_BTN_TEXT + ' ' + resultsPerPage + '")')
         if (results.length < maxResults && nextButton) {
-            nextButton.click();
-            browser.wait(function () {
+            var nextUrl = $(nextButton).attr('href');
+            browser.visit(nextUrl, function () {
                 parsePage(startIndex + resultsPerPage, callback);
             });
         } else {
