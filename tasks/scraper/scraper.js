@@ -48,6 +48,11 @@ var getResultKeys = function (headings) {
     return resultKeys;
 };
 
+var determineIfClubPoints = function (pageBody) {
+    var awardSections = $(pageBody).find('pre');
+    return awardSections.length > 100;
+};
+
 var parseRaceDetails = function (raceId, pageBody) {
     var detailText = $($(pageBody).find(constants.SELECTORS.RACE_DETAILS).parent()).text();
     var details = detailText.split('\r');
@@ -70,6 +75,7 @@ var parseResults = function (raceId, browser, callback) {
     var headings = $(pageBody).find(constants.SELECTORS.HEADING);
     var raceName = $(pageBody).find(constants.SELECTORS.RACE_NAME).text();
     var resultKeys = getResultKeys(headings);
+    var isClubPoints = false;
 
     console.log('\nParsing results for ' + raceName);
 
@@ -93,7 +99,11 @@ var parseResults = function (raceId, browser, callback) {
                 parsePage(startIndex + resultsPerPage, callback);
             });
         } else {
-            callback();
+            var awardWinnersUrl = $(pageBody).find('a:contains("Award Winners")').attr('href');
+            browser.visit(awardWinnersUrl, function () {
+                isClubPoints = determineIfClubPoints(browser.html());
+                callback(); 
+            });
         }
     };
 
@@ -104,6 +114,7 @@ var parseResults = function (raceId, browser, callback) {
         raceData[raceId][constants.DATA_KEYS.RACE.ID] = raceId;
         raceData[raceId][constants.DATA_KEYS.DB_ID] = raceId;
         raceData[raceId][constants.DATA_KEYS.RACE.NAME] = raceName;
+        raceData[raceId][constants.DATA_KEYS.RACE.IS_CLUB_POINTS] = isClubPoints;
         raceResults = raceResults.concat(results);
 
         console.log('Parsed ' + results.length + ' results');

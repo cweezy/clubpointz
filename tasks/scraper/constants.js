@@ -37,7 +37,8 @@ var constants = function () {
         RACE : {
             ID : 'id',
             NAME : 'name',
-            DETAILS : 'details'
+            DETAILS : 'details',
+            IS_CLUB_POINTS : 'isClubPoints'
         },
         HEADING : {
             TEXT : 'text'
