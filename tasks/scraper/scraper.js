@@ -272,7 +272,7 @@ describe('Scraper', function () {
             browser.runScripts = false;
 
             var years = [];
-			_.each(races, function (race) {
+            _.each(races, function (race) {
                 years.push(race.year);
             });
             years = _.uniq(years);
