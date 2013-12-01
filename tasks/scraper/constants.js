@@ -32,7 +32,8 @@ var constants = function () {
         RACE_NAME : '.bighead',
         RACE_LINK : 'td[class="text"] a',
         HEADING : '.heading',
-        SEARCH_BUTTON : 'input[value="SEARCH"]'
+        SEARCH_BUTTON : 'input[value="SEARCH"]',
+        AWARD_WINNERS_URL : 'a:contains("Award Winners")'
     };
 
     this.URL_KEYS = {

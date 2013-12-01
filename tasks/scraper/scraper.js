@@ -151,7 +151,7 @@ var parseResults = function (race, browser, callback) {
                 parsePage(startIndex + resultsPerPage, callback);
             });
         } else {
-            var awardWinnersUrl = $(pageBody).find('a:contains("Award Winners")').attr('href');
+            var awardWinnersUrl = $(pageBody).find(constants.SELECTORS.AWARD_WINNERS_URL).attr('href');
             browser.visit(awardWinnersUrl, function () {
                 var isClubPoints = determineIfClubPoints(browser.html(), race.id, race.year);
                 isClubPointsMen = isClubPoints[0];
