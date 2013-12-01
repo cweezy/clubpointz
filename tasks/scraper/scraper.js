@@ -4,7 +4,6 @@ var assert = require('assert');
 var $ = require('jquery');
 var _ = require('underscore');
 var constants = require('./constants').constants;
-var fs = require('fs');
 
 
 var maxResults = constants.MAX_RESULTS;
