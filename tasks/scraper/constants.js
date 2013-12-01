@@ -10,12 +10,29 @@ var constants = function () {
         RACE : 'race',
         RESULT : 'result',
         HEADING : 'heading',
-        RACE_OVERRIDE : 'race_override'
+        RACE_OVERRIDE : 'race_override',
+        CLUB_POINTS_RACE : 'club_points_race'
     };
 
     this.RESULT_MAIN_URL = 'http://web2.nyrrc.org/cgi-bin/htmlos.cgi/aes-programs/results/resultsarchive.htm';
     this.RACE_PAGE_BASE_URL = 'http://web2.nyrrc.org/cgi-bin/start.cgi/aes-programs/results/startup.html';
+    this.CLUB_POINTS_DATA_URL = 'http://www.nyrr.org/causes-and-community/local-clubs/club-standings-search/2013';
     this.EXPECTED_RESULT_MAIN_TITLE = 'NYRR Race Results';
+
+    this.CLUB_POINTS_TYPES = ['OPEN MEN A', 'OPEN WOMEN A'];
+    this.CLUB_POINTS_NON_RACE_LABELS = ['OPEN MEN A', 'OPEN WOMEN A', 'TEAM', 'TOTAL'];
+    this.CLUB_POINTS_KEYS = {
+        MEN : 'men',
+        WOMEN : 'women'
+    };
+    this.CLUB_POINTS_TYPE_TO_KEY = {
+        'OPEN MEN A' : this.CLUB_POINTS_KEYS.MEN,
+        'OPEN WOMEN A' : this.CLUB_POINTS_KEYS.WOMEN
+    };
+    this.CLUB_POINTS_DATA_KEYS = {
+        'DATE' : 'date',
+        'DISTANCE' : 'distance'
+    };
 
     this.NEXT_BTN_TEXT = 'NEXT';
     this.SELECTORS = {

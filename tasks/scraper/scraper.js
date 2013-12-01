@@ -4,6 +4,7 @@ var assert = require('assert');
 var $ = require('jquery');
 var _ = require('underscore');
 var constants = require('./constants').constants;
+var fs = require('fs');
 
 
 var maxResults = constants.MAX_RESULTS;
@@ -16,6 +17,7 @@ var raceData = {};
 var headingData = {};
 var savedRaces = {};
 var raceOverrideData = {};
+var clubPointsRaceData = {};
 
 var getRaceUrl = function(raceId, year) {
     return constants.RACE_PAGE_BASE_URL + '?' +
@@ -180,7 +182,7 @@ describe('Scraper', function () {
                             }
                         }
                     }
-                })
+                });
                 console.log('\nFound ' + races.length + ' races on web');
                 done();
             });
@@ -190,7 +192,7 @@ describe('Scraper', function () {
         }
     }),
 
-    it('finds saved races', function (done) {
+    it('finds saved data', function (done) {
         var collection = db.collection(constants.DB_COLLECTIONS.RACE);
         _.each(races, function (race, i) {
             var raceId = race[constants.DATA_KEYS.RACE.ID];
@@ -204,7 +206,47 @@ describe('Scraper', function () {
                 }
             });
         });
+        var collection = db.collection(constants.DB_COLLECTIONS.CLUB_POINTS_RACE);
+        collection.find().toArray(function (err, docs) {
+            clubPointsRaceData = docs;
+        });
     }),
+
+    it('finds club points race info', function (done) {
+        if (_.isEmpty(clubPointsRaceData)) {
+            clubPointsRaceData = {};
+            var browser = new Browser();
+            browser.runScripts = false;
+
+            browser.visit(constants.CLUB_POINTS_DATA_URL, function () {
+                var pageBody = browser.text();
+                var pageJson = JSON.parse(pageBody);
+
+                _.each(constants.CLUB_POINTS_TYPES, function (type) {
+                    clubPointsRaceData[constants.CLUB_POINTS_TYPE_TO_KEY[type]] = [];
+                    var labels = _.find(pageJson.data, function (item) {
+                        if (item.type === type && item.is_label === '1') {
+                            return item;
+                        }
+                    });
+                    _.each(labels.data, function (label) {
+                        if (constants.CLUB_POINTS_NON_RACE_LABELS.indexOf(label) === -1) {
+                            var parts = label.split('-');
+                            var raceData = {};
+                            raceData[constants.CLUB_POINTS_DATA_KEYS.DATE] = parts[0];
+                            raceData[constants.CLUB_POINTS_DATA_KEYS.DISTANCE] = parts[1];
+                            clubPointsRaceData[constants.CLUB_POINTS_TYPE_TO_KEY[type]].push(raceData);
+                        }
+                    });
+                });
+
+                console.log('\nParsed club points race info');
+                done();
+            });
+        } else {
+            done();
+        }
+    });
 
     it('finds manual race override data', function (done) {
         var collection = db.collection(constants.DB_COLLECTIONS.RACE_OVERRIDE);
@@ -216,7 +258,7 @@ describe('Scraper', function () {
         });
     }),
 
-    it('parses and saves data', function (done) {
+    it('parses data', function (done) {
         var browser = new Browser();
         browser.runScripts = false;
 
@@ -241,10 +283,8 @@ describe('Scraper', function () {
                 }
             } else {
                 var raceCount = _.keys(raceData).length;
-                if (raceCount === 0) {
-                    console.log('\nNo new data to save\n');
-                } else {
-                    console.log('\nSaving new data for ' + raceCount + ' race' + (raceCount === 1 ? '' : 's') + '\n');
+                if (raceCount > 0) {
+                    console.log('\nParsed new data for ' + raceCount + ' race' + (raceCount === 1 ? '' : 's') + '\n');
                 }
                 done();
             }
@@ -253,32 +293,57 @@ describe('Scraper', function () {
         visitRacePage(0);
     }),
 
-    it('saves results', function (done) {
+    it('saves data', function (done) {
         if (!_.isEmpty(raceData)) {
             var createDate = new Date();
             var onDbError = function (err, objects) {
                 if (err) console.log(err);
             };
+            var log = function (count, collectionName) {
+                console.log(count + ' items saved to ' + collectionName);
+            };
 
             var collection = db.collection(constants.DB_COLLECTIONS.RACE);
+            var count = 0;
             _.each(raceData, function (race, key) {
                 race[constants.DATA_KEYS.CREATED_AT] = createDate;
                 race[constants.DATA_KEYS.UPDATED_AT] = createDate;
                 collection.insert(race, {w:1}, onDbError); 
+                count = count + 1;
             });
-            var collection = db.collection(constants.DB_COLLECTIONS.HEADING);
+            log(count, constants.DB_COLLECTIONS.RACE);
+
+            collection = db.collection(constants.DB_COLLECTIONS.HEADING);
+            count = 0;
             _.each(headingData, function (heading, key) {
                 var query = {};
                 query[constants.DATA_KEYS.DB_ID] = heading[constants.DATA_KEYS.DB_ID];
                 collection.update(query, heading, {upsert:true}, onDbError);
+                count = count + 1;
             });
-            var collection = db.collection(constants.DB_COLLECTIONS.RESULT);
+            log(count, constants.DB_COLLECTIONS.HEADING);
+
+            collection = db.collection(constants.DB_COLLECTIONS.RESULT);
+            count = 0;
             _.each(raceResults, function (result) {
                 collection.insert(result, {w:1}, onDbError);
+                count = count + 1;
             });
+            log(count, constants.DB_COLLECTIONS.RESULT);
+
+            collection = db.collection(constants.DB_COLLECTIONS.CLUB_POINTS_RACE);
+            count = 0;
+            _.each(clubPointsRaceData, function (data, key) {
+                if (!data[constants.DATA_KEYS.DB_ID]) {
+                    collection.insert(data, {w:1}, onDbError);
+                    count = count + 1;
+                }
+            });
+            log(count, constants.DB_COLLECTIONS.CLUB_POINTS_RACE);
 
             done();
-        } else { 
+        } else {
+            console.log('\nNo new data saved');
             done();
         }
     });
