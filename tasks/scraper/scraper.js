@@ -12,11 +12,11 @@ var resultsPerPage = constants.RESULTS_PER_PAGE;
 var db;
 var races = [];
 var raceResults = [];
+var clubPointsRaces = [];
 var raceData = {};
 var headingData = {};
 var savedRaces = {};
 var raceOverrideData = {};
-var clubPointsRaceData = {};
 
 var getRaceUrl = function(raceId, year) {
     return constants.RACE_PAGE_BASE_URL + '?' +
@@ -50,9 +50,58 @@ var getResultKeys = function (headings) {
     return resultKeys;
 };
 
-var determineIfClubPoints = function (pageBody) {
-    var awardSections = $(pageBody).find('pre');
-    return awardSections.length > 100;
+// Converts large date format to small
+// Ex: 'November 1' becomes '11/1'
+var getSmallDate = function (dateStr) {
+    var dateStr = dateStr.split(',')[0];
+    var dateParts = dateStr.split(' ');
+    return constants.MONTH_TO_INDEX[dateParts[0]] + '/' + dateParts[1];
+};
+
+// Converts distance string to small format distances
+// Ex: '18 miles, 29 kilometers' becomes ['18M', '29k']
+var getSmallDistances = function (distanceStr) {
+    var smallDistances = [];
+    var distanceParts = distanceStr.split(',');
+    _.each(distanceParts, function (distance) {
+        distance = $.trim(distance);
+        var parts = distance.split(' ');
+        var smallUnit = constants.UNIT_TO_ABBR[parts[1]];
+        if (!smallUnit) {
+            console.log('\nWARNING: no unit found for ' + parts[1]);
+        } else {
+            smallDistances.push(parts[0] + smallUnit);
+        }
+    });
+    return smallDistances;
+};
+
+var determineIfClubPoints = function (pageBody, raceId, raceYear) {
+    // All team results are reported for club points races
+    var allTeamsShown = $(pageBody).find('pre').length > 100;
+    var isClubPointsMen = false;
+    var isClubPointsWomen = false;
+
+    // If all teams are shown, also check that race date/distance matches a club points race
+    if (allTeamsShown) {
+        var raceDate = getSmallDate(raceData[raceId].details['Date/Time']);
+        var raceDistances = getSmallDistances(raceData[raceId].details['Distance']);
+
+        _.each(raceDistances, function (distance) {
+            _.each(clubPointsRaces, function (race) {
+                if (race[constants.DATA_KEYS.CLUB_POINTS.DATE] === raceDate &&
+                        race[constants.DATA_KEYS.YEAR] === raceYear &&
+                        race[constants.DATA_KEYS.CLUB_POINTS.DISTANCE] === distance) {
+                    if (race[constants.DATA_KEYS.CLUB_POINTS.TYPE] === constants.CLUB_POINTS_RACE_TYPES.MEN) {
+                        isClubPointsMen = true;
+                    } else if (race[constants.DATA_KEYS.CLUB_POINTS.TYPE] === constants.CLUB_POINTS_RACE_TYPES.WOMEN) {
+                        isClubPointsWomen = true;
+                    }
+                }
+            });
+        });
+    } 
+    return [isClubPointsMen, isClubPointsWomen];
 };
 
 var parseRaceDetails = function (raceId, pageBody) {
@@ -72,12 +121,13 @@ var parseRaceDetails = function (raceId, pageBody) {
     raceData[raceId][constants.DATA_KEYS.RACE.DETAILS] = raceDetails;
 };
 
-var parseResults = function (raceId, browser, callback) {
+var parseResults = function (race, browser, callback) {
     var pageBody = browser.html();
     var headings = $(pageBody).find(constants.SELECTORS.HEADING);
     var raceName = $(pageBody).find(constants.SELECTORS.RACE_NAME).text();
     var resultKeys = getResultKeys(headings);
-    var isClubPoints = false;
+    var isClubPointsMen = false;
+    var isClubPointsWomen = false;
 
     console.log('\nParsing results for ' + raceName);
 
@@ -89,7 +139,7 @@ var parseResults = function (raceId, browser, callback) {
         var tbody  = $(pageBody).find(constants.SELECTORS.HEADING).closest('tbody');
         _.each($(tbody.find('tr:not(:has(' + constants.SELECTORS.HEADING + '))')), function (row, i) {
             results[startIndex + i] = {};
-            results[startIndex + i][constants.DATA_KEYS.RACE_ID] = raceId;
+            results[startIndex + i][constants.DATA_KEYS.RACE_ID] = race.id;
             _.each($(row).find('td'), function (cell, j) {
                 results[startIndex + i][resultKeys[j]] = $(cell).html();
             });        
@@ -103,23 +153,28 @@ var parseResults = function (raceId, browser, callback) {
         } else {
             var awardWinnersUrl = $(pageBody).find('a:contains("Award Winners")').attr('href');
             browser.visit(awardWinnersUrl, function () {
-                isClubPoints = determineIfClubPoints(browser.html());
+                var isClubPoints = determineIfClubPoints(browser.html(), race.id, race.year);
+                isClubPointsMen = isClubPoints[0];
+                isClubPointsWomen = isClubPoints[1];
+           
                 callback(); 
             });
         }
     };
 
     var storeRaceData = function () {
-        if (!raceData[raceId]) {
-            raceData[raceId] = {};
+        if (!raceData[race.id]) {
+            raceData[race.id] = {};
         }
-        raceData[raceId][constants.DATA_KEYS.RACE.ID] = raceId;
-        raceData[raceId][constants.DATA_KEYS.DB_ID] = raceId;
-        raceData[raceId][constants.DATA_KEYS.RACE.NAME] = raceName;
-        raceData[raceId][constants.DATA_KEYS.RACE.IS_CLUB_POINTS] = isClubPoints;
+        raceData[race.id][constants.DATA_KEYS.RACE.ID] = race.id;
+        raceData[race.id][constants.DATA_KEYS.DB_ID] = race.id;
+        raceData[race.id][constants.DATA_KEYS.RACE.NAME] = raceName;
+        raceData[race.id][constants.DATA_KEYS.RACE.IS_CLUB_POINTS_MEN] = isClubPointsMen;
+        raceData[race.id][constants.DATA_KEYS.RACE.IS_CLUB_POINTS_WOMEN] = isClubPointsWomen;
+        raceData[race.id][constants.DATA_KEYS.YEAR] = race.year;
         raceResults = raceResults.concat(results);
 
-        raceData[raceId] = overrideRaceData(raceData[raceId]);
+        raceData[race.id] = overrideRaceData(raceData[race.id]);
 
         console.log('Parsed ' + results.length + ' results');
         callback();
@@ -207,40 +262,50 @@ describe('Scraper', function () {
         });
         var collection = db.collection(constants.DB_COLLECTIONS.CLUB_POINTS_RACE);
         collection.find().toArray(function (err, docs) {
-            clubPointsRaceData = docs;
+            clubPointsRaces = docs;
         });
     }),
 
     it('finds club points race info', function (done) {
-        if (_.isEmpty(clubPointsRaceData)) {
-            clubPointsRaceData = {};
+        if (_.isEmpty(clubPointsRaces)) {
             var browser = new Browser();
             browser.runScripts = false;
 
-            browser.visit(constants.CLUB_POINTS_DATA_URL, function () {
-                var pageBody = browser.text();
-                var pageJson = JSON.parse(pageBody);
+            var years = [];
+			_.each(races, function (race) {
+                years.push(race.year);
+            });
+            years = _.uniq(years);
 
-                _.each(constants.CLUB_POINTS_TYPES, function (type) {
-                    clubPointsRaceData[constants.CLUB_POINTS_TYPE_TO_KEY[type]] = [];
-                    var labels = _.find(pageJson.data, function (item) {
-                        if (item.type === type && item.is_label === '1') {
-                            return item;
-                        }
+            _.each(years, function (year, i) {
+                browser.visit(constants.CLUB_POINTS_DATA_URL + year, function () {
+                    var pageBody = browser.text();
+                    var pageJson = JSON.parse(pageBody);
+
+                    _.each(constants.CLUB_POINTS_TYPES, function (type) {
+                        var labels = _.find(pageJson.data, function (item) {
+                            if (item.type === type && item.is_label === '1') {
+                                return item;
+                            }
+                        });
+                        _.each(labels.data, function (label) {
+                            if (constants.CLUB_POINTS_NON_RACE_LABELS.indexOf(label) === -1) {
+                                var parts = label.split('-');
+                                var raceData = {};
+                                raceData[constants.DATA_KEYS.CLUB_POINTS.DATE] = parts[0];
+                                raceData[constants.DATA_KEYS.CLUB_POINTS.DISTANCE] = parts[1];
+                                raceData[constants.DATA_KEYS.YEAR] = year;
+                                raceData[constants.DATA_KEYS.CLUB_POINTS.TYPE] = type;
+                                clubPointsRaces.push(raceData);
+                            }
+                        });
                     });
-                    _.each(labels.data, function (label) {
-                        if (constants.CLUB_POINTS_NON_RACE_LABELS.indexOf(label) === -1) {
-                            var parts = label.split('-');
-                            var raceData = {};
-                            raceData[constants.CLUB_POINTS_DATA_KEYS.DATE] = parts[0];
-                            raceData[constants.CLUB_POINTS_DATA_KEYS.DISTANCE] = parts[1];
-                            clubPointsRaceData[constants.CLUB_POINTS_TYPE_TO_KEY[type]].push(raceData);
-                        }
-                    });
+
+                    console.log('Parsed club points race info for ' + year);
+                    if (i === years.length - 1) {
+                        done();
+                    }
                 });
-
-                console.log('\nParsed club points race info');
-                done();
             });
         } else {
             done();
@@ -274,7 +339,7 @@ describe('Scraper', function () {
                             var visitNextPage = function () {
                                 visitRacePage(i+1);
                             };
-                            parseResults(race.id, browser, visitNextPage);
+                            parseResults(race, browser, visitNextPage);
                         });
                     });
                 } else {
@@ -298,48 +363,34 @@ describe('Scraper', function () {
             var onDbError = function (err, objects) {
                 if (err) console.log(err);
             };
-            var log = function (count, collectionName) {
-                console.log(count + ' items saved to ' + collectionName);
-            };
 
             var collection = db.collection(constants.DB_COLLECTIONS.RACE);
-            var count = 0;
             _.each(raceData, function (race, key) {
                 race[constants.DATA_KEYS.CREATED_AT] = createDate;
                 race[constants.DATA_KEYS.UPDATED_AT] = createDate;
                 collection.insert(race, {w:1}, onDbError); 
-                count = count + 1;
             });
-            log(count, constants.DB_COLLECTIONS.RACE);
 
             collection = db.collection(constants.DB_COLLECTIONS.HEADING);
-            count = 0;
             _.each(headingData, function (heading, key) {
                 var query = {};
                 query[constants.DATA_KEYS.DB_ID] = heading[constants.DATA_KEYS.DB_ID];
                 collection.update(query, heading, {upsert:true}, onDbError);
-                count = count + 1;
             });
-            log(count, constants.DB_COLLECTIONS.HEADING);
 
             collection = db.collection(constants.DB_COLLECTIONS.RESULT);
-            count = 0;
             _.each(raceResults, function (result) {
                 collection.insert(result, {w:1}, onDbError);
-                count = count + 1;
             });
-            log(count, constants.DB_COLLECTIONS.RESULT);
 
             collection = db.collection(constants.DB_COLLECTIONS.CLUB_POINTS_RACE);
-            count = 0;
-            _.each(clubPointsRaceData, function (data, key) {
+            _.each(clubPointsRaces, function (data, key) {
                 if (!data[constants.DATA_KEYS.DB_ID]) {
                     collection.insert(data, {w:1}, onDbError);
-                    count = count + 1;
                 }
             });
-            log(count, constants.DB_COLLECTIONS.CLUB_POINTS_RACE);
 
+            console.log('All new data saved');
             done();
         } else {
             console.log('\nNo new data saved');

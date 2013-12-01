@@ -16,22 +16,14 @@ var constants = function () {
 
     this.RESULT_MAIN_URL = 'http://web2.nyrrc.org/cgi-bin/htmlos.cgi/aes-programs/results/resultsarchive.htm';
     this.RACE_PAGE_BASE_URL = 'http://web2.nyrrc.org/cgi-bin/start.cgi/aes-programs/results/startup.html';
-    this.CLUB_POINTS_DATA_URL = 'http://www.nyrr.org/causes-and-community/local-clubs/club-standings-search/2013';
+    this.CLUB_POINTS_DATA_URL = 'http://www.nyrr.org/causes-and-community/local-clubs/club-standings-search/';
     this.EXPECTED_RESULT_MAIN_TITLE = 'NYRR Race Results';
 
     this.CLUB_POINTS_TYPES = ['OPEN MEN A', 'OPEN WOMEN A'];
     this.CLUB_POINTS_NON_RACE_LABELS = ['OPEN MEN A', 'OPEN WOMEN A', 'TEAM', 'TOTAL'];
-    this.CLUB_POINTS_KEYS = {
-        MEN : 'men',
-        WOMEN : 'women'
-    };
-    this.CLUB_POINTS_TYPE_TO_KEY = {
-        'OPEN MEN A' : this.CLUB_POINTS_KEYS.MEN,
-        'OPEN WOMEN A' : this.CLUB_POINTS_KEYS.WOMEN
-    };
-    this.CLUB_POINTS_DATA_KEYS = {
-        'DATE' : 'date',
-        'DISTANCE' : 'distance'
+    this.CLUB_POINTS_RACE_TYPES = {
+        MEN : 'OPEN MEN A',
+        WOMEN : 'OPEN WOMEN A'
     };
 
     this.NEXT_BTN_TEXT = 'NEXT';
@@ -53,18 +45,45 @@ var constants = function () {
         CREATED_AT : 'createdAt',
         UPDATED_AT : 'updatedAt',
         RACE_ID : 'raceId',
+        YEAR : 'year',
         RACE : {
             ID : 'id',
             NAME : 'name',
             DETAILS : 'details',
-            IS_CLUB_POINTS : 'isClubPoints'
+            IS_CLUB_POINTS_MEN : 'isClubPointsMen',
+            IS_CLUB_POINTS_WOMEN : 'isClubPointsWomen'
         },
         HEADING : {
             TEXT : 'text'
         },
         OVERRIDE : {
             DATA : 'data'
+        },
+        CLUB_POINTS : {
+            DATE : 'date',
+            DISTANCE : 'distance',
+            TYPE : 'type'
         }
+    };
+
+    this.MONTH_TO_INDEX = {
+        'January' : '1',
+        'February' : '2',
+        'March' : '3',
+        'April' : '4',
+        'May' : '5',
+        'June' : '6',
+        'July' : '7',
+        'August' : '8',
+        'September' : '9',
+        'October' : '10',
+        'November' : '11',
+        'December' : '12'
+    };
+
+    this.UNIT_TO_ABBR = {
+        'miles' : 'M',
+        'kilometers' : 'K'
     };
 
     return this;
