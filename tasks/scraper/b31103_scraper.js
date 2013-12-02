@@ -46,11 +46,13 @@ var parseTeamResults = function (browser, headingData, callback) {
         headingData = data.headingData;
     }
     var rowSelector = 'tr[bgcolor="#EEEEEE"]';
-    var results = lib.parseResults(browser, {id : RACE_ID, name : RACE_NAME}, resultKeys, rowSelector, 200, 100);
-    var team = results[0].team;
-    console.log('Parsed team results for ' + team);
+    var saveResults = function (results) {
+        var team = results[0].team;
+        console.log('Parsed team results for ' + team);
+        callback(results, headingData);
+    };
 
-    callback(results, headingData);
+    lib.parseResults(browser, {id : RACE_ID, name : RACE_NAME}, resultKeys, rowSelector, 200, 100, saveResults);
 };
 
 var getTeamDropdown = function (browser) {
