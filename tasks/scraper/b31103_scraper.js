@@ -14,7 +14,6 @@ var RACE_DATE = 'November 3, 2013';
 var RACE_YEAR = '2013';
 var RACE_DISTANCE = '26.2 miles, 42.16 kilometers';
 
-var headingData;
 
 var getRaceDetails = function () {
     return {
@@ -39,8 +38,8 @@ var adjustHeadingData = function (data) {
     return data;
 };
 
-var parseTeamResults = function (browser, callback) {
-    if (_.isUndefined(headingData)) { 
+var parseTeamResults = function (browser, headingData, callback) {
+    if (_.isEmpty(headingData)) { 
         var row = $(browser.html()).find('tr[bgcolor="#E0E0E0"] td');
         var data =  adjustHeadingData(lib.getHeadingData(row, {}));
         resultKeys = data.resultKeys;
@@ -51,7 +50,7 @@ var parseTeamResults = function (browser, callback) {
     var team = results[0].team;
     console.log('Parsed team results for ' + team);
 
-    callback(results);
+    callback(results, headingData);
 };
 
 var getTeamDropdown = function (browser) {
@@ -71,8 +70,10 @@ var parseData = function (callback) {
         teamOptions.splice(0, 2);
       
         var data = {};
+        data.headingData = {};
         data.results = [];
         data.raceData = lib.makeRaceData(RACE_ID, RACE_NAME, RACE_YEAR, getRaceDetails(), [true, true]);
+
         var visitTeamPage = function (i) {
             if (teamOptions[i]) {
                 browser.visit(MARATHON_RESULT_URL, function () {
@@ -80,14 +81,14 @@ var parseData = function (callback) {
                     browser.select(dropdown, $(teamOptions[i]).text());
                     browser.pressButton('input[type="submit"]');
                     browser.wait(function () {
-                        parseTeamResults(browser, function (results) {
+                        parseTeamResults(browser, data.headingData, function (results, headingData) {
                             data.results = data.results.concat(results);
+                            data.headingData = _.extend(data.headingData, headingData);
                             visitTeamPage(i+1);
                         });
                     });
                 });
             } else {
-                data.headingData = headingData;
                 callback(data);
             };
         };
