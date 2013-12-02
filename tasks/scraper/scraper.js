@@ -63,7 +63,7 @@ var getSmallDistances = function (distanceStr) {
     return smallDistances;
 };
 
-var determineIfClubPoints = function (pageBody, raceId, raceYear) {
+var determineIfClubPoints = function (pageBody, details) {
     // All team results are reported for club points races
     var allTeamsShown = $(pageBody).find('pre').length > 100;
     var isClubPointsMen = false;
@@ -71,8 +71,8 @@ var determineIfClubPoints = function (pageBody, raceId, raceYear) {
 
     // If all teams are shown, also check that race date/distance matches a club points race
     if (allTeamsShown) {
-        var raceDate = getSmallDate(raceData[raceId].details['Date/Time']);
-        var raceDistances = getSmallDistances(raceData[raceId].details['Distance']);
+        var raceDate = getSmallDate(details['Date/Time']);
+        var raceDistances = getSmallDistances(details['Distance']);
 
         _.each(raceDistances, function (distance) {
             _.each(clubPointsRaces, function (race) {
@@ -111,7 +111,7 @@ var parseRaceData = function (race, details, browser, callback) {
 
     var awardWinnersUrl = $(pageBody).find(constants.SELECTORS.AWARD_WINNERS_URL).attr('href');
     browser.visit(awardWinnersUrl, function () {
-        var isClubPoints = determineIfClubPoints(browser.html(), race.id, race.year);
+        var isClubPoints = determineIfClubPoints(browser.html(), details);
 
         raceData[race.id] = lib.makeRaceData(race.id, race.name, race.year, details, isClubPoints);
         raceData[race.id] = overrideRaceData(raceData[race.id]);
