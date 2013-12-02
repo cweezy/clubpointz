@@ -54,6 +54,10 @@ var parseTeamResults = function (browser, callback) {
     callback(results);
 };
 
+var getTeamDropdown = function (browser) {
+    return browser.queryAll('select[name="ft"]')[2];
+};
+
 var parseData = function (callback) {
     var browser = new Browser();
     browser.runScripts = false;
@@ -61,8 +65,7 @@ var parseData = function (callback) {
 
     browser.visit(MARATHON_RESULT_URL, function () {
         assert.equal(EXPECTED_RESULT_PAGE_TITLE, browser.text('title'));
-        var dropdown = $(browser.html()).find('option:contains(Team)').parent();
-        var teamOptions = $(dropdown).find('option');
+        var teamOptions = $(getTeamDropdown(browser)).find('option');
 
         // Remove 'Team' and unattached
         teamOptions.splice(0, 2);
@@ -73,12 +76,10 @@ var parseData = function (callback) {
         var visitTeamPage = function (i) {
             if (teamOptions[i]) {
                 browser.visit(MARATHON_RESULT_URL, function () {
-                    var pageBody = browser.html();
-                    var dropdown = browser.queryAll('select[name="ft"]')[2];
+                    var dropdown = getTeamDropdown(browser);
                     browser.select(dropdown, $(teamOptions[i]).text());
                     browser.pressButton('input[type="submit"]');
                     browser.wait(function () {
-                        pageBody = browser.html();
                         parseTeamResults(browser, function (results) {
                             data.results = data.results.concat(results);
                             visitTeamPage(i+1);
