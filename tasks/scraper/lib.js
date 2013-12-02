@@ -2,11 +2,13 @@ var _ = require('underscore');
 var $ = require('jquery');
 var constants = require('./constants').constants;
 
+
+var lib = {
 /**
  * Parses keys and labels for a list of text headings.
  * Also transfrom and return headingData by adding any new headings.
  */
-var getHeadingData = function (headings, headingData) {
+getHeadingData : function (headings, headingData) {
     var headingData = headingData || {};
     var resultKeys = [];                                                                                                                  
     _.each(headings, function (heading) {
@@ -25,9 +27,9 @@ var getHeadingData = function (headings, headingData) {
     returnData.headingData = headingData;
     returnData.resultKeys = resultKeys;
     return returnData; 
-};
+},
 
-var parseResultsPage = function (browser, race, resultKeys, rowSelector, maxResults, resultsPerPage) {
+parseResultsPage : function (browser, race, resultKeys, rowSelector, maxResults, resultsPerPage) {
     if (race.name) {
         console.log('\nParsing results for ' + race.name);
     }
@@ -56,9 +58,9 @@ var parseResultsPage = function (browser, race, resultKeys, rowSelector, maxResu
         }
     };
     return parsePage(0);
-};
+},
 
-var makeRaceData = function (id, name, year, details, isClubPoints) {
+makeRaceData : function (id, name, year, details, isClubPoints) {
     raceData = {};
     raceData[constants.DATA_KEYS.RACE.ID] = id;                                                                         
     raceData[constants.DATA_KEYS.DB_ID] = id;                                                                           
@@ -69,9 +71,8 @@ var makeRaceData = function (id, name, year, details, isClubPoints) {
     raceData[constants.DATA_KEYS.RACE.DETAILS] = details;
 
     return raceData;
+}
 };
 
-exports.getHeadingData = getHeadingData;
-exports.parseResultsPage = parseResultsPage;
-exports.makeRaceData = makeRaceData;
+exports.lib = lib;
 

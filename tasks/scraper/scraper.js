@@ -5,9 +5,7 @@ var $ = require('jquery');
 var _ = require('underscore');
 var constants = require('./constants').constants;
 var parseIrregularRaceData = require('./irregularRaceScraper').parseData;
-var getHeadingData = require('./lib').getHeadingData;
-var parseResultsPage = require('./lib').parseResultsPage;
-var makeRaceData = require('./lib').makeRaceData;
+var lib = require('./lib').lib;
 
 var maxResults = constants.MAX_RESULTS;
 var resultsPerPage = constants.RESULTS_PER_PAGE;
@@ -115,7 +113,7 @@ var parseRaceData = function (race, details, browser, callback) {
     browser.visit(awardWinnersUrl, function () {
         var isClubPoints = determineIfClubPoints(browser.html(), race.id, race.year);
 
-        raceData[race.id] = makeRaceData(race.id, race.name, race.year, details, isClubPoints);
+        raceData[race.id] = lib.makeRaceData(race.id, race.name, race.year, details, isClubPoints);
         raceData[race.id] = overrideRaceData(raceData[race.id]);
         callback();
     });
@@ -123,12 +121,12 @@ var parseRaceData = function (race, details, browser, callback) {
 
 var parseResults = function (race, browser) {
     var headings = $(browser.html()).find(constants.SELECTORS.HEADING);
-    var headingData = getHeadingData(headings);
+    var headingData = lib.getHeadingData(headings);
     var resultKeys = headingData.resultKeys;
     headingData = headingData.headingData;
 
     var rowSelector = 'table[width=700] tr[bgcolor!="EEEEEE"]';
-    var results = parseResultsPage(browser, race, resultKeys, rowSelector, maxResults, resultsPerPage);
+    var results = lib.parseResultsPage(browser, race, resultKeys, rowSelector, maxResults, resultsPerPage);
     raceResults = raceResults.concat(results);
 };
 

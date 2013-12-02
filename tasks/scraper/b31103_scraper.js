@@ -3,9 +3,7 @@ var assert = require('assert');
 var $ = require('jquery');
 var _ = require('underscore');
 var constants = require('./constants').constants;
-var getHeadingData = require('./lib').getHeadingData;
-var parseResultsPage = require('./lib').parseResultsPage;
-var makeRaceData = require('./lib').makeRaceData;
+var lib = require('./lib').lib;
 
 
 var MARATHON_RESULT_URL = 'http://web2.nyrrc.org/cgi-bin/start.cgi/nyrrc/monitor/pages/postrace/postracestartup.html';
@@ -44,12 +42,12 @@ var adjustHeadingData = function (data) {
 var parseTeamResults = function (browser, callback) {
     if (_.isUndefined(headingData)) { 
         var row = $(browser.html()).find('tr[bgcolor="#E0E0E0"] td');
-        var data =  adjustHeadingData(getHeadingData(row, {}));
+        var data =  adjustHeadingData(lib.getHeadingData(row, {}));
         resultKeys = data.resultKeys;
         headingData = data.headingData;
     }
     var rowSelector = 'tr[bgcolor="#EEEEEE"]';
-    var results = parseResultsPage(browser, {id : RACE_ID, name : RACE_NAME}, resultKeys, rowSelector, 200, 100);
+    var results = lib.parseResultsPage(browser, {id : RACE_ID, name : RACE_NAME}, resultKeys, rowSelector, 200, 100);
     var team = results[0].team;
     console.log('Parsed team results for ' + team);
 
@@ -71,7 +69,7 @@ var parseData = function (callback) {
       
         var data = {};
         data.results = [];
-        data.raceData = makeRaceData(RACE_ID, RACE_NAME, RACE_YEAR, getRaceDetails(), [true, true]);
+        data.raceData = lib.makeRaceData(RACE_ID, RACE_NAME, RACE_YEAR, getRaceDetails(), [true, true]);
         var visitTeamPage = function (i) {
             if (i < 4 && teamOptions[i]) {
                 browser.visit(MARATHON_RESULT_URL, function () {
