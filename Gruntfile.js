@@ -480,18 +480,6 @@ module.exports = function (grunt) {
     'sails-linker:devTplJADE'
   ]);
 
-  grunt.registerTask('scrape', "Scrapes recent race results", function () {
-    var done = this.async();
-    var mocha = new Mocha({
-        reporter: 'list',
-        timeout: 99999999
-    });;
-    mocha.addFile('tasks/scraper.js');
-    mocha.run(function (failures) {
-      done();
-    });
-  });
-
   grunt.registerTask('scrape', "Scrapes recent race results", function (arg1, arg2) {
     var args = [arg1, arg2].join(',');
     var quietReporter = require('./' + path.join(SCRAPER_FILE_DIR, 'quietReporter')).quietReporter;
