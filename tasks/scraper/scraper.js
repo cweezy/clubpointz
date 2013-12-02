@@ -3,7 +3,6 @@ var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
 var $ = require('jquery');
 var _ = require('underscore');
-var fs = require('fs');
 var constants = require('./constants').constants;
 var parseIrregularRaceData = require('./irregularRaceScraper').parseData;
 var getHeadingData = require('./lib').getHeadingData;
