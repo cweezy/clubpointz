@@ -47,7 +47,7 @@ var parseTeamResults = function (browser, callback) {
         headingData = data.headingData;
     }
     var rowSelector = 'tr[bgcolor="#EEEEEE"]';
-    var results = lib.parseResultsPage(browser, {id : RACE_ID, name : RACE_NAME}, resultKeys, rowSelector, 200, 100);
+    var results = lib.parseResults(browser, {id : RACE_ID, name : RACE_NAME}, resultKeys, rowSelector, 200, 100);
     var team = results[0].team;
     console.log('Parsed team results for ' + team);
 

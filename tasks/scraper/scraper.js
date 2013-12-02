@@ -126,7 +126,7 @@ var parseResults = function (race, browser) {
     headingData = headingData.headingData;
 
     var rowSelector = 'table[width=700] tr[bgcolor!="EEEEEE"]';
-    var results = lib.parseResultsPage(browser, race, resultKeys, rowSelector, maxResults, resultsPerPage);
+    var results = lib.parseResults(browser, race, resultKeys, rowSelector, maxResults, resultsPerPage);
     raceResults = raceResults.concat(results);
 };
 

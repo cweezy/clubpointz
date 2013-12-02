@@ -7,7 +7,7 @@ var lib = {
 
     /**
      * Parses keys and labels for a list of text headings.
-     * Also transfrom and return headingData by adding any new headings.
+     * Also transforms and returns headingData by adding any new headings.
      */
     getHeadingData : function (headings, headingData) {
         var headingData = headingData || {};
@@ -30,7 +30,17 @@ var lib = {
         return returnData; 
     },
 
-    parseResultsPage : function (browser, race, resultKeys, rowSelector, maxResults, resultsPerPage) {
+    /**
+     * Parses all results of a race, page by page
+     * Arguments:
+     *    browser: browser instance
+     *    race: race object {id : 'id', name : 'name'}
+     *    resultKeys : list of data keys we're concerned with parsing
+     *    rowSelector : CSS selector for a table row of data
+     *    maxResults : maximum number of results to parse
+     *    resultsPerPage : number of results to parse per page
+     */
+    parseResults : function (browser, race, resultKeys, rowSelector, maxResults, resultsPerPage) {
         if (race.name) {
             console.log('\nParsing results for ' + race.name);
         }
@@ -61,6 +71,14 @@ var lib = {
         return parsePage(0);
     },
 
+    /**
+     * Returns an object of data describing a race
+     * Arguments:
+     *    id : race id
+     *    name : race name
+     *    details : object of race details
+     *    isClubPoints : list of boolean values [isClubPointsMen, isClubPointsWomen]
+     */
     makeRaceData : function (id, name, year, details, isClubPoints) {
         raceData = {};
         raceData[constants.DATA_KEYS.RACE.ID] = id;                                                                         
