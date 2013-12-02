@@ -40,11 +40,12 @@ var lib = {
      *    maxResults : maximum number of results to parse
      *    resultsPerPage : number of results to parse per page
      */
-    parseResults : function (browser, race, resultKeys, rowSelector, maxResults, resultsPerPage) {
+    parseResults : function (browser, race, resultKeys, rowSelector, maxResults, resultsPerPage, callback) {
         if (race.name) {
             console.log('\nParsing results for ' + race.name);
         }
         var results = [];
+        var allResultsParsed = false;
         var parsePage = function (startIndex) {
             console.log('Parsing results ' + startIndex + '-' + parseInt(startIndex + resultsPerPage));
 
@@ -63,12 +64,13 @@ var lib = {
                 browser.visit(nextUrl, function () {                                                                                          
                     parsePage(startIndex + resultsPerPage);                
                 });
+                browser.wait();
             } else {
                 console.log('Parsed ' + results.length + ' results');
-                return results;
+                callback(results);
             }
         };
-        return parsePage(0);
+        parsePage(0);
     },
 
     /**

@@ -119,15 +119,14 @@ var parseRaceData = function (race, details, browser, callback) {
     });
 };
 
-var parseResults = function (race, browser) {
+var parseResults = function (race, browser, callback) {
     var headings = $(browser.html()).find(constants.SELECTORS.HEADING);
     var headingData = lib.getHeadingData(headings);
     var resultKeys = headingData.resultKeys;
     headingData = headingData.headingData;
 
     var rowSelector = 'table[width=700] tr[bgcolor!="EEEEEE"]';
-    var results = lib.parseResults(browser, race, resultKeys, rowSelector, maxResults, resultsPerPage);
-    raceResults = raceResults.concat(results);
+    var results = lib.parseResults(browser, race, resultKeys, rowSelector, maxResults, resultsPerPage, callback);
 };
 
 var overrideRaceData = function (raceData) {
@@ -288,7 +287,7 @@ describe('Scraper', function () {
         browser.runScripts = false;
         browser.loadCSS = false;
 
-        var visitRacePage = function (i) {
+        var parseRace = function (i) {
             if (races[i]) {
                 var race = races[i];
                 if (!savedRaces[race.id]) {
@@ -298,38 +297,45 @@ describe('Scraper', function () {
                         browser.choose('input[value="' + resultsPerPage + '"]');
                         browser.pressButton(constants.SELECTORS.SEARCH_BUTTON);
                         browser.wait(function () {
-                            var visitNextPage = function () {
-                                visitRacePage(i+1);
+                            var parseNextRace = function () {
+                                parseRace(i+1);
                             };
                             race.name = $(browser.html()).find(constants.SELECTORS.RACE_NAME).text()
-                            parseResults(race, browser);
-                            parseRaceData(race, raceDetails, browser, visitNextPage);
+                            var saveResults = function (results) {
+                                raceResults = raceResults.concat(results);
+                                parseRaceData(race, raceDetails, browser, parseNextRace);
+                            };
+                            parseResults(race, browser, saveResults);
                         });
                     });
                 } else {
-                    visitRacePage(i+1);
+                    parseRace(i+1);
                 }
             } else {
                 done();
             }
         };
 
-        visitRacePage(0);
+        parseRace(0);
     }),
 
     it('parses irregular race data', function (done) {
-        var saveRaceData = function (data) {
-            raceResults = raceResults.concat(data.results);
-            raceData[data.raceData[constants.DATA_KEYS.ID]] = data.raceData;
-            _.extend(headingData, data.headingData);
-        };
-        _.each(irregularRaces, function (race, i) {
-            if (!savedRaces[race.id]) {
-                parseIrregularRaceData(race, saveRaceData);
-            } else if (i === irregularRaces.length - 1) {
-                done();
-            }
-        });
+        if (irregularRaces.length > 0) {
+            var saveRaceData = function (data) {
+                raceResults = raceResults.concat(data.results);
+                raceData[data.raceData[constants.DATA_KEYS.ID]] = data.raceData;
+                _.extend(headingData, data.headingData);
+            };
+            _.each(irregularRaces, function (race, i) {
+                if (!savedRaces[race.id]) {
+                    parseIrregularRaceData(race, saveRaceData);
+                } else if (i === irregularRaces.length - 1) {
+                    done();
+                }
+            });
+        } else {
+            done();
+        }
     }),
 
     it('saves data', function (done) {
