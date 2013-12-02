@@ -318,19 +318,18 @@ describe('Scraper', function () {
     }),
 
     it('parses irregular race data', function (done) {
-        var count = 0;
         var saveRaceData = function (data) {
             raceResults = raceResults.concat(data.results);
             raceData[data.raceData[constants.DATA_KEYS.ID]] = data.raceData;
             _.extend(headingData, data.headingData);
-
-            count = count + 1;
-            if (count === irregularRaces.length) {
+        };
+        _.each(irregularRaces, function (race, i) {
+            if (!savedRaces[race.id]) {
+                parseIrregularRaceData(race, saveRaceData);
+            }
+            if (i === irregularRaces.length - 1) {
                 done();
             }
-        };
-        _.each(irregularRaces, function (race) {
-            parseIrregularRaceData(race, saveRaceData);
         });
     }),
 
