@@ -58,7 +58,20 @@ var parseResultsPage = function (browser, race, resultKeys, rowSelector, maxResu
     return parsePage(0);
 };
 
+var makeRaceData = function (id, name, year, details, isClubPoints) {
+    raceData = {};
+    raceData[constants.DATA_KEYS.RACE.ID] = id;                                                                         
+    raceData[constants.DATA_KEYS.DB_ID] = id;                                                                           
+    raceData[constants.DATA_KEYS.RACE.NAME] = name;                                                                     
+    raceData[constants.DATA_KEYS.RACE.IS_CLUB_POINTS_MEN] = isClubPoints[0];                                                 
+    raceData[constants.DATA_KEYS.RACE.IS_CLUB_POINTS_WOMEN] = isClubPoints[1];                                               
+    raceData[constants.DATA_KEYS.YEAR] = year;                                                                          
+    raceData[constants.DATA_KEYS.RACE.DETAILS] = details;
+
+    return raceData;
+};
+
 exports.getHeadingData = getHeadingData;
 exports.parseResultsPage = parseResultsPage;
-
+exports.makeRaceData = makeRaceData;
 
