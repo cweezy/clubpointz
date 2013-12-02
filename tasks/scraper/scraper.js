@@ -46,7 +46,7 @@ var getSmallDate = function (dateStr) {
 };
 
 // Converts distance string to small format distances
-// Ex: '18 miles, 29 kilometers' becomes ['18M', '29k']
+// Ex: '18 miles, 29 kilometers' becomes ['18M', '29K']
 var getSmallDistances = function (distanceStr) {
     var smallDistances = [];
     var distanceParts = distanceStr.split(',');
@@ -326,8 +326,7 @@ describe('Scraper', function () {
         _.each(irregularRaces, function (race, i) {
             if (!savedRaces[race.id]) {
                 parseIrregularRaceData(race, saveRaceData);
-            }
-            if (i === irregularRaces.length - 1) {
+            } else if (i === irregularRaces.length - 1) {
                 done();
             }
         });

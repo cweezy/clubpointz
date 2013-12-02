@@ -71,7 +71,7 @@ var parseData = function (callback) {
         data.results = [];
         data.raceData = lib.makeRaceData(RACE_ID, RACE_NAME, RACE_YEAR, getRaceDetails(), [true, true]);
         var visitTeamPage = function (i) {
-            if (i < 4 && teamOptions[i]) {
+            if (teamOptions[i]) {
                 browser.visit(MARATHON_RESULT_URL, function () {
                     var pageBody = browser.html();
                     var dropdown = browser.queryAll('select[name="ft"]')[2];
