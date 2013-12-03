@@ -156,8 +156,13 @@ describe('Scraper', function () {
     }),
 
     it('gets new race data', function (done) {
-        races = JSON.parse(process.env.RACES);
-        if (!races || _.isEmpty(races)) {
+        try {
+            races = JSON.parse(process.env.RACES);
+        } catch (e) {
+             races = [];
+        }
+
+        if (_.isEmpty(races)) {
             var browser = new Browser();
             browser.runScripts = false;
             browser.loadCSS = false;
