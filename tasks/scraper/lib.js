@@ -47,7 +47,7 @@ var lib = {
         var results = [];
         var allResultsParsed = false;
         var parsePage = function (startIndex) {
-            console.log('Parsing results ' + startIndex + '-' + parseInt(startIndex + resultsPerPage));
+            console.log('Parsing results ' + startIndex + '-' + parseInt(startIndex + resultsPerPage, 10));
 
             var pageBody = browser.html();
             _.each($(pageBody).find(rowSelector), function (row, i) {

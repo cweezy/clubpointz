@@ -492,12 +492,12 @@ module.exports = function (grunt) {
 
     if (args.indexOf('from_file') !== -1) {                                                                                               
       var file = fs.readFileSync(path.join(SCRAPER_FILE_DIR, 'races.json'));                                                              
-      process.env['RACES'] = file;                                                                                                        
+      process.env.RACES = file;                                                                                                        
     }                                                                                                                                     
                                                                                                                                           
     if (args.indexOf('max_results') !== -1) {                                                                                             
       var maxResults = args.match(/max_results=([0-9]+)(,|$)/)[1];                                                                        
-      process.env['MAX_RESULTS'] = maxResults;                                                                                            
+      process.env.MAX_RESULTS = maxResults;                                                                                            
     }                                                                                                                                     
                                                                                                                                           
     var done = this.async();                                                                                                              

@@ -149,7 +149,7 @@ describe('Scraper', function () {
     }),
 
     it('sets max race results', function (done) {
-        maxResults = process.env.MAX_RESULTS ? parseInt(process.env.MAX_RESULTS) : maxResults;
+        maxResults = process.env.MAX_RESULTS ? parseInt(process.env.MAX_RESULTS, 10) : maxResults;
         // resultsPerPage = maxResults >= 500 ? 500 : resultsPerPage;
         done();
     }),
