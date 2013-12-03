@@ -92,7 +92,7 @@ var parseData = function (callback) {
                 });
             } else {
                 callback(data);
-            };
+            }
         };
         visitTeamPage(0);
     });

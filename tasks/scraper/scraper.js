@@ -40,7 +40,7 @@ var parseUrlParams = function (url) {
 // Converts large date format to small
 // Ex: 'November 1' becomes '11/1'
 var getSmallDate = function (dateStr) {
-    var dateStr = dateStr.split(',')[0];
+    dateStr = dateStr.split(',')[0];
     var dateParts = dateStr.split(' ');
     return constants.MONTH_TO_INDEX[dateParts[0]] + '/' + dateParts[1];
 };
@@ -156,7 +156,7 @@ describe('Scraper', function () {
     }),
 
     it('gets new race data', function (done) {
-        races = eval(process.env.RACES);
+        races = JSON.parse(process.env.RACES);
         if (!races || _.isEmpty(races)) {
             var browser = new Browser();
             browser.runScripts = false;
@@ -178,7 +178,7 @@ describe('Scraper', function () {
                             var raceList = races;
                             if (_.contains(constants.IRREGULAR_RACES, raceId)) {
                                 raceList = irregularRaces;
-                            };
+                            }
                             raceList.push({
                                 'id' : raceId,
                                 'year' : year
@@ -219,7 +219,7 @@ describe('Scraper', function () {
                 }
             });
         });
-        var collection = db.collection(constants.DB_COLLECTIONS.CLUB_POINTS_RACE);
+        collection = db.collection(constants.DB_COLLECTIONS.CLUB_POINTS_RACE);
         collection.find().toArray(function (err, docs) {
             clubPointsRaces = docs;
         });
@@ -270,7 +270,7 @@ describe('Scraper', function () {
         } else {
             done();
         }
-    });
+    }),
 
     it('finds manual race override data', function (done) {
         var collection = db.collection(constants.DB_COLLECTIONS.RACE_OVERRIDE);
@@ -300,7 +300,7 @@ describe('Scraper', function () {
                             var parseNextRace = function () {
                                 parseRace(i+1);
                             };
-                            race.name = $(browser.html()).find(constants.SELECTORS.RACE_NAME).text()
+                            race.name = $(browser.html()).find(constants.SELECTORS.RACE_NAME).text();
                             var saveResults = function (results) {
                                 raceResults = raceResults.concat(results);
                                 parseRaceData(race, raceDetails, browser, parseNextRace);

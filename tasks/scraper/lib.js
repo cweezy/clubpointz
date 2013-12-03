@@ -10,10 +10,10 @@ var lib = {
      * Also transforms and returns headingData by adding any new headings.
      */
     getHeadingData : function (headings, headingData) {
-        var headingData = headingData || {};
         var resultKeys = [];                                                                                                                  
+        headingData = headingData || {};
         _.each(headings, function (heading) {
-            var text = $(heading).html().replace(/\<br \/\>/g, ' ');
+            var text = $(heading).html().replace(/<br \/>/g, ' ');
             // TODO clean this up
             var key = text.replace(/\s/g, '_').replace('&nbsp;', '_').replace('__', '_').replace('.', '').replace(/\//, '').toLowerCase();
             resultKeys.push(key);

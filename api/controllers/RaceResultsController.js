@@ -54,7 +54,7 @@ module.exports = {
           'race' : raceData,
           'results' : resultsData
         });   
-      };
+      }
     };    
     
     getHeadingData(renderView);
