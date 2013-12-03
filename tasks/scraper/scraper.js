@@ -6,6 +6,7 @@ var _ = require('underscore');
 var constants = require('./constants').constants;
 var parseIrregularRaceData = require('./irregularRaceScraper').parseData;
 var lib = require('./lib').lib;
+var alertMailer = require('./../alertMailer').mailer;
 
 var maxResults = constants.MAX_RESULTS;
 var resultsPerPage = constants.RESULTS_PER_PAGE;
@@ -387,6 +388,18 @@ describe('Scraper', function () {
             console.log('\nNo new data saved');
             done();
         }
+    }),
+
+    it ('waits for any pending messages to finish sending', function (done) {
+        var checkMessages = function () {
+            var pendingMessages = alertMailer.getPendingMessages();
+            if (pendingMessages === 0) {
+                done();
+            } else {
+                console.log('Waiting for ' + pendingMessages + ' pending message' + (pendingMessages > 1 ? 's' : ''));
+            }
+        };
+        setInterval(checkMessages, 1000);
     });
 });
 
