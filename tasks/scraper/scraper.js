@@ -327,9 +327,11 @@ describe('Scraper', function () {
         if (irregularRaces.length > 0) {
             var parseRace = function (i) {
                 var saveRaceData = function (data) {
-                    raceResults = raceResults.concat(data.results);
-                    raceData[data.raceData[constants.DATA_KEYS.ID]] = data.raceData;
-                    _.extend(headingData, data.headingData);
+                    if (data) {
+                        raceResults = raceResults.concat(data.results);
+                        raceData[data.raceData[constants.DATA_KEYS.ID]] = data.raceData;
+                        _.extend(headingData, data.headingData);
+                    }
                     parseRace(i+1);
                 };
                 if (irregularRaces[i]) {

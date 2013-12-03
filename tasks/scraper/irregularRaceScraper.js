@@ -7,6 +7,7 @@ parseData = function (race, callback) {
             break;
         default:
             console.log('WARNING: no scraper file for race ' + race.id);
+            callback();
     }
 };
 
