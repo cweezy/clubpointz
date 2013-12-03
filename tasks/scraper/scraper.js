@@ -124,7 +124,7 @@ var parseResults = function (race, browser, callback) {
     var resultKeys = headingData.resultKeys;
     headingData = headingData.headingData;
 
-    var rowSelector = 'table[width=700] tr[bgcolor!="EEEEEE"]';
+    var rowSelector = 'table:eq(3) tr[bgcolor!="EEEEEE"]';
     var results = lib.parseResults(browser, race, resultKeys, rowSelector, maxResults, resultsPerPage, callback);
 };
 
