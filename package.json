@@ -16,6 +16,9 @@
         "underscore" : "1.5.2",
         "mongodb" : "1.3.20"
     },
+    "devDependencies" : {
+        "grunt-contrib-jshint": "0.1.1rc6"
+    },
     "scripts": {
         "start": "node app.js",
         "debug": "node debug app.js"

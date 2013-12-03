@@ -148,6 +148,8 @@ module.exports = function (grunt) {
   grunt.loadTasks(depsPath + '/grunt-contrib-less/tasks');
   grunt.loadTasks(depsPath + '/grunt-contrib-coffee/tasks');
 
+  grunt.loadNpmTasks('grunt-contrib-jshint');
+
   // Project configuration.
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
@@ -214,6 +216,10 @@ module.exports = function (grunt) {
         }
         ]
       }
+    },
+
+    jshint: {
+       src: ['*.js', 'api/**/*.js', 'tasks/**/*.js']
     },
     
     coffee: {
@@ -504,6 +510,10 @@ module.exports = function (grunt) {
       done();                                                                                                                             
     });                                                                                                                                   
   });  
+
+  grunt.registerTask('lint', "Lints javascript", function () {
+   
+  });
 
   // When API files are changed:
   // grunt.event.on('watch', function(action, filepath) {
