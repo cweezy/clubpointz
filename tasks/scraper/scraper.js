@@ -326,18 +326,22 @@ describe('Scraper', function () {
 
     it('parses irregular race data', function (done) {
         if (irregularRaces.length > 0) {
-            var saveRaceData = function (data) {
-                raceResults = raceResults.concat(data.results);
-                raceData[data.raceData[constants.DATA_KEYS.ID]] = data.raceData;
-                _.extend(headingData, data.headingData);
-            };
-            _.each(irregularRaces, function (race, i) {
-                if (!savedRaces[race.id]) {
-                    parseIrregularRaceData(race, saveRaceData);
-                } else if (i === irregularRaces.length - 1) {
+            var parseRace = function (i) {
+                var saveRaceData = function (data) {
+                    raceResults = raceResults.concat(data.results);
+                    raceData[data.raceData[constants.DATA_KEYS.ID]] = data.raceData;
+                    _.extend(headingData, data.headingData);
+                    parseRace(i+1);
+                };
+                if (irregularRaces[i]) {
+                    if (!savedRaces[irregularRaces[i][DATA_KEYS.ID]]) {
+                        parseIrregularRaceData(irregularRaces[i], saveRaceData);
+                    }
+                } else {
                     done();
                 }
-            });
+            };
+            parseRace(0);
         } else {
             done();
         }
