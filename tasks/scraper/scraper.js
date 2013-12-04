@@ -5,7 +5,7 @@ var $ = require('jquery');
 var _ = require('underscore');
 var constants = require('./constants').constants;
 var parseIrregularRaceData = require('./irregularRaceScraper').parseData;
-var lib = require('./lib').lib;
+var lib = require('./scraperLib').lib;
 var alertMailer = require('./../alertMailer').mailer;
 var logger = require('./../logger').logger;
 

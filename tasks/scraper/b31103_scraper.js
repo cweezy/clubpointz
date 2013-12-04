@@ -3,7 +3,7 @@ var assert = require('assert');
 var $ = require('jquery');
 var _ = require('underscore');
 var constants = require('./constants').constants;
-var lib = require('./lib').lib;
+var lib = require('./scraperLib').lib;
 
 
 var MARATHON_RESULT_URL = 'http://web2.nyrrc.org/cgi-bin/start.cgi/nyrrc/monitor/pages/postrace/postracestartup.html';

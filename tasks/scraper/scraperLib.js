@@ -13,9 +13,9 @@ var lib = {
         var resultKeys = [];                                                                                                                  
         headingData = headingData || {};
         _.each(headings, function (heading) {
-            var text = $(heading).html().replace(/<br \/>/g, ' ');
+            var text = $(heading).html().replace(/<br \/>/g, ' ').replace('&nbsp;', ' ');
             // TODO clean this up
-            var key = text.replace(/\s/g, '_').replace('&nbsp;', '_').replace('__', '_').replace('.', '').replace(/\//, '').toLowerCase();
+            var key = text.replace(/\s/g, '_').replace('__', '_').replace('.', '').replace(/\//, '').toLowerCase();
             resultKeys.push(key);
             if (!headingData[key]) {
                 headingData[key] = {};
