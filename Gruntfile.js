@@ -486,7 +486,11 @@ module.exports = function (grunt) {
     'sails-linker:devTplJADE'
   ]);
 
-  grunt.registerTask('scrape', "Scrapes recent race results", function (arg1, arg2, arg3) {
+  grunt.registerTask('scrape', 'Scrapes recent race results from web\n' +
+        '":from_file" parses races from tasks/scraper/races.json\n' +
+        '":max_results=n" sets max results to n\n' +
+        '":no_mail" suppresses email notifications',
+        function (arg1, arg2, arg3) {
     var args = [arg1, arg2, arg3].join(',');
     var quietReporter = require('./' + path.join(SCRAPER_FILE_DIR, 'quietReporter')).quietReporter;
 
@@ -515,7 +519,7 @@ module.exports = function (grunt) {
     });
   });
 
-  grunt.registerTask('lint', "Lints javascript", function () {
+  grunt.registerTask('lint', "Runs jshint on all javascript", function () {
    
   });
 
