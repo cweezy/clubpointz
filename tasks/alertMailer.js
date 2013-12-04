@@ -53,7 +53,7 @@ var AlertMailer = {
     },
 
     send : function (text, subject) {
-        var subject = subject || DEFAULT_SUBJECT;
+        subject = subject || DEFAULT_SUBJECT;
         var allMailOptions = [];
 
         _.each(this.recipients, function (user) {
