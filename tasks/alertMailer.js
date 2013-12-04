@@ -9,23 +9,23 @@ var FROM_NAME = 'CLUBPOINTZ';
 var AlertMailer = {
 
     init : function () {
-       this.emailUser = this.getEnvVar('EMAIL_USER');
-       this.emailPass = this.getEnvVar('EMAIL_PASS');
-       this.recipients = JSON.parse(this.getEnvVar('RECIPIENTS'));
+       this.emailUser = this._getEnvVar('EMAIL_USER');
+       this.emailPass = this._getEnvVar('EMAIL_PASS');
+       this.recipients = JSON.parse(this._getEnvVar('RECIPIENTS'));
        this.from = FROM_NAME + '<' + this.emailUser + '>';
        this.pendingMessages = 0;
 
        return this;
     },
 
-    getEnvVar : function (key) {
+    _getEnvVar : function (key) {
         if (process.env[key]) {
             return process.env[key];
         }
         console.log('WARNING: no environment variable ' + key);
     },
 
-    getTransport : function () {
+    _getTransport : function () {
         return nodemailer.createTransport('SMTP', {
             auth : {
                 user : this.emailUser,
@@ -34,7 +34,7 @@ var AlertMailer = {
         });
     },
 
-    getMailOptions : function (user, subject, text) {
+    _getMailOptions : function (user, subject, text) {
         return {
             from : this.from,
             to : user,
@@ -44,8 +44,8 @@ var AlertMailer = {
         };
     },
 
-    sendMessages : function (mailOptions) {
-        var transport = this.getTransport();
+    _sendMessages : function (mailOptions) {
+        var transport = this._getTransport();
         _.each(mailOptions, function (options) {
             this.pendingMessages = this.pendingMessages + 1;
             var that = this;
@@ -58,15 +58,15 @@ var AlertMailer = {
         }, this);
     },
 
-    mail : function (text, subject) {
+    send : function (text, subject) {
         var subject = subject || DEFAULT_SUBJECT;
         var allMailOptions = [];
 
         _.each(this.recipients, function (user) {
-            var mailOptions = this.getMailOptions(user, subject, text);
+            var mailOptions = this._getMailOptions(user, subject, text);
             allMailOptions.push(mailOptions);
         }, this);
-        this.sendMessages(allMailOptions);
+        this._sendMessages(allMailOptions);
     },
 
     getPendingMessages : function () {

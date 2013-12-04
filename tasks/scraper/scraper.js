@@ -7,6 +7,7 @@ var constants = require('./constants').constants;
 var parseIrregularRaceData = require('./irregularRaceScraper').parseData;
 var lib = require('./lib').lib;
 var alertMailer = require('./../alertMailer').mailer;
+var logger = require('./../logger').logger;
 
 var maxResults = constants.MAX_RESULTS;
 var resultsPerPage = constants.RESULTS_PER_PAGE;
@@ -56,7 +57,7 @@ var getSmallDistances = function (distanceStr) {
         var parts = distance.split(' ');
         var smallUnit = constants.UNIT_TO_ABBR[parts[1]];
         if (!smallUnit) {
-            console.log('\nWARNING: no unit found for ' + parts[1]);
+            logger.warning('no unit found for ' + parts[1]);
         } else {
             smallDistances.push(parts[0] + smallUnit);
         }

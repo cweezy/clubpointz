@@ -1,5 +1,5 @@
 var parse_b31103 = require('./b31103_scraper').parseData; 
-var alertMailer = require('./../alertMailer').mailer;
+var logger = require('./../logger').logger;
 
 parseData = function (race, callback) {
     switch (race.id) {
@@ -7,9 +7,7 @@ parseData = function (race, callback) {
             return parse_b31103(callback);
             break;
         default:
-            var warning = 'WARNING: no scraper file for race ' + race.id;
-            console.log(warning);
-            alertMailer.mail(warning);
+            logger.warning('no scraper file for race ' + race.id);
             callback();
     }
 };
