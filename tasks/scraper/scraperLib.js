@@ -1,6 +1,7 @@
 var _ = require('underscore');
 var $ = require('jquery');
 var constants = require('./constants').constants;
+var logger = require('./../logger').logger;
 
 
 var lib = {
@@ -42,12 +43,12 @@ var lib = {
      */
     parseResults : function (browser, race, resultKeys, rowSelector, maxResults, resultsPerPage, callback) {
         if (race.name) {
-            console.log('\nParsing results for ' + race.name);
+            logger.info('Parsing results for ' + race.name);
         }
         var results = [];
         var allResultsParsed = false;
         var parsePage = function (startIndex) {
-            console.log('Parsing results ' + startIndex + '-' + parseInt(startIndex + resultsPerPage, 10));
+            logger.infoGroup(startIndex === 0, 'Parsing results ' + startIndex + '-' + parseInt(startIndex + resultsPerPage, 10));
 
             var pageBody = browser.html();
             _.each($(pageBody).find(rowSelector), function (row, i) {
@@ -66,7 +67,7 @@ var lib = {
                 });
                 browser.wait();
             } else {
-                console.log('Parsed ' + results.length + ' results');
+                logger.infoGroup(false, 'Parsed ' + results.length + ' results');
                 callback(results);
             }
         };

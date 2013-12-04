@@ -192,7 +192,7 @@ describe('Scraper', function () {
                         }
                     }
                 });
-                console.log('\nFound ' + races.concat(irregularRaces).length + ' races on web');
+                logger.info('Found ' + races.concat(irregularRaces).length + ' races on web');
                 done();
             });
         } else {
@@ -204,7 +204,7 @@ describe('Scraper', function () {
                 }
                 raceList.push(race);
             });
-            console.log('\nFound ' + races.length + ' races in file');
+            logger.info('Found ' + races.length + ' races in file');
             races = regularRaces;
             done();
         }
@@ -267,7 +267,7 @@ describe('Scraper', function () {
                         });
                     });
 
-                    console.log('Parsed club points race info for ' + year);
+                    logger.info('Parsed club points race info for ' + year);
                     if (i === years.length - 1) {
                         done();
                     }
@@ -354,7 +354,7 @@ describe('Scraper', function () {
         if (!_.isEmpty(raceData)) {
             var createDate = new Date();
             var onDbError = function (err, objects) {
-                if (err) console.log(err);
+                if (err) throw (err);
             };
 
             var collection = db.collection(constants.DB_COLLECTIONS.RACE);
@@ -383,10 +383,10 @@ describe('Scraper', function () {
                 }
             });
 
-            console.log('\nAll new data saved');
+            logger.info('All new data saved');
             done();
         } else {
-            console.log('\nNo new data saved');
+            logger.info('No new data saved');
             done();
         }
     }),
@@ -397,7 +397,7 @@ describe('Scraper', function () {
             if (pendingMessages === 0) {
                 done();
             } else {
-                console.log('Waiting for ' + pendingMessages + ' pending message' + (pendingMessages > 1 ? 's' : ''));
+                logger.info('Waiting for ' + pendingMessages + ' pending message' + (pendingMessages > 1 ? 's' : ''));
             }
         };
         setInterval(checkMessages, 1000);

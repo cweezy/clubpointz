@@ -16,6 +16,14 @@ var logger = {
         if (!this.noMail) {
             alertMailer.send(this.WARNING_PREFIX + message);
         }
+    },
+
+    info : function (message) {
+        console.log('\n' + message);
+    },
+
+    infoGroup : function (isFirst, message) {
+        console.log((isFirst ? '\n' : '') + message);
     }
 };
 

@@ -4,6 +4,7 @@ var $ = require('jquery');
 var _ = require('underscore');
 var constants = require('./constants').constants;
 var lib = require('./scraperLib').lib;
+var logger = require('./../logger').logger;
 
 
 var MARATHON_RESULT_URL = 'http://web2.nyrrc.org/cgi-bin/start.cgi/nyrrc/monitor/pages/postrace/postracestartup.html';
@@ -38,7 +39,7 @@ var adjustHeadingData = function (data) {
     return data;
 };
 
-var parseTeamResults = function (browser, headingData, callback) {
+var parseTeamResults = function (browser, headingData, isFirstTeam, callback) {
     if (_.isEmpty(headingData)) { 
         var row = $(browser.html()).find('tr[bgcolor="#E0E0E0"] td');
         var data =  adjustHeadingData(lib.getHeadingData(row, {}));
@@ -48,11 +49,16 @@ var parseTeamResults = function (browser, headingData, callback) {
     var rowSelector = 'tr[bgcolor="#EEEEEE"]';
     var saveResults = function (results) {
         var team = results[0].team;
-        console.log('Parsed team results for ' + team);
+        logger.infoGroup(false, 'Parsed team results for ' + team);
         callback(results, headingData);
     };
 
-    lib.parseResults(browser, {id : RACE_ID, name : RACE_NAME}, resultKeys, rowSelector, 200, 100, saveResults);
+    var raceInfo = {id : RACE_ID};
+    // We only want to report the race name on first call
+    if (isFirstTeam) {
+        raceInfo.name = RACE_NAME;
+    }
+    lib.parseResults(browser, raceInfo, resultKeys, rowSelector, 200, 100, saveResults);
 };
 
 var getTeamDropdown = function (browser) {
@@ -83,7 +89,7 @@ var parseData = function (callback) {
                     browser.select(dropdown, $(teamOptions[i]).text());
                     browser.pressButton('input[type="submit"]');
                     browser.wait(function () {
-                        parseTeamResults(browser, data.headingData, function (results, headingData) {
+                        parseTeamResults(browser, data.headingData, i === 0, function (results, headingData) {
                             data.results = data.results.concat(results);
                             data.headingData = _.extend(data.headingData, headingData);
                             visitTeamPage(i+1);
