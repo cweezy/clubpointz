@@ -25,8 +25,10 @@ var getRaceDetails = function () {
 
 var adjustHeadingData = function (data) {
     // Original field data; replaceCount is the number of fields that will replace the original
-    var originalFields = [{ key: 'state_country', replaceCount : 2}, {key : 'age', replaceCount : 1}];
-    var newFields = {'state' : {text : 'State'}, 'country' : {text : 'Country'}, 'sex_age' : {text : 'Sex/Age'}};
+    var originalFields = [{key : 'state_country', replaceCount : 2}, {key : 'age', replaceCount : 1},
+                          {key : 'bib_no', replaceCount : 1}];
+    var newFields = {'state' : {text : 'State'}, 'country' : {text : 'Country'}, 'sex_age' : {text : 'Sex/Age'},
+                     'bib' : {text : 'Bib'}};
 
     newFields = _.map(newFields, function (field, key) {
         var data = {};
