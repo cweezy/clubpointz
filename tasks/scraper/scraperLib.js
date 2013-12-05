@@ -40,6 +40,9 @@ var lib = {
      *    rowSelector : CSS selector for a table row of data
      *    maxResults : maximum number of results to parse
      *    resultsPerPage : number of results to parse per page
+     *    dataTransforms : map of data keys to functions to be called
+     *        if data needs transformation
+     *    callback
      */
     parseResults : function (browser, race, resultKeys, rowSelector, maxResults, resultsPerPage, dataTransforms, callback) {
         if (race.name) {
