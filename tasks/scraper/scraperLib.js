@@ -41,21 +41,27 @@ var lib = {
      *    maxResults : maximum number of results to parse
      *    resultsPerPage : number of results to parse per page
      */
-    parseResults : function (browser, race, resultKeys, rowSelector, maxResults, resultsPerPage, callback) {
+    parseResults : function (browser, race, resultKeys, rowSelector, maxResults, resultsPerPage, dataTransforms, callback) {
         if (race.name) {
-            logger.info('Parsing results for ' + race.name);
+            logger.infoGroup(true, 'Parsing results for ' + race.name);
         }
         var results = [];
         var allResultsParsed = false;
         var parsePage = function (startIndex) {
-            logger.infoGroup(startIndex === 0, 'Parsing results ' + startIndex + '-' + parseInt(startIndex + resultsPerPage, 10));
+            logger.infoGroup(false, 'Parsing results ' + startIndex + '-' + parseInt(startIndex + resultsPerPage, 10));
 
             var pageBody = browser.html();
             _.each($(pageBody).find(rowSelector), function (row, i) {
                 results[startIndex + i] = {};
                 results[startIndex + i][constants.DATA_KEYS.RACE_ID] = race.id;
                 _.each($(row).find('td'), function (cell, j) {
-                    results[startIndex + i][resultKeys[j]] = $(cell).html();
+                    var data = $(cell).html();
+                    var key = resultKeys[j];
+                    if (dataTransforms[key]) {
+                        results[startIndex + i][key] = dataTransforms[key](data);
+                    } else {
+                        results[startIndex + i][key] = data;
+                    }
                 });
             });
 

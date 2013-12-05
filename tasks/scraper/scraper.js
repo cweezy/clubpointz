@@ -127,7 +127,7 @@ var parseResults = function (race, browser, callback) {
     headingData = headingData.headingData;
 
     var rowSelector = 'table:eq(3) tr[bgcolor!="EEEEEE"]';
-    var results = lib.parseResults(browser, race, resultKeys, rowSelector, maxResults, resultsPerPage, callback);
+    var results = lib.parseResults(browser, race, resultKeys, rowSelector, maxResults, resultsPerPage, {}, callback);
 };
 
 var overrideRaceData = function (raceData) {

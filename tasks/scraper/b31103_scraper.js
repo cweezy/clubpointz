@@ -24,18 +24,32 @@ var getRaceDetails = function () {
 };
 
 var adjustHeadingData = function (data) {
-    var originalField = 'state_country';
-    var newFields = ['state', 'country'];
+    // Original field data; replaceCount is the number of fields that will replace the original
+    var originalFields = [{ key: 'state_country', replaceCount : 2}, {key : 'age', replaceCount : 1}];
+    var newFields = {'state' : {text : 'State'}, 'country' : {text : 'Country'}, 'sex_age' : {text : 'Sex/Age'}};
 
-    delete data.headingData[originalField];
-    _.each(newFields, function (key) {
-        data.headingData[key] = {};
-        data.headingData[key][constants.DATA_KEYS.HEADING.TEXT] = key.charAt(0).toUpperCase() + key.slice(1);
-        data.headingData[key][constants.DATA_KEYS.DB_ID] = key;
+    newFields = _.map(newFields, function (field, key) {
+        var data = {};
+        data[constants.DATA_KEYS.HEADING.TEXT] = field.text;
+        data[constants.DATA_KEYS.DB_ID] = key;
+        return data;
     });
-    var resultKeys = data.resultKeys;
-    var i = resultKeys.indexOf(originalField);
-    data.resultKeys = resultKeys.slice(0, i).concat(newFields).concat(resultKeys.slice(i+1));
+
+    var i = 0;
+    _.each(originalFields, function (field) {
+        delete data.headingData[field.key];
+        var replacementFields = [];
+        for (var j = 0; j < field.replaceCount; j++) {
+            var newId = newFields[i+j][constants.DATA_KEYS.DB_ID];
+            replacementFields.push(newId);
+            data.headingData[newId] = newFields[i+j];
+        }
+        var resultKeys = data.resultKeys;
+        var k = resultKeys.indexOf(field.key);
+        data.resultKeys = resultKeys.slice(0, k).concat(replacementFields).concat(resultKeys.slice(k+1)); 
+        i = i + field.replaceCount;
+    });
+
     return data;
 };
 
@@ -58,7 +72,15 @@ var parseTeamResults = function (browser, headingData, isFirstTeam, callback) {
     if (isFirstTeam) {
         raceInfo.name = RACE_NAME;
     }
-    lib.parseResults(browser, raceInfo, resultKeys, rowSelector, 200, 100, saveResults);
+
+    var transformSexAge = function (data) {
+        var sex = data.match(/M|F/);
+        data = data.replace(sex, '');
+        return sex + data;
+    };
+    var dataTransforms = {'sex_age' : transformSexAge};
+
+    lib.parseResults(browser, raceInfo, resultKeys, rowSelector, 200, 100, dataTransforms, saveResults);
 };
 
 var getTeamDropdown = function (browser) {
