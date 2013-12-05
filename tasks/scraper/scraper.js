@@ -331,7 +331,7 @@ describe('Scraper', function () {
                 var saveRaceData = function (data) {
                     if (data) {
                         raceResults = raceResults.concat(data.results);
-                        raceData[data.raceData[constants.DATA_KEYS.ID]] = data.raceData;
+                        raceData[data.raceData[constants.DATA_KEYS.RACE.ID]] = data.raceData;
                         _.extend(headingData, data.headingData);
                     }
                     parseRace(i+1);
