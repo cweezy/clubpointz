@@ -33,7 +33,7 @@ module.exports = {
       });
     };
     var getResultData = function (callback) {
-      Result.find({'raceId' : raceId}).done(function (err, results) {
+      Result.find({'raceId' : raceId}).sort({'finish_time' : 1}).done(function (err, results) {
         if (err) throw err;
         resultsData = results;
         callback();
