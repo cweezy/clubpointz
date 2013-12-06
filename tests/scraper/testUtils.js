@@ -29,7 +29,6 @@ describe('Scraper utility function', function () {
 
     it('makes race data', function (done) {
         var expectedResult = {
-            'id' : 'mock_id',
             '_id' : 'mock_id',
             'name' : 'A Race!',
             'isClubPointsMen' : false,
