@@ -227,7 +227,7 @@ describe('Scraper', function () {
                     }
                 });
                 var allRacesLength = races.concat(irregularRaces).length;
-                logger.info('Found ' + allRacesLength + genericUtils.getSingularOrPlural('race', allRacesLength) +
+                logger.info('Found ' + allRacesLength + ' ' + genericUtils.getSingularOrPlural('race', allRacesLength) +
                             ' on web');
                 done();
             });
