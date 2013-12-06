@@ -102,7 +102,7 @@ var parseData = function (callback) {
         var data = {};
         data.headingData = {};
         data.results = [];
-        data.raceData = lib.makeRaceData(RACE_ID, RACE_NAME, RACE_YEAR, getRaceDetails(), [true, true]);
+        data.raceData = lib.makeRaceData(RACE_ID, RACE_NAME, RACE_YEAR, getRaceDetails(), [true, true], false);
 
         var visitTeamPage = function (i) {
             if (teamOptions[i]) {

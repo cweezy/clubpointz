@@ -94,8 +94,9 @@ var lib = {
      *    name : race name
      *    details : object of race details
      *    isClubPoints : list of boolean values [isClubPointsMen, isClubPointsWomen]
+     *    isTeamChamps : whether race is a Team Championship race
      */
-    makeRaceData : function (id, name, year, details, isClubPoints) {
+    makeRaceData : function (id, name, year, details, isClubPoints, isTeamChamps) {
         raceData = {};
         raceData[constants.DATA_KEYS.RACE.ID] = id;                                                                         
         raceData[constants.DATA_KEYS.DB_ID] = id;                                                                           
@@ -104,6 +105,7 @@ var lib = {
         raceData[constants.DATA_KEYS.RACE.IS_CLUB_POINTS_WOMEN] = isClubPoints[1];                                               
         raceData[constants.DATA_KEYS.YEAR] = year;                                                                          
         raceData[constants.DATA_KEYS.RACE.DETAILS] = details;
+        raceData[constants.DATA_KEYS.RACE.IS_TEAM_CHAMPS] = isTeamChamps;
 
         return raceData;
     },

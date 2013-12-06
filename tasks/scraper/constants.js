@@ -31,6 +31,8 @@ var constants = function () {
         WOMEN : 'OPEN WOMEN A'
     };
 
+    this.TEAM_CHAMPS_NAME = 'Team Championships',
+
     this.NEXT_BTN_TEXT = 'NEXT';
     this.SELECTORS = {
         RACE_DETAILS : 'span.text b',
@@ -57,7 +59,8 @@ var constants = function () {
             ID : 'id',
             DETAILS : 'details',
             IS_CLUB_POINTS_MEN : 'isClubPointsMen',
-            IS_CLUB_POINTS_WOMEN : 'isClubPointsWomen'
+            IS_CLUB_POINTS_WOMEN : 'isClubPointsWomen',
+            IS_TEAM_CHAMPS : 'isTeamChamps'
         },
         HEADING : {
             TEXT : 'text'

@@ -67,6 +67,10 @@ var getSmallDistances = function (distanceStr) {
     return smallDistances;
 };
 
+var determineIfTeamChamps = function (raceName) {
+    return raceName.indexOf(constants.TEAM_CHAMPS_NAME) !== -1
+};
+
 var determineIfClubPoints = function (pageBody, race, details) {
     // All team results are reported for club points races
     var allTeamsShown = $(pageBody).find('pre').length > 50;
@@ -115,8 +119,9 @@ var parseRaceData = function (race, details, browser, callback) {
     var awardWinnersUrl = $(pageBody).find(constants.SELECTORS.AWARD_WINNERS_URL).attr('href');
     browser.visit(awardWinnersUrl, function () {
         var isClubPoints = determineIfClubPoints(browser.html(), race, details);
+        var isTeamChamps = determineIfTeamChamps(race.name);
 
-        raceData[race.id] = lib.makeRaceData(race.id, race.name, race.year, details, isClubPoints);
+        raceData[race.id] = lib.makeRaceData(race.id, race.name, race.year, details, isClubPoints, isTeamChamps);
         raceData[race.id] = overrideRaceData(raceData[race.id]);
         callback();
     });
