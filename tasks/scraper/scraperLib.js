@@ -50,6 +50,7 @@ var lib = {
         }
         var results = [];
         var allResultsParsed = false;
+        var that = this;
         var parsePage = function (startIndex) {
             logger.infoGroup(false, 'Parsing results ' + startIndex + '-' + parseInt(startIndex + resultsPerPage, 10));
 
@@ -59,6 +60,9 @@ var lib = {
                 results[startIndex + i][constants.DATA_KEYS.RACE_ID] = race.id;
                 _.each($(row).find('td'), function (cell, j) {
                     var data = $(cell).html();
+                    if (that.isTime(data)) {
+                        data = that.timeToSeconds(data);
+                    }
                     var key = resultKeys[j];
                     if (dataTransforms[key]) {
                         results[startIndex + i][key] = dataTransforms[key](data);
@@ -102,6 +106,21 @@ var lib = {
         raceData[constants.DATA_KEYS.RACE.DETAILS] = details;
 
         return raceData;
+    },
+
+    isTime : function (value) {
+        var matches = value.match(/[0-9]|:/g);
+        return matches !== null && matches.length === value.length;
+    },
+
+    timeToSeconds : function (time) {
+        var values = (time.split(':').reverse());
+        var seconds = 0;
+        _.each(values, function (value, i) {
+           var factor = Math.pow(60, i);
+           seconds = seconds + parseInt(value, 10) * factor;
+        });
+        return seconds;
     }
 };
 
