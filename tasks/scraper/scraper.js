@@ -69,7 +69,7 @@ var getSmallDistances = function (distanceStr) {
 
 var determineIfClubPoints = function (pageBody, race, details) {
     // All team results are reported for club points races
-    var allTeamsShown = $(pageBody).find('pre').length > 100;
+    var allTeamsShown = $(pageBody).find('pre').length > 50;
     var isClubPointsMen = false;
     var isClubPointsWomen = false;
 
