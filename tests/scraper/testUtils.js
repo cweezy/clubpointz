@@ -27,6 +27,27 @@ describe('Scraper utility function', function () {
         done();
     }),
 
+    it('makes race data', function (done) {
+        var expectedResult = {
+            'id' : 'mock_id',
+            '_id' : 'mock_id',
+            'name' : 'A Race!',
+            'isClubPointsMen' : false,
+            'isClubPointsWomen' : true,
+            'year' : '2013',
+            'details' : {
+                'Mock Detail' : 'blah blah blah',
+                '123 Detail' : '1234!'
+            },
+            'isTeamChamps' : false
+        };
+        assert.deepEqual(expectedResult, utils.makeRaceData(
+            'mock_id', 'A Race!', '2013', { 'Mock Detail' : 'blah blah blah', '123 Detail' : '1234!'},
+            [false, true], false)
+        );
+        done();
+    }),
+
     it('checks if values are times', function (done) {
         var validValues = ['4:4', '05:02', '01:04:30', '0:4', '5:0'];
         var invalidValues = ['55', 'abc4', 'a:5', 'a', '4:$', '%$'];
