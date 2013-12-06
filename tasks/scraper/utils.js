@@ -3,7 +3,9 @@ var $ = require('jquery');
 var constants = require('./constants').constants;
 var logger = require('./../logger').logger;
 
-
+/**
+ * Utility functions for scraper
+ */
 var utils = {
 
     /**
