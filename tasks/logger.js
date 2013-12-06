@@ -1,5 +1,5 @@
 var alertMailer = require('./alertMailer').mailer;
-var lib = require('./lib').lib;
+var utils = require('./utils').utils;
 
 
 var logger = {
@@ -7,7 +7,7 @@ var logger = {
     WARNING_PREFIX : 'WARNING: ',
 
     init : function () {
-        this.noMail = lib.getEnvVar('NO_MAIL');
+        this.noMail = utils.getEnvVar('NO_MAIL');
         return this;
     },
 

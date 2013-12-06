@@ -1,4 +1,4 @@
-var lib = {
+var utils = {
 
     getEnvVar : function (key) {
         if (process.env[key]) {
@@ -7,4 +7,4 @@ var lib = {
     }
 };
 
-exports.lib = lib;
+exports.utils = utils;
