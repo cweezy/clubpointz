@@ -50,13 +50,13 @@ var constants = function () {
 
     this.DATA_KEYS = {
         DB_ID : '_id',
+        ID : 'id',
         CREATED_AT : 'createdAt',
         UPDATED_AT : 'updatedAt',
         RACE_ID : 'raceId',
         YEAR : 'year',
         NAME : 'name',
         RACE : {
-            ID : 'id',
             DETAILS : 'details',
             IS_CLUB_POINTS_MEN : 'isClubPointsMen',
             IS_CLUB_POINTS_WOMEN : 'isClubPointsWomen',

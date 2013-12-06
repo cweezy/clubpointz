@@ -22,7 +22,7 @@ var raceData = {};
 var headingData = {};
 var savedRaces = {};
 var raceOverrideData = {};
-var teamData = {};
+var teamData = [];
 
 var getRaceUrl = function(raceId, year) {
     return constants.RACE_PAGE_BASE_URL + '?' +
@@ -138,7 +138,7 @@ var parseResults = function (race, browser, callback) {
 };
 
 var overrideRaceData = function (raceData) {
-    var overrideData = raceOverrideData[raceData[constants.DATA_KEYS.RACE.ID]];
+    var overrideData = raceOverrideData[raceData[constants.DATA_KEYS.ID]];
     if (overrideData) {
        _.each(overrideData, function (item, key) {
            raceData[key] = item;
@@ -221,9 +221,9 @@ describe('Scraper', function () {
         var collection = db.collection(constants.DB_COLLECTIONS.RACE);
         var allRaces = races.concat(irregularRaces);
         _.each(allRaces, function (race, i) {
-            var raceId = race[constants.DATA_KEYS.RACE.ID];
+            var raceId = race[constants.DATA_KEYS.ID];
             var queryData = {};
-            queryData[constants.DATA_KEYS.RACE.ID] = raceId;
+            queryData[constants.DATA_KEYS.ID] = raceId;
             collection.find(queryData).toArray(function (err, docs) {
                 if (err) throw err;
                 savedRaces[raceId] = docs.length > 0;
@@ -247,10 +247,13 @@ describe('Scraper', function () {
             assert.equal(constants.EXPECTED_MARATHON_RESULT_TITLE, browser.text('title'));
             var teamDropdown = getTeamDropdown(browser);
             _.each($(teamDropdown).find('option'), function (teamOption) {
-                var abbr = $(teamOption).attr('value');
+                var key = $(teamOption).attr('value');
                 var name = $(teamOption).text();
-                teamData[abbr] = {};
-                teamData[abbr][constants.DATA_KEYS.NAME] = name;
+                var data = {};
+                data[constants.DATA_KEYS.NAME] = name;
+                data[constants.DATA_KEYS.ID] = key;
+                data[constants.DATA_KEYS.DB_ID] = key;
+                teamData.push(data);
             });
             done(); 
         }); 
@@ -356,7 +359,7 @@ describe('Scraper', function () {
                 var saveRaceData = function (data) {
                     if (data) {
                         raceResults = raceResults.concat(data.results);
-                        raceData[data.raceData[constants.DATA_KEYS.RACE.ID]] = data.raceData;
+                        raceData[data.raceData[constants.DATA_KEYS.ID]] = data.raceData;
                         _.extend(headingData, data.headingData);
                     }
                     parseRace(i+1);
@@ -409,10 +412,9 @@ describe('Scraper', function () {
             });
 
             collection = db.collection(constants.DB_COLLECTIONS.TEAM);
-            //_.each(teamData, function (team, key) {
-            //    collection.insert(team, {w:1}, onDbError);
-            //});
-            collection.insert(teamData, {w:1}, onDbError);
+            _.each(teamData, function (team, key) {
+                collection.insert(team, {w:1}, onDbError);
+            });
 
             logger.info('All new data saved');
             done();
