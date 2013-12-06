@@ -4,8 +4,6 @@ var lib = {
         if (process.env[key]) {
             return process.env[key];
         }
-        // TODO throw error
-        console.log('WARNING: no environment variable ' + key);
     }
 };
 
