@@ -5,7 +5,7 @@ var $ = require('jquery');
 var _ = require('underscore');
 var constants = require('./constants').constants;
 var parseIrregularRaceData = require('./irregularRaceScraper').parseData;
-var lib = require('./scraperLib').lib;
+var utils = require('./utils').utils;
 var alertMailer = require('./../alertMailer').mailer;
 var logger = require('./../logger').logger;
 var getTeamDropdown = require('./b31103_scraper').getTeamDropdown;
@@ -121,7 +121,7 @@ var parseRaceData = function (race, details, browser, callback) {
         var isClubPoints = determineIfClubPoints(browser.html(), race, details);
         var isTeamChamps = determineIfTeamChamps(race.name);
 
-        raceData[race.id] = lib.makeRaceData(race.id, race.name, race.year, details, isClubPoints, isTeamChamps);
+        raceData[race.id] = utils.makeRaceData(race.id, race.name, race.year, details, isClubPoints, isTeamChamps);
         raceData[race.id] = overrideRaceData(raceData[race.id]);
         callback();
     });
@@ -129,12 +129,12 @@ var parseRaceData = function (race, details, browser, callback) {
 
 var parseResults = function (race, browser, callback) {
     var headings = $(browser.html()).find(constants.SELECTORS.HEADING);
-    var headingData = lib.getHeadingData(headings);
+    var headingData = utils.getHeadingData(headings);
     var resultKeys = headingData.resultKeys;
     headingData = headingData.headingData;
 
     var rowSelector = 'table:eq(3) tr[bgcolor!="EEEEEE"]';
-    var results = lib.parseResults(browser, race, resultKeys, rowSelector, maxResults, resultsPerPage, {}, callback);
+    var results = utils.parseResults(browser, race, resultKeys, rowSelector, maxResults, resultsPerPage, {}, callback);
 };
 
 var overrideRaceData = function (raceData) {
