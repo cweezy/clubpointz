@@ -12,13 +12,17 @@ var constants = function () {
         RESULT : 'result',
         HEADING : 'heading',
         RACE_OVERRIDE : 'race_override',
-        CLUB_POINTS_RACE : 'club_points_race'
+        CLUB_POINTS_RACE : 'club_points_race',
+        TEAM : 'team'
     };
 
     this.RESULT_MAIN_URL = 'http://web2.nyrrc.org/cgi-bin/htmlos.cgi/aes-programs/results/resultsarchive.htm';
     this.RACE_PAGE_BASE_URL = 'http://web2.nyrrc.org/cgi-bin/start.cgi/aes-programs/results/startup.html';
     this.CLUB_POINTS_DATA_URL = 'http://www.nyrr.org/causes-and-community/local-clubs/club-standings-search/';
     this.EXPECTED_RESULT_MAIN_TITLE = 'NYRR Race Results';
+    this.MARATHON_RESULT_URL = 'http://web2.nyrrc.org/cgi-bin/start.cgi/nyrrc/monitor/pages/postrace/postracestartup.html';
+    this.EXPECTED_MARATHON_RESULT_TITLE = 'ING New York City Marathon';
+
 
     this.CLUB_POINTS_TYPES = ['OPEN MEN A', 'OPEN WOMEN A'];
     this.CLUB_POINTS_NON_RACE_LABELS = ['OPEN MEN A', 'OPEN WOMEN A', 'TEAM', 'TOTAL'];
@@ -48,9 +52,9 @@ var constants = function () {
         UPDATED_AT : 'updatedAt',
         RACE_ID : 'raceId',
         YEAR : 'year',
+        NAME : 'name',
         RACE : {
             ID : 'id',
-            NAME : 'name',
             DETAILS : 'details',
             IS_CLUB_POINTS_MEN : 'isClubPointsMen',
             IS_CLUB_POINTS_WOMEN : 'isClubPointsWomen'

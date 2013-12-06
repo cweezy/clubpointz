@@ -7,8 +7,6 @@ var lib = require('./scraperLib').lib;
 var logger = require('./../logger').logger;
 
 
-var MARATHON_RESULT_URL = 'http://web2.nyrrc.org/cgi-bin/start.cgi/nyrrc/monitor/pages/postrace/postracestartup.html';
-var EXPECTED_RESULT_PAGE_TITLE = 'ING New York City Marathon';
 var RACE_ID = 'b31103';
 var RACE_NAME = '2013 ING New York City Marathon';
 var RACE_DATE = 'November 3, 2013';
@@ -94,8 +92,8 @@ var parseData = function (callback) {
     browser.runScripts = false;
     browser.loadCSS = false;
 
-    browser.visit(MARATHON_RESULT_URL, function () {
-        assert.equal(EXPECTED_RESULT_PAGE_TITLE, browser.text('title'));
+    browser.visit(constants.MARATHON_RESULT_URL, function () {
+        assert.equal(constants.EXPECTED_MARATHON_RESULT_TITLE, browser.text('title'));
         var teamOptions = $(getTeamDropdown(browser)).find('option');
 
         // Remove 'Team' and unattached
@@ -129,3 +127,4 @@ var parseData = function (callback) {
 };
 
 exports.parseData = parseData;
+exports.getTeamDropdown = getTeamDropdown;

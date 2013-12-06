@@ -8,6 +8,7 @@ var parseIrregularRaceData = require('./irregularRaceScraper').parseData;
 var lib = require('./scraperLib').lib;
 var alertMailer = require('./../alertMailer').mailer;
 var logger = require('./../logger').logger;
+var getTeamDropdown = require('./b31103_scraper').getTeamDropdown;
 
 var maxResults = constants.MAX_RESULTS;
 var resultsPerPage = constants.RESULTS_PER_PAGE;
@@ -21,6 +22,7 @@ var raceData = {};
 var headingData = {};
 var savedRaces = {};
 var raceOverrideData = {};
+var teamData = {};
 
 var getRaceUrl = function(raceId, year) {
     return constants.RACE_PAGE_BASE_URL + '?' +
@@ -231,6 +233,24 @@ describe('Scraper', function () {
         });
     }),
 
+    it('finds team info', function (done) {
+        var browser = new Browser();
+        browser.runScripts = false;
+        browser.loadCSS = false;
+
+        browser.visit(constants.MARATHON_RESULT_URL, function () {
+            assert.equal(constants.EXPECTED_MARATHON_RESULT_TITLE, browser.text('title'));
+            var teamDropdown = getTeamDropdown(browser);
+            _.each($(teamDropdown).find('option'), function (teamOption) {
+                var abbr = $(teamOption).attr('value');
+                var name = $(teamOption).text();
+                teamData[abbr] = {};
+                teamData[abbr][constants.DATA_KEYS.NAME] = name;
+            });
+            done(); 
+        }); 
+    }),
+
     it('finds club points race info', function (done) {
         if (_.isEmpty(clubPointsRaces)) {
             var browser = new Browser();
@@ -382,6 +402,12 @@ describe('Scraper', function () {
                     collection.insert(data, {w:1}, onDbError);
                 }
             });
+
+            collection = db.collection(constants.DB_COLLECTIONS.TEAM);
+            //_.each(teamData, function (team, key) {
+            //    collection.insert(team, {w:1}, onDbError);
+            //});
+            collection.insert(teamData, {w:1}, onDbError);
 
             logger.info('All new data saved');
             done();
