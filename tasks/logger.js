@@ -1,38 +1,30 @@
 var alertMailer = require('./alertMailer').mailer;
-var utils = require('./utils').utils;
+var utils = require('./utils');
+
+var WARNING_PREFIX = 'WARNING: ';
+var ERROR_PREFIX = 'ERROR: ';
+
+var noMail = utils.getEnvVar('NO_MAIL');
 
 
-var logger = {
-
-    WARNING_PREFIX : 'WARNING: ',
-    ERROR_PREFIX : 'ERROR: ',
-
-    init : function () {
-        this.noMail = utils.getEnvVar('NO_MAIL');
-        return this;
-    },
-
-    warning : function (message) {
-        console.log(this.WARNING_PREFIX + message);
-        if (!this.noMail) {
-            alertMailer.send(this.WARNING_PREFIX + message);
-        }
-    },
-
-    error : function (message) {
-        console.log(message);
-        if (!this.noMail) {
-            alertMailer.send(this.ERROR_PREFIX + message);
-        }
-    },
-
-    info : function (message) {
-        console.log('\n' + message);
-    },
-
-    infoGroup : function (isFirst, message) {
-        console.log((isFirst ? '\n' : '') + message);
-    }
+exports.warning = function (message) {
+  console.log(WARNING_PREFIX + message);
+  if (!noMail) {
+    alertMailer.send(WARNING_PREFIX + message);
+  }
 };
 
-exports.logger = logger.init();
+exports.error = function (message) {
+  console.log(message);
+  if (!noMail) {
+    alertMailer.send(ERROR_PREFIX + message);
+  }
+};
+
+exports.info = function (message) {
+  console.log('\n' + message);
+};
+
+exports.infoGroup = function (isFirst, message) {
+  console.log((isFirst ? '\n' : '') + message);
+};

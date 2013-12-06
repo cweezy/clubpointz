@@ -1,4 +1,4 @@
-var util = require('./../tasks/utils').utils;
+var util = require('./../tasks/utils');
 var assert = require('assert');
 var _ = require('underscore');
 

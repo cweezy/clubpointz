@@ -3,8 +3,8 @@ var assert = require('assert');
 var $ = require('jquery');
 var _ = require('underscore');
 var constants = require('./constants').constants;
-var utils = require('./utils').utils;
-var logger = require('./../logger').logger;
+var utils = require('./utils');
+var logger = require('./../logger');
 
 
 var RACE_ID = 'b31103';

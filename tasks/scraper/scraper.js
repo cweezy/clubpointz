@@ -5,10 +5,10 @@ var $ = require('jquery');
 var _ = require('underscore');
 var constants = require('./constants').constants;
 var parseIrregularRaceData = require('./irregularRaceScraper').parseData;
-var utils = require('./utils').utils;
-var genericUtils = require('./../utils').utils;
+var utils = require('./utils');
+var genericUtils = require('./../utils');
 var alertMailer = require('./../alertMailer').mailer;
-var logger = require('./../logger').logger;
+var logger = require('./../logger');
 var getTeamDropdown = require('./b31103_scraper').getTeamDropdown;
 
 var maxResults = constants.MAX_RESULTS;

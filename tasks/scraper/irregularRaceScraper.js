@@ -1,7 +1,7 @@
 var parse_b31103 = require('./b31103_scraper').parseData; 
-var logger = require('./../logger').logger;
+var logger = require('./../logger');
 
-parseData = function (race, callback) {
+exports.parseData = function (race, callback) {
     switch (race.id) {
         case 'b31103':
             return parse_b31103(callback);
@@ -11,5 +11,3 @@ parseData = function (race, callback) {
             callback();
     }
 };
-
-exports.parseData = parseData;

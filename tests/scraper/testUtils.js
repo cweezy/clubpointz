@@ -1,4 +1,4 @@
-var utils = require('./../../tasks/scraper/utils').utils;
+var utils = require('./../../tasks/scraper/utils');
 var assert = require('assert');
 var _ = require('underscore');
 
