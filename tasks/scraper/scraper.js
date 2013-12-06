@@ -173,9 +173,12 @@ describe('Scraper', function () {
 
     it('sets up db connection', function (done) {
         MongoClient.connect(constants.MONGO_URI, function (err, database) {
-            if (err) throw err;
-            db = database;
-            done();
+            if (err) {
+                bail('Error establishing MongoDB connection - ' + err, done);
+            } else {
+                db = database;
+                done();
+            }
         });
     }),
 
@@ -244,7 +247,7 @@ describe('Scraper', function () {
         var collection = db.collection(constants.DB_COLLECTIONS.RACE);
         var allRaces = races.concat(irregularRaces);
         _.each(allRaces, function (race, i) {
-            var raceId = race.id;;
+            var raceId = race.id;
             var queryData = {};
             queryData[constants.DATA_KEYS.DB_ID] = raceId;
             collection.find(queryData).toArray(function (err, docs) {
