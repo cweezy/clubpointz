@@ -138,7 +138,7 @@ var parseResults = function (race, browser, callback) {
 };
 
 var overrideRaceData = function (raceData) {
-    var overrideData = raceOverrideData[raceData[constants.DATA_KEYS.ID]];
+    var overrideData = raceOverrideData[raceData[constants.DATA_KEYS.DB_ID]];
     if (overrideData) {
        _.each(overrideData, function (item, key) {
            raceData[key] = item;
@@ -221,9 +221,9 @@ describe('Scraper', function () {
         var collection = db.collection(constants.DB_COLLECTIONS.RACE);
         var allRaces = races.concat(irregularRaces);
         _.each(allRaces, function (race, i) {
-            var raceId = race[constants.DATA_KEYS.ID];
+            var raceId = race.id;;
             var queryData = {};
-            queryData[constants.DATA_KEYS.ID] = raceId;
+            queryData[constants.DATA_KEYS.DB_ID] = raceId;
             collection.find(queryData).toArray(function (err, docs) {
                 if (err) throw err;
                 savedRaces[raceId] = docs.length > 0;
@@ -251,7 +251,6 @@ describe('Scraper', function () {
                 var name = $(teamOption).text();
                 var data = {};
                 data[constants.DATA_KEYS.NAME] = name;
-                data[constants.DATA_KEYS.ID] = key;
                 data[constants.DATA_KEYS.DB_ID] = key;
                 teamData.push(data);
             });
@@ -359,13 +358,13 @@ describe('Scraper', function () {
                 var saveRaceData = function (data) {
                     if (data) {
                         raceResults = raceResults.concat(data.results);
-                        raceData[data.raceData[constants.DATA_KEYS.ID]] = data.raceData;
+                        raceData[data.raceData[constants.DATA_KEYS.DB_ID]] = data.raceData;
                         _.extend(headingData, data.headingData);
                     }
                     parseRace(i+1);
                 };
                 if (irregularRaces[i]) {
-                    if (!savedRaces[irregularRaces[i][DATA_KEYS.ID]]) {
+                    if (!savedRaces[irregularRaces[i][DATA_KEYS.DB_ID]]) {
                         parseIrregularRaceData(irregularRaces[i], saveRaceData);
                     }
                 } else {

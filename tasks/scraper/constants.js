@@ -50,7 +50,6 @@ var constants = function () {
 
     this.DATA_KEYS = {
         DB_ID : '_id',
-        ID : 'id',
         CREATED_AT : 'createdAt',
         UPDATED_AT : 'updatedAt',
         RACE_ID : 'raceId',
