@@ -113,8 +113,8 @@ var utils = {
     },
 
     isTime : function (value) {
-        var matches = value.match(/[0-9]|:/g);
-        return matches !== null && matches.length === value.length;
+        var matches = String(value.match(/([0-9]+:)([0-9]+:?)*/g));
+        return matches === value;
     },
 
     timeToSeconds : function (time) {

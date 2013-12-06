@@ -28,8 +28,8 @@ describe('Scraper utility function', function () {
     }),
 
     it('checks if values are times', function (done) {
-        var validValues = ['4:4', '05:02', '01:04:30', ':4', '5:'];
-        var invalidValues = ['abc4', 'a:5', 'a', '4:$', '%$'];
+        var validValues = ['4:4', '05:02', '01:04:30', '0:4', '5:0'];
+        var invalidValues = ['55', 'abc4', 'a:5', 'a', '4:$', '%$'];
 
         _.each(validValues, function (val) {
             assert(utils.isTime(val));
