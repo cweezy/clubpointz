@@ -12,7 +12,7 @@ var constants = function () {
         RESULT : 'result',
         HEADING : 'heading',
         RACE_OVERRIDE : 'race_override',
-        CLUB_POINTS_RACE : 'club_points_race',
+        CLUB_POINTS_RACE : 'clubpointsrace',
         TEAM : 'team'
     };
 
