@@ -219,7 +219,7 @@ module.exports = function (grunt) {
     },
 
     jshint: {
-       src: ['*.js', 'api/**/*.js', 'tasks/**/*.js']
+       src: ['*.js', 'api/**/*.js', 'tasks/**/*.js', 'tests/**/*.js']
     },
     
     coffee: {
