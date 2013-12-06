@@ -5,6 +5,7 @@ var utils = require('./utils').utils;
 var logger = {
 
     WARNING_PREFIX : 'WARNING: ',
+    ERROR_PREFIX : 'ERROR: ',
 
     init : function () {
         this.noMail = utils.getEnvVar('NO_MAIL');
@@ -15,6 +16,13 @@ var logger = {
         console.log(this.WARNING_PREFIX + message);
         if (!this.noMail) {
             alertMailer.send(this.WARNING_PREFIX + message);
+        }
+    },
+
+    error : function (message) {
+        console.log(message);
+        if (!this.noMail) {
+            alertMailer.send(this.ERROR_PREFIX + message);
         }
     },
 

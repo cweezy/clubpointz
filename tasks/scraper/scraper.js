@@ -6,6 +6,7 @@ var _ = require('underscore');
 var constants = require('./constants').constants;
 var parseIrregularRaceData = require('./irregularRaceScraper').parseData;
 var utils = require('./utils').utils;
+var genericUtils = require('./../utils').utils;
 var alertMailer = require('./../alertMailer').mailer;
 var logger = require('./../logger').logger;
 var getTeamDropdown = require('./b31103_scraper').getTeamDropdown;
@@ -23,6 +24,27 @@ var headingData = {};
 var savedRaces = {};
 var raceOverrideData = {};
 var teamData = [];
+
+var waitForMessages = function (callback) {
+    var checkMessages = function () {
+        var pendingMessages = alertMailer.getPendingMessages();
+        if (pendingMessages === 0) {
+            callback();
+        } else {
+            logger.info('Waiting for ' + pendingMessages + ' pending message' + (pendingMessages > 1 ? 's' : ''));
+        }
+    };
+    setInterval(checkMessages, 1000);
+};
+
+var bail = function (errorMessage, callback) {
+    logger.error(errorMessage);
+    var forceFail = function () {
+        assert(false);
+        callback();
+    };
+    waitForMessages(forceFail);
+};
 
 var getRaceUrl = function(raceId, year) {
     return constants.RACE_PAGE_BASE_URL + '?' +
@@ -164,10 +186,12 @@ describe('Scraper', function () {
     }),
 
     it('gets new race data', function (done) {
-        try {
-            races = JSON.parse(process.env.RACES);
-        } catch (e) {
-             races = [];
+        if (genericUtils.getEnvVar('RACES')) {
+            try {
+                races = JSON.parse(genericUtils.getEnvVar('RACES'));
+            } catch (e) {
+                bail('Error parsing races.json - ' + e, done);
+            }
         }
 
         if (_.isEmpty(races)) {
@@ -175,7 +199,6 @@ describe('Scraper', function () {
             browser.runScripts = false;
             browser.loadCSS = false;
 
-            races = [];
             browser.visit(constants.RESULT_MAIN_URL, function () {
                 assert.equal(constants.EXPECTED_RESULT_MAIN_TITLE, browser.text('title'));
                 var linkHtml = browser.html(constants.SELECTORS.RACE_LINK);
@@ -424,15 +447,7 @@ describe('Scraper', function () {
     }),
 
     it ('waits for any pending messages to finish sending', function (done) {
-        var checkMessages = function () {
-            var pendingMessages = alertMailer.getPendingMessages();
-            if (pendingMessages === 0) {
-                done();
-            } else {
-                logger.info('Waiting for ' + pendingMessages + ' pending message' + (pendingMessages > 1 ? 's' : ''));
-            }
-        };
-        setInterval(checkMessages, 1000);
+        waitForMessages(done);
     });
 });
 

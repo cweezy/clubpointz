@@ -511,7 +511,8 @@ module.exports = function (grunt) {
     var done = this.async();
     var mocha = new Mocha({
       reporter: quietReporter,
-      timeout: 99999999
+      timeout: 99999999,
+      bail: true
     });
     mocha.addFile(path.join(SCRAPER_FILE_DIR, 'scraper.js'));
     mocha.run(function (failures) {
