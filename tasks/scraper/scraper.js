@@ -31,7 +31,8 @@ var waitForMessages = function (callback) {
         if (pendingMessages === 0) {
             callback();
         } else {
-            logger.info('Waiting for ' + pendingMessages + ' pending message' + (pendingMessages > 1 ? 's' : ''));
+            logger.info('Waiting for ' + pendingMessages + ' pending ' +
+                        genericUtils.getSingularOrPlural('message', pendingMessages));
         }
     };
     setInterval(checkMessages, 1000);
@@ -225,7 +226,9 @@ describe('Scraper', function () {
                         }
                     }
                 });
-                logger.info('Found ' + races.concat(irregularRaces).length + ' races on web');
+                var allRacesLength = races.concat(irregularRaces).length;
+                logger.info('Found ' + allRacesLength + genericUtils.getSingularOrPlural('race', allRacesLength) +
+                            ' on web');
                 done();
             });
         } else {
@@ -237,7 +240,7 @@ describe('Scraper', function () {
                 }
                 raceList.push(race);
             });
-            logger.info('Found ' + races.length + ' races in file');
+            logger.info('Found ' + races.length + ' ' + genericUtils.getSingularOrPlural('race', races.length) + ' in file');
             races = regularRaces;
             done();
         }
