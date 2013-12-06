@@ -68,7 +68,7 @@ var getSmallDistances = function (distanceStr) {
 };
 
 var determineIfTeamChamps = function (raceName) {
-    return raceName.indexOf(constants.TEAM_CHAMPS_NAME) !== -1
+    return raceName.indexOf(constants.TEAM_CHAMPS_NAME) !== -1;
 };
 
 var determineIfClubPoints = function (pageBody, race, details) {
