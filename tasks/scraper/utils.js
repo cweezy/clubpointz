@@ -64,6 +64,8 @@ var utils = {
                     var data = $(cell).html();
                     if (that.isTime(data)) {
                         data = that.timeToSeconds(data);
+                    } else {
+                        data = String(data);
                     }
                     var key = resultKeys[j];
                     if (dataTransforms[key]) {
