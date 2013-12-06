@@ -2,6 +2,7 @@ var _ = require('underscore');
 var $ = require('jquery');
 var constants = require('./constants').constants;
 var logger = require('./../logger').logger;
+var genericUtils = require('./../utils').utils;
 
 /**
  * Utility functions for scraper
@@ -84,7 +85,7 @@ var utils = {
                 });
                 browser.wait();
             } else {
-                logger.infoGroup(false, 'Parsed ' + results.length + ' results');
+                logger.infoGroup(false, 'Parsed ' + results.length + ' ' + genericUtils.getSingularOrPlural('result', results.length));
                 callback(results);
             }
         };
