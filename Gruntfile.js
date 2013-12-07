@@ -536,7 +536,7 @@ module.exports = function (grunt) {
     var done = this.async();
     mocha.run(function (failures) {
       done();
-    })
+    });
   });
 
   // When API files are changed:
