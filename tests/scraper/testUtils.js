@@ -1,9 +1,19 @@
 var utils = require('./../../tasks/scraper/utils');
 var assert = require('assert');
 var _ = require('underscore');
+var constants = require('./../../tasks/scraper/constants').constants;
 
 
 describe('Scraper utility function', function () {
+
+    it('gets race URL', function (done) {
+      var baseURL = constants.RACE_PAGE_BASE_URL;
+      var raceId = 'b31124a';
+      var year = '2013';
+      var expectedURL = baseURL + '?result.id=b31124a&result.year=2013';
+      assert.equal(expectedURL, utils.getRaceURL(raceId, year));
+      done();
+    }),
 
     it('gets heading data', function (done) {
         var headings = ['<span>Test Heading</span>', '<span>Another One</span>', '<span>a 3rd COOL heading</span>'];

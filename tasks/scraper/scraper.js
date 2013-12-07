@@ -47,13 +47,6 @@ var bail = function (errorMessage, callback) {
     waitForMessages(forceFail);
 };
 
-var getRaceUrl = function(raceId, year) {
-    return constants.RACE_PAGE_BASE_URL + '?' +
-           constants.URL_KEYS.RACE_ID + '=' +
-           raceId + '&' + constants.URL_KEYS.YEAR +
-           '=' + year;
-};
-
 var parseUrlParams = function (url) {
     var params = {};
     var rawParams = url.split('?')[1].split('&amp;');
@@ -353,7 +346,7 @@ describe('Scraper', function () {
             if (races[i]) {
                 var race = races[i];
                 if (!savedRaces[race.id]) {
-                    var url = getRaceUrl(race.id, race.year);
+                    var url = utils.getRaceURL(race.id, race.year);
                     browser.visit(url, function () {
                         raceDetails = parseRaceDetails(race.id, browser.html());
                         browser.choose('input[value="' + resultsPerPage + '"]');

@@ -6,6 +6,16 @@ var genericUtils = require('./../utils');
 
 
 /**
+ * Get the URL for a race's results from its race id and year.
+ */
+exports.getRaceURL = function (raceId, year) {                                                                                                 
+  return constants.RACE_PAGE_BASE_URL + '?' +                                                                                           
+     constants.URL_KEYS.RACE_ID + '=' +                                                                                             
+     raceId + '&' + constants.URL_KEYS.YEAR +                                                                                       
+     '=' + year;                                                                                                                    
+}; 
+
+/**
  * Parses keys and labels for a list of text headings.
  * Also transforms and returns headingData by adding any new headings.
  */
