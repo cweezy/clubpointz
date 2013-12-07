@@ -15,6 +15,17 @@ describe('Scraper utility function', function () {
       done();
     }),
 
+    it('parses URL parameters', function (done) {
+      var inputs = ['www.some-website.com?param1=yeah&param2=yeah',
+                    'www.w.com?a=1&b=2&c=3&d=4'];
+      var expectedOutputs = [ { 'param1' : 'yeah', 'param2' : 'yeah' },
+                              { 'a' : '1', 'b' : '2', 'c' : '3', 'd' : '4' }];
+      _.each(inputs, function (input, i) {
+        assert.deepEqual(expectedOutputs[i], utils.parseURLParams(input));
+      });
+      done();
+    }),
+
     it('gets heading data', function (done) {
         var headings = ['<span>Test Heading</span>', '<span>Another One</span>', '<span>a 3rd COOL heading</span>'];
         var expectedKeys = ['test_heading', 'another_one', 'a_3rd_cool_heading'];

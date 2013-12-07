@@ -47,16 +47,6 @@ var bail = function (errorMessage, callback) {
     waitForMessages(forceFail);
 };
 
-var parseUrlParams = function (url) {
-    var params = {};
-    var rawParams = url.split('?')[1].split('&amp;');
-    _.each(rawParams, function (param) {
-        var paramParts = param.split('=');
-        params[paramParts[0]] = paramParts[1];
-    });
-    return params;
-};
-
 // Converts large date format to small
 // Ex: 'November 1' becomes '11/1'
 var getSmallDate = function (dateStr) {
@@ -198,25 +188,21 @@ describe('Scraper', function () {
 
             browser.visit(constants.RESULT_MAIN_URL, function () {
                 assert.equal(constants.EXPECTED_RESULT_MAIN_TITLE, browser.text('title'));
-                var linkHtml = browser.html(constants.SELECTORS.RACE_LINK);
-                var links = linkHtml.split('</a>');
+                var links = $(browser.html()).find('td.text a[target!=_top]');
                 _.each(links, function (link) {
-                    var matches = link.match(/href="(.+)"/);
-                    if (matches !== null) {
-                        var linkUrl = matches[1];             
-                        if (linkUrl && linkUrl.indexOf(constants.RACE_PAGE_BASE_URL) !== -1) {
-                            var urlParams = parseUrlParams(linkUrl);
-                            var raceId = urlParams[constants.URL_KEYS.RACE_ID];
-                            var year = urlParams[constants.URL_KEYS.YEAR];
-                            var raceList = races;
-                            if (_.contains(constants.IRREGULAR_RACES, raceId)) {
-                                raceList = irregularRaces;
-                            }
-                            raceList.push({
-                                'id' : raceId,
-                                'year' : year
-                            });
+                    var url = $(link).attr('href');
+                    if (url && url.indexOf(constants.RACE_PAGE_BASE_URL) !== -1) {
+                        var urlParams = utils.parseURLParams(url);
+                        var raceId = urlParams[constants.URL_KEYS.RACE_ID];
+                        var year = urlParams[constants.URL_KEYS.YEAR];
+                        var raceList = races;
+                        if (_.contains(constants.IRREGULAR_RACES, raceId)) {
+                            raceList = irregularRaces;
                         }
+                        raceList.push({
+                            'id' : raceId,
+                            'year' : year
+                        });
                     }
                 });
                 var allRacesLength = races.concat(irregularRaces).length;

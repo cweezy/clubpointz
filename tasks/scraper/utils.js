@@ -16,8 +16,23 @@ exports.getRaceURL = function (raceId, year) {
 }; 
 
 /**
+ * Get the request parameters from a URL string and return as
+ * an object.
+ */
+exports.parseURLParams = function (url) {                                                                                                     
+    var params = {};                                                                                                                      
+    var rawParams = url.split('?')[1].split('&');                                                                                     
+    _.each(rawParams, function (param) {                                                                                                  
+        var paramParts = param.split('=');                                                                                                
+        params[paramParts[0]] = paramParts[1];                                                                                            
+    });                                                                                                                                   
+    return params;                                                                                                                        
+}; 
+
+/**
  * Parses keys and labels for a list of text headings.
- * Also transforms and returns headingData by adding any new headings.
+ * Also transforms and returns headingData by adding any new
+ * headings.
  */
 exports.getHeadingData = function (headings, headingData) {
   var resultKeys = [];                                                                                                                  
