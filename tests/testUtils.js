@@ -1,8 +1,3 @@
-var util = require('./../tasks/utils');
-var assert = require('assert');
-var _ = require('underscore');
-
-
 describe('Utility function', function () {
 
   it('gets environment variables', function (done) {

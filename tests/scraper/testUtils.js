@@ -1,10 +1,44 @@
 var utils = require('./../../tasks/scraper/utils');
-var assert = require('assert');
-var _ = require('underscore');
 var constants = require('./../../tasks/scraper/constants').constants;
+var logger = require('./../../tasks/logger');
 
 
 describe('Scraper utility function', function () {
+
+    it('gets small format date', function (done) {
+      var inputs = ['October 4, 2013', 'September 26', 'January 6, 1999'];
+      var expectedOutputs = ['10/4', '9/26', '1/6'];
+      _.each(inputs, function (input, i) {
+        assert.equal(expectedOutputs[i], utils.getSmallDate(input));
+      });
+
+      var invalidInput = 'NotAMonth 4';
+      var loggerMock = sinon.mock(logger);
+      var expectation = loggerMock.expects('warning').once().withArgs(
+        'no month found for NotAMonth');
+      utils.getSmallDate(invalidInput);
+      loggerMock.verify();
+
+      done();
+    }),
+
+    it('gets small format distances', function (done) {
+      var inputs = ['5 miles, 7 kilometers', '1 mile, 3 kilometers', '2 kilometers, 6 miles'];
+      var expectedOutputs = [['5M', '7K'], ['1M', '3K'], ['2K', '6M']];
+      _.each(inputs, function (input, i) {
+        assert.deepEqual(expectedOutputs[i], utils.getSmallDistances(input));
+      });
+
+      var invalidInputs = ['4 inch, 7 miles', '5 cat, 8 bear'];
+      var loggerMock = sinon.mock(logger);
+      var expectation = loggerMock.expects('warning').thrice();
+      _.each(invalidInputs, function (input) {
+        utils.getSmallDistances(input);
+      });
+      loggerMock.verify();
+
+      done();
+    }),
 
     it('gets race URL', function (done) {
       var baseURL = constants.RACE_PAGE_BASE_URL;

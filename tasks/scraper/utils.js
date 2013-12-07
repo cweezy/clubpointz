@@ -10,9 +10,9 @@ var genericUtils = require('./../utils');
  */
 exports.getRaceURL = function (raceId, year) {                                                                                                 
   return constants.RACE_PAGE_BASE_URL + '?' +                                                                                           
-     constants.URL_KEYS.RACE_ID + '=' +                                                                                             
-     raceId + '&' + constants.URL_KEYS.YEAR +                                                                                       
-     '=' + year;                                                                                                                    
+    constants.URL_KEYS.RACE_ID + '=' +                                                                                             
+    raceId + '&' + constants.URL_KEYS.YEAR +                                                                                       
+    '=' + year;                                                                                                                    
 }; 
 
 /**
@@ -20,14 +20,45 @@ exports.getRaceURL = function (raceId, year) {
  * an object.
  */
 exports.parseURLParams = function (url) {                                                                                                     
-    var params = {};                                                                                                                      
-    var rawParams = url.split('?')[1].split('&');                                                                                     
-    _.each(rawParams, function (param) {                                                                                                  
-        var paramParts = param.split('=');                                                                                                
-        params[paramParts[0]] = paramParts[1];                                                                                            
-    });                                                                                                                                   
-    return params;                                                                                                                        
+  var params = {};                                                                                                                      
+  var rawParams = url.split('?')[1].split('&');                                                                                     
+  _.each(rawParams, function (param) {                                                                                                  
+    var paramParts = param.split('=');                                                                                                
+    params[paramParts[0]] = paramParts[1];                                                                                            
+  });                                                                                                                                   
+  return params;                                                                                                                        
 }; 
+
+/**
+ * Converts large date format to small
+ * Ex: 'November 1' becomes '11/1'
+ */
+exports.getSmallDate = function (dateStr) {
+  dateStr = dateStr.split(',')[0];
+  var dateParts = dateStr.split(' ');
+  if (!constants.MONTH_TO_INDEX[dateParts[0]]) logger.warning('no month found for ' + dateParts[0]);
+  return constants.MONTH_TO_INDEX[dateParts[0]] + '/' + dateParts[1];
+};
+
+/**
+ * Converts distance string to small format distances
+ * Ex: '18 miles, 29 kilometers' becomes ['18M', '29K']
+ */
+exports.getSmallDistances = function (distanceStr) {
+  var smallDistances = [];
+  var distanceParts = distanceStr.split(',');
+  _.each(distanceParts, function (distance) {
+    distance = $.trim(distance);
+    var parts = distance.split(' ');
+    var smallUnit = constants.UNIT_TO_ABBR[parts[1]];
+    if (!smallUnit) {
+      logger.warning('no unit found for ' + parts[1]);
+    } else {
+      smallDistances.push(parts[0] + smallUnit);
+    }
+  });
+  return smallDistances;
+};
 
 /**
  * Parses keys and labels for a list of text headings.

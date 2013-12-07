@@ -47,32 +47,6 @@ var bail = function (errorMessage, callback) {
     waitForMessages(forceFail);
 };
 
-// Converts large date format to small
-// Ex: 'November 1' becomes '11/1'
-var getSmallDate = function (dateStr) {
-    dateStr = dateStr.split(',')[0];
-    var dateParts = dateStr.split(' ');
-    return constants.MONTH_TO_INDEX[dateParts[0]] + '/' + dateParts[1];
-};
-
-// Converts distance string to small format distances
-// Ex: '18 miles, 29 kilometers' becomes ['18M', '29K']
-var getSmallDistances = function (distanceStr) {
-    var smallDistances = [];
-    var distanceParts = distanceStr.split(',');
-    _.each(distanceParts, function (distance) {
-        distance = $.trim(distance);
-        var parts = distance.split(' ');
-        var smallUnit = constants.UNIT_TO_ABBR[parts[1]];
-        if (!smallUnit) {
-            logger.warning('no unit found for ' + parts[1]);
-        } else {
-            smallDistances.push(parts[0] + smallUnit);
-        }
-    });
-    return smallDistances;
-};
-
 var determineIfTeamChamps = function (raceName) {
     return raceName.indexOf(constants.TEAM_CHAMPS_NAME) !== -1;
 };
@@ -85,8 +59,8 @@ var determineIfClubPoints = function (pageBody, race, details) {
 
     // If all teams are shown, also check that race date/distance matches a club points race
     if (allTeamsShown) {
-        var raceDate = getSmallDate(details['Date/Time']);
-        var raceDistances = getSmallDistances(details['Distance']);
+        var raceDate = utils.getSmallDate(details['Date/Time']);
+        var raceDistances = utils.getSmallDistances(details['Distance']);
 
         _.each(raceDistances, function (distance) {
             _.each(clubPointsRaces, function (race) {
