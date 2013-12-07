@@ -2,7 +2,7 @@ var _ = require('underscore');
 var $ = require('jquery');
 var constants = require('./constants').constants;
 var logger = require('./../logger');
-var genericUtils = require('./../utils');
+var genericUtils = require('./../util');
 
 
 /**

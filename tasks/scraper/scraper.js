@@ -5,7 +5,7 @@ var $ = require('jquery');
 var _ = require('underscore');
 var constants = require('./constants').constants;
 var parseIrregularRaceData = require('./irregularRaceScraper').parseData;
-var utils = require('./utils');
+var util = require('./util');
 var genericUtils = require('./../utils');
 var alertMailer = require('./../alertMailer').mailer;
 var logger = require('./../logger');
@@ -51,8 +51,8 @@ var determineIfClubPoints = function (pageBody, race, details) {
 
     // If all teams are shown, also check that race date/distance matches a club points race
     if (allTeamsShown) {
-        var raceDate = utils.getSmallDate(details['Date/Time']);
-        var raceDistances = utils.getSmallDistances(details['Distance']);
+        var raceDate = util.getSmallDate(details['Date/Time']);
+        var raceDistances = util.getSmallDistances(details['Distance']);
 
         _.each(raceDistances, function (distance) {
             _.each(data.clubPointsRaces, function (race) {
@@ -94,7 +94,7 @@ var parseRaceData = function (race, details, browser, callback) {
         var isTeamChamps = determineIfTeamChamps(race.name);
 
         if (!data.raceData) data.raceData = {};
-        data.raceData[race.id] = utils.makeRaceData(race.id, race.name, race.year, details, isClubPoints, isTeamChamps);
+        data.raceData[race.id] = util.makeRaceData(race.id, race.name, race.year, details, isClubPoints, isTeamChamps);
         data.raceData[race.id] = overrideRaceData(data.raceData[race.id]);
         callback();
     });
@@ -102,12 +102,12 @@ var parseRaceData = function (race, details, browser, callback) {
 
 var parseResults = function (race, browser, callback) {
     var headings = $(browser.html()).find(constants.SELECTORS.HEADING);
-    var headingData = utils.getHeadingData(headings);
+    var headingData = util.getHeadingData(headings);
     var resultKeys = headingData.resultKeys;
     headingData = headingData.headingData;
 
     var rowSelector = 'table:eq(3) tr[bgcolor!="EEEEEE"]';
-    utils.parseResults(browser, race, resultKeys, rowSelector, maxResults, resultsPerPage, {}, callback);
+    util.parseResults(browser, race, resultKeys, rowSelector, maxResults, resultsPerPage, {}, callback);
 };
 
 var overrideRaceData = function (raceData) {
@@ -161,7 +161,7 @@ describe('Scraper', function () {
                 _.each(links, function (link) {
                     var url = $(link).attr('href');
                     if (url && url.indexOf(constants.RACE_PAGE_BASE_URL) !== -1) {
-                        var urlParams = utils.parseURLParams(url);
+                        var urlParams = util.parseURLParams(url);
                         var raceId = urlParams[constants.URL_KEYS.RACE_ID];
                         var year = urlParams[constants.URL_KEYS.YEAR];
                         if (!data.races) data.races = [];
@@ -308,7 +308,7 @@ describe('Scraper', function () {
             if (data.races[i]) {
                 var race = data.races[i];
                 if (!data.savedRaces[race.id]) {
-                    var url = utils.getRaceURL(race.id, race.year);
+                    var url = util.getRaceURL(race.id, race.year);
                     browser.visit(url, function () {
                         raceDetails = parseRaceDetails(race.id, browser.html());
                         browser.choose('input[value="' + resultsPerPage + '"]');

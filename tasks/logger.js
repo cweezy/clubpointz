@@ -1,10 +1,10 @@
 var alertMailer = require('./alertMailer').mailer;
-var utils = require('./utils');
+var util = require('./util');
 
 var WARNING_PREFIX = 'WARNING: ';
 var ERROR_PREFIX = 'ERROR: ';
 
-var noMail = utils.getEnvVar('NO_MAIL');
+var noMail = util.getEnvVar('NO_MAIL');
 
 
 exports.warning = function (message) {

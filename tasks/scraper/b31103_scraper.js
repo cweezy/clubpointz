@@ -3,7 +3,7 @@ var assert = require('assert');
 var $ = require('jquery');
 var _ = require('underscore');
 var constants = require('./constants').constants;
-var utils = require('./utils');
+var util = require('./util');
 var logger = require('./../logger');
 
 
@@ -56,7 +56,7 @@ var adjustHeadingData = function (data) {
 var parseTeamResults = function (browser, headingData, isFirstTeam, callback) {
     if (_.isEmpty(headingData)) { 
         var row = $(browser.html()).find('tr[bgcolor="#E0E0E0"] td');
-        var data =  adjustHeadingData(utils.getHeadingData(row, {}));
+        var data =  adjustHeadingData(util.getHeadingData(row, {}));
         resultKeys = data.resultKeys;
         headingData = data.headingData;
     }
@@ -80,7 +80,7 @@ var parseTeamResults = function (browser, headingData, isFirstTeam, callback) {
     };
     var dataTransforms = {'sex_age' : transformSexAge};
 
-    utils.parseResults(browser, raceInfo, resultKeys, rowSelector, 200, 100, dataTransforms, saveResults);
+    util.parseResults(browser, raceInfo, resultKeys, rowSelector, 200, 100, dataTransforms, saveResults);
 };
 
 var getTeamDropdown = function (browser) {
@@ -102,7 +102,7 @@ var parseData = function (callback) {
         var data = {};
         data.headingData = {};
         data.results = [];
-        data.raceData = utils.makeRaceData(RACE_ID, RACE_NAME, RACE_YEAR, getRaceDetails(), [true, true], false);
+        data.raceData = util.makeRaceData(RACE_ID, RACE_NAME, RACE_YEAR, getRaceDetails(), [true, true], false);
 
         var visitTeamPage = function (i) {
             if (i < 4 && teamOptions[i]) {
