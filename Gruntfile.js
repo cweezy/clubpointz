@@ -73,7 +73,7 @@ module.exports = function (grunt) {
     // adding in the backbone app stuff
     'linker/js/app/*.js',
     'linker/js/app/models/*.js',
-    'linker/js/app/views/*.js',
+    'linker/js/app/views/*.js'
   ];
 
 
@@ -148,6 +148,8 @@ module.exports = function (grunt) {
   grunt.loadTasks(depsPath + '/grunt-contrib-less/tasks');
   grunt.loadTasks(depsPath + '/grunt-contrib-coffee/tasks');
 
+  grunt.loadNpmTasks('grunt-contrib-jshint');
+
   // Project configuration.
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
@@ -214,6 +216,10 @@ module.exports = function (grunt) {
         }
         ]
       }
+    },
+
+    jshint: {
+       src: ['*.js', 'api/**/*.js', 'tasks/**/*.js', 'tests/**/*.js']
     },
     
     coffee: {
@@ -480,42 +486,43 @@ module.exports = function (grunt) {
     'sails-linker:devTplJADE'
   ]);
 
-  grunt.registerTask('scrape', "Scrapes recent race results", function () {
+  grunt.registerTask('scrape', 'Scrapes recent race results from web\n' +
+        '":from_file" parses races from tasks/scraper/races.json\n' +
+        '":max_results=n" sets max results to n\n' +
+        '":no_mail" suppresses email notifications',
+        function (arg1, arg2, arg3) {
+    var args = [arg1, arg2, arg3].join(',');
+    var quietReporter = require('./' + path.join(SCRAPER_FILE_DIR, 'quietReporter')).quietReporter;
+
+    if (args.indexOf('from_file') !== -1) {
+      var file = fs.readFileSync(path.join(SCRAPER_FILE_DIR, 'races.json'));
+      process.env.RACES = file;
+    }
+
+    if (args.indexOf('max_results') !== -1) {
+      var maxResults = args.match(/max_results=([0-9]+)(,|$)/)[1];
+      process.env.MAX_RESULTS = maxResults;
+    }
+
+    if (args.indexOf('no_mail') !== -1) {
+      process.env.NO_MAIL = true;
+    }
+
     var done = this.async();
     var mocha = new Mocha({
-        reporter: 'list',
-        timeout: 99999999
-    });;
-    mocha.addFile('tasks/scraper.js');
+      reporter: quietReporter,
+      timeout: 99999999,
+      bail: true
+    });
+    mocha.addFile(path.join(SCRAPER_FILE_DIR, 'scraper.js'));
     mocha.run(function (failures) {
       done();
     });
   });
 
-  grunt.registerTask('scrape', "Scrapes recent race results", function (arg1, arg2) {
-    var args = [arg1, arg2].join(',');
-    var quietReporter = require('./' + path.join(SCRAPER_FILE_DIR, 'quietReporter')).quietReporter;
-
-    if (args.indexOf('from_file') !== -1) {                                                                                               
-      var file = fs.readFileSync(path.join(SCRAPER_FILE_DIR, 'races.json'));                                                              
-      process.env['RACES'] = file;                                                                                                        
-    }                                                                                                                                     
-                                                                                                                                          
-    if (args.indexOf('max_results') !== -1) {                                                                                             
-      var maxResults = args.match(/max_results=([0-9]+)(,|$)/)[1];                                                                        
-      process.env['MAX_RESULTS'] = maxResults;                                                                                            
-    }                                                                                                                                     
-                                                                                                                                          
-    var done = this.async();                                                                                                              
-    var mocha = new Mocha({                                                                                                               
-      reporter: quietReporter,                                                                                                            
-      timeout: 99999999                                                                                                                   
-    });                                                                                                                                   
-    mocha.addFile(path.join(SCRAPER_FILE_DIR, 'scraper.js'));                                                                             
-    mocha.run(function (failures) {                                                                                                       
-      done();                                                                                                                             
-    });                                                                                                                                   
-  });  
+  grunt.registerTask('lint', "Runs jshint on all javascript", function () {
+   
+  });
 
   // When API files are changed:
   // grunt.event.on('watch', function(action, filepath) {

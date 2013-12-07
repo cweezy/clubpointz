@@ -1,13 +1,13 @@
 var parse_b31103 = require('./b31103_scraper').parseData; 
+var logger = require('./../logger');
 
-parseData = function (race, callback) {
+exports.parseData = function (race, callback) {
     switch (race.id) {
         case 'b31103':
             return parse_b31103(callback);
             break;
         default:
-            console.log('WARNING: no scraper file for race ' + race.id);
+            logger.warning('no scraper file for race ' + race.id);
+            callback();
     }
 };
-
-exports.parseData = parseData;
