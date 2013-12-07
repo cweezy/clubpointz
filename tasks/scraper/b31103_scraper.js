@@ -105,7 +105,7 @@ var parseData = function (callback) {
         data.raceData = utils.makeRaceData(RACE_ID, RACE_NAME, RACE_YEAR, getRaceDetails(), [true, true], false);
 
         var visitTeamPage = function (i) {
-            if (teamOptions[i]) {
+            if (i < 4 && teamOptions[i]) {
                 browser.visit(MARATHON_RESULT_URL, function () {
                     var dropdown = getTeamDropdown(browser);
                     browser.select(dropdown, $(teamOptions[i]).text());

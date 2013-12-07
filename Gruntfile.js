@@ -73,6 +73,7 @@ module.exports = function (grunt) {
     // adding in the backbone app stuff
     'linker/js/app/*.js',
     'linker/js/app/models/*.js',
+    'linker/js/app/collections/*.js',
     'linker/js/app/views/*.js'
   ];
 
