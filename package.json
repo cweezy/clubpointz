@@ -19,7 +19,8 @@
     },
     "devDependencies" : {
         "grunt-contrib-jshint": "0.1.1rc6",
-        "nodemailer": "0.5.13"
+        "nodemailer": "0.5.13",
+        "wrench": "1.5.4"
     },
     "scripts": {
         "start": "node app.js",

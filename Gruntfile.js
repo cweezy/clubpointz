@@ -16,9 +16,11 @@
 
 var fs = require('fs');
 var path = require('path');
+var wrench = require('wrench');
 var Mocha = require('mocha');
 
 var SCRAPER_FILE_DIR = 'tasks/scraper';
+var TEST_DIR = 'tests';
 
 module.exports = function (grunt) {
 
@@ -222,7 +224,7 @@ module.exports = function (grunt) {
     jshint: {
        src: ['*.js', 'api/**/*.js', 'tasks/**/*.js', 'tests/**/*.js']
     },
-    
+
     coffee: {
       dev: {
         options:{
@@ -521,8 +523,20 @@ module.exports = function (grunt) {
     });
   });
 
-  grunt.registerTask('lint', "Runs jshint on all javascript", function () {
-   
+  grunt.registerTask('test', "Runs all tests", function () {
+    var mocha = new Mocha({
+      require: path.join(TEST_DIR, 'common'),
+      reporter: 'spec'
+    });
+    wrench.readdirSyncRecursive(TEST_DIR).filter(function (file) {
+      return file.substr(-3) === '.js';
+    }).forEach(function (file) {
+      mocha.addFile(path.join(TEST_DIR, file));
+    });
+    var done = this.async();
+    mocha.run(function (failures) {
+      done();
+    })
   });
 
   // When API files are changed:
