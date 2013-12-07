@@ -1,4 +1,4 @@
-var utils = require('./../../tasks/scraper/utils');
+var util = require('./../../tasks/scraper/util');
 var constants = require('./../../tasks/scraper/constants').constants;
 var logger = require('./../../tasks/logger');
 
@@ -9,14 +9,14 @@ describe('Scraper utility function', function () {
       var inputs = ['October 4, 2013', 'September 26', 'January 6, 1999'];
       var expectedOutputs = ['10/4', '9/26', '1/6'];
       _.each(inputs, function (input, i) {
-        assert.equal(expectedOutputs[i], utils.getSmallDate(input));
+        assert.equal(expectedOutputs[i], util.getSmallDate(input));
       });
 
       var invalidInput = 'NotAMonth 4';
       var loggerMock = sinon.mock(logger);
       var expectation = loggerMock.expects('warning').once().withArgs(
         'no month found for NotAMonth');
-      utils.getSmallDate(invalidInput);
+      util.getSmallDate(invalidInput);
       loggerMock.verify();
 
       done();
@@ -26,14 +26,14 @@ describe('Scraper utility function', function () {
       var inputs = ['5 miles, 7 kilometers', '1 mile, 3 kilometers', '2 kilometers, 6 miles'];
       var expectedOutputs = [['5M', '7K'], ['1M', '3K'], ['2K', '6M']];
       _.each(inputs, function (input, i) {
-        assert.deepEqual(expectedOutputs[i], utils.getSmallDistances(input));
+        assert.deepEqual(expectedOutputs[i], util.getSmallDistances(input));
       });
 
       var invalidInputs = ['4 inch, 7 miles', '5 cat, 8 bear'];
       var loggerMock = sinon.mock(logger);
       var expectation = loggerMock.expects('warning').thrice();
       _.each(invalidInputs, function (input) {
-        utils.getSmallDistances(input);
+        util.getSmallDistances(input);
       });
       loggerMock.verify();
 
@@ -45,7 +45,7 @@ describe('Scraper utility function', function () {
       var raceId = 'b31124a';
       var year = '2013';
       var expectedURL = baseURL + '?result.id=b31124a&result.year=2013';
-      assert.equal(expectedURL, utils.getRaceURL(raceId, year));
+      assert.equal(expectedURL, util.getRaceURL(raceId, year));
       done();
     }),
 
@@ -55,7 +55,7 @@ describe('Scraper utility function', function () {
       var expectedOutputs = [ { 'param1' : 'yeah', 'param2' : 'yeah' },
                               { 'a' : '1', 'b' : '2', 'c' : '3', 'd' : '4' }];
       _.each(inputs, function (input, i) {
-        assert.deepEqual(expectedOutputs[i], utils.parseURLParams(input));
+        assert.deepEqual(expectedOutputs[i], util.parseURLParams(input));
       });
       done();
     }),
@@ -65,11 +65,11 @@ describe('Scraper utility function', function () {
         var expectedKeys = ['test_heading', 'another_one', 'a_3rd_cool_heading'];
 
         var headingData = {};
-        var result = utils.getHeadingData(headings, headingData);
+        var result = util.getHeadingData(headings, headingData);
         assert.deepEqual(expectedKeys, result.resultKeys);
 
         headings = ['<span>1 MoRe HeADInG</span>'];
-        result = utils.getHeadingData(headings, headingData);
+        result = util.getHeadingData(headings, headingData);
 
         var expectedHeadingData = {
             'test_heading' : { 'text' : 'Test Heading', '_id' : 'test_heading'  },
@@ -95,7 +95,7 @@ describe('Scraper utility function', function () {
             },
             'isTeamChamps' : false
         };
-        assert.deepEqual(expectedResult, utils.makeRaceData(
+        assert.deepEqual(expectedResult, util.makeRaceData(
             'mock_id', 'A Race!', '2013', { 'Mock Detail' : 'blah blah blah', '123 Detail' : '1234!'},
             [false, true], false)
         );
@@ -107,10 +107,10 @@ describe('Scraper utility function', function () {
         var invalidValues = ['55', 'abc4', 'a:5', 'a', '4:$', '%$'];
 
         _.each(validValues, function (val) {
-            assert(utils.isTime(val));
+            assert(util.isTime(val));
         });
         _.each(invalidValues, function (val) {
-            assert.equal(false, utils.isTime(val));
+            assert.equal(false, util.isTime(val));
         });
         done();
     }),
@@ -119,7 +119,7 @@ describe('Scraper utility function', function () {
         var times = ['01:04:30', '1:00', '1:00:00', '24:59:59'];
         var expectedSeconds = [3870, 60, 3600, 89999];
         _.each(times, function (time, i) {
-            assert.equal(expectedSeconds[i], utils.timeToSeconds(time));
+            assert.equal(expectedSeconds[i], util.timeToSeconds(time));
         });
         done();
     });

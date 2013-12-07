@@ -1,3 +1,5 @@
+var util = require('./../tasks/util');
+
 describe('Utility function', function () {
 
   it('gets environment variables', function (done) {
