@@ -39,28 +39,34 @@ var bail = function (errorMessage, callback) {
     waitForMessages(forceFail);
 };
 
-var determineIfClubPoints = function (race, details) {
+var determineIfClubPoints = function (race, details, browser, callback) {
     var isClubPointsMen = false;
     var isClubPointsWomen = false;
 
-    var raceDate = util.getSmallDate(details['Date/Time']);
-    var raceDistances = util.getSmallDistances(details['Distance']);
-
-    _.each(raceDistances, function (distance) {
-        _.each(data.clubPointsRaces, function (clubPointsRace) {
-            if (clubPointsRace[constants.DATA_KEYS.CLUB_POINTS.DATE] === raceDate &&
-                    clubPointsRace[constants.DATA_KEYS.YEAR] === race.year &&
-                    clubPointsRace[constants.DATA_KEYS.CLUB_POINTS.DISTANCE] === distance) {
-                if (clubPointsRace[constants.DATA_KEYS.CLUB_POINTS.TYPE] === constants.CLUB_POINTS_RACE_TYPES.MEN) {
-                    isClubPointsMen = true;
-                } else if (clubPointsRace[constants.DATA_KEYS.CLUB_POINTS.TYPE] === constants.CLUB_POINTS_RACE_TYPES.WOMEN) {
-                    isClubPointsWomen = true;
-                }
-            }
-        });
+    var allTeamsShown = false;
+    var awardWinnersUrl = $(browser.html()).find(constants.SELECTORS.AWARD_WINNERS_URL).attr('href');
+    browser.visit(awardWinnersUrl, function () {
+        allTeamsShown = $(browser.html()).find('pre').length > 50;
+        if (allTeamsShown) {
+            var raceDate = util.getSmallDate(details['Date/Time']);
+            var raceDistances = util.getSmallDistances(details['Distance']);
+            _.each(raceDistances, function (distance) {
+                _.each(data.clubPointsRaces, function (clubPointsRace) {
+                    if (clubPointsRace[constants.DATA_KEYS.CLUB_POINTS.DATE] === raceDate &&
+                            clubPointsRace[constants.DATA_KEYS.YEAR] === race.year &&
+                            clubPointsRace[constants.DATA_KEYS.CLUB_POINTS.DISTANCE] === distance) {
+                        if (clubPointsRace[constants.DATA_KEYS.CLUB_POINTS.TYPE] === constants.CLUB_POINTS_RACE_TYPES.MEN) {
+                            isClubPointsMen = true;
+                        } else if (clubPointsRace[constants.DATA_KEYS.CLUB_POINTS.TYPE] === constants.CLUB_POINTS_RACE_TYPES.WOMEN) {
+                            isClubPointsWomen = true;
+                        }
+                    }
+                });
+            });
+        }
+        browser.back();
+        callback([isClubPointsMen, isClubPointsWomen]);
     });
-
-    return [isClubPointsMen, isClubPointsWomen];
 };
 
 var parseRaceDetails = function (raceId, pageBody) {
@@ -77,13 +83,13 @@ var parseRaceDetails = function (raceId, pageBody) {
     return raceDetails;
 };
 
-var parseRaceData = function (race, details, callback) {
-    var isClubPoints = determineIfClubPoints(race, details);
-
-    if (!data.raceData) data.raceData = {};
-    data.raceData[race.id] = util.makeRaceData(race.id, race.name, race.year, details, isClubPoints);
-    data.raceData[race.id] = overrideRaceData(data.raceData[race.id]);
-    callback();
+var parseRaceData = function (race, details, browser, callback) {
+    determineIfClubPoints(race, details, browser, function (isClubPoints) {
+        if (!data.raceData) data.raceData = {};
+        data.raceData[race.id] = util.makeRaceData(race.id, race.name, race.year, details, isClubPoints);
+        data.raceData[race.id] = overrideRaceData(data.raceData[race.id]);
+        callback();
+    });
 };
 
 var parseResults = function (race, browser, callback) {
@@ -303,7 +309,7 @@ describe('Scraper', function () {
                         browser.pressButton(constants.SELECTORS.SEARCH_BUTTON);
                         browser.wait(function () {
                             race.name = $(browser.html()).find(constants.SELECTORS.RACE_NAME).text();
-                            parseRaceData(race, raceDetails, function () {
+                            parseRaceData(race, raceDetails, browser, function () {
                                 parseResults(data.raceData[race.id], browser, function (results, teamResults) {
                                     data.raceResults = _.extend({}, data.raceResults, results);
                                     data.teamResults = _.extend({}, data.teamResults, teamResults);
