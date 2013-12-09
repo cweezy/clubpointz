@@ -14,7 +14,8 @@ var constants = function () {
     RACE_OVERRIDE : 'race_override',
     CLUB_POINTS_RACE : 'clubpointsrace',
     TEAM : 'team',
-    TEAM_RESULT : 'teamresult'
+    TEAM_RESULT : 'teamresult',
+    DIVISION : 'division'
   };
 
   this.RESULT_MAIN_URL = 'http://web2.nyrrc.org/cgi-bin/htmlos.cgi/aes-programs/results/resultsarchive.htm';
@@ -24,12 +25,7 @@ var constants = function () {
   this.MARATHON_RESULT_URL = 'http://web2.nyrrc.org/cgi-bin/start.cgi/nyrrc/monitor/pages/postrace/postracestartup.html';
   this.EXPECTED_MARATHON_RESULT_TITLE = 'ING New York City Marathon';
 
-  this.CLUB_POINTS_TYPES = ['OPEN MEN A', 'OPEN WOMEN A'];
-  this.CLUB_POINTS_NON_RACE_LABELS = ['OPEN MEN A', 'OPEN WOMEN A', 'TEAM', 'TOTAL'];
-  this.CLUB_POINTS_RACE_TYPES = {
-    MEN : 'OPEN MEN A',
-    WOMEN : 'OPEN WOMEN A'
-  };
+  this.CLUB_POINTS_NON_RACE_LABELS = ['TEAM', 'TOTAL'];
 
   this.KEY_DELIMITER = '-';
   this.TEAM_CHAMPS_NAME_MEN = 'Team Championships-Men';

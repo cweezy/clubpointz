@@ -233,7 +233,7 @@ describe('Scraper', function () {
         }); 
     }),
 
-    it('finds club points race info', function (done) {
+    it('parses division info', function (done) {
         if (!data.clubPointsRaces) data.clubPointsRaces = [];
         if (_.isEmpty(data.clubPointsRaces)) {
             var browser = new Browser();
@@ -247,31 +247,37 @@ describe('Scraper', function () {
             });
             years = _.uniq(years);
 
+            if (!data.divisionData) data.divisionData = {};
             _.each(years, function (year, i) {
                 browser.visit(constants.CLUB_POINTS_DATA_URL + year, function () {
-                    var pageBody = browser.text();
-                    var pageJson = JSON.parse(pageBody);
+                    var pageJSON = JSON.parse(browser.text());
 
-                    _.each(constants.CLUB_POINTS_TYPES, function (type) {
-                        var labels = _.find(pageJson.data, function (item) {
-                            if (item.type === type && item.is_label === '1') {
-                                return item;
-                            }
-                        });
-                        _.each(labels.data, function (label) {
-                            if (constants.CLUB_POINTS_NON_RACE_LABELS.indexOf(label) === -1) {
-                                var parts = label.split('-');
-                                var raceData = {};
-                                raceData[constants.DATA_KEYS.CLUB_POINTS.DATE] = parts[0];
-                                raceData[constants.DATA_KEYS.CLUB_POINTS.DISTANCE] = parts[1];
-                                raceData[constants.DATA_KEYS.YEAR] = year;
-                                raceData[constants.DATA_KEYS.CLUB_POINTS.TYPE] = type;
-                                data.clubPointsRaces.push(raceData);
-                            }
-                        });
+                    _.each(pageJSON.data, function (item) {
+                        if (!data.divisionData[item.type]) {
+                            data.divisionData[item.type] = {};
+                            data.divisionData[item.type][constants.DATA_KEYS.DB_ID] = item.type;
+                        }
+                        if (item.is_label === '1') {
+                            _.each(item.data, function (label) {
+                                if (constants.CLUB_POINTS_NON_RACE_LABELS.indexOf(label) === -1 &&
+                                        item.type !== label) {
+                                    var parts = label.split('-');
+                                    var raceData = {};
+                                    raceData[constants.DATA_KEYS.CLUB_POINTS.DATE] = parts[0];
+                                    raceData[constants.DATA_KEYS.CLUB_POINTS.DISTANCE] = parts[1];
+                                    raceData[constants.DATA_KEYS.YEAR] = year;
+                                    
+                                    if (!data.divisionData[item.type].races) data.divisionData[item.type].races = [];
+                                    data.divisionData[item.type].races.push(raceData);
+                                }
+                            });
+                        } else if (item.name !== '') {
+                            if (!data.divisionData[item.type].teams) data.divisionData[item.type].teams = [];
+                            data.divisionData[item.type].teams.push(item.name);
+                        }
                     });
 
-                    logger.info('Parsed club points race info for ' + year);
+                    logger.info('Parsed division info for ' + year);
                     if (i === years.length - 1) {
                         done();
                     }
@@ -397,6 +403,11 @@ describe('Scraper', function () {
 
             collection = db.collection(constants.DB_COLLECTIONS.TEAM_RESULT);
             _.each(data.teamResults, function (data) {
+                collection.insert(data, {w:1}, onDbError);
+            });
+
+            collection = db.collection(constants.DB_COLLECTIONS.DIVISION);
+            _.each(data.divisionData, function (data) {
                 collection.insert(data, {w:1}, onDbError);
             });
 
