@@ -103,16 +103,17 @@ exports.parseResults = function (browser, race, resultKeys, rowSelector, maxResu
   if (race.name) {
     logger.infoGroup(true, 'Parsing results for ' + race.name);
   }
-  var results = [];
-  var allResultsParsed = false;
+  var results = {};
+  var teamResults = {};
+  results = {};
+
   var that = this;
   var parsePage = function (startIndex) {
     logger.infoGroup(false, 'Parsing results ' + startIndex + '-' + parseInt(startIndex + resultsPerPage, 10));
 
     var pageBody = browser.html();
     _.each($(pageBody).find(rowSelector), function (row, i) {
-      results[startIndex + i] = {};
-      results[startIndex + i][constants.DATA_KEYS.RACE_ID] = race.id;
+      var result = {};
       _.each($(row).find('td'), function (cell, j) {
         var data = $(cell).html();
         if (that.isTime(data)) {
@@ -122,23 +123,48 @@ exports.parseResults = function (browser, race, resultKeys, rowSelector, maxResu
         }
         var key = resultKeys[j];
         if (dataTransforms[key]) {
-          results[startIndex + i][key] = dataTransforms[key](data);
+          result[key] = dataTransforms[key](data);
         } else {
-          results[startIndex + i][key] = data;
+          result[key] = data;
         }
       });
+      var resultId = race.id + constants.KEY_DELIMITER + result.bib;
+      result[constants.DATA_KEYS.DB_ID] = resultId;
+      result[constants.DATA_KEYS.RACE_ID] = race.id;
+      results[resultId] = result;
+
+      // Add result to team results
+      var resultCount = race.isTeamChamps ? constants.TEAM_RESULT_COUNT.TEAM_CHAMPS :
+        constants.TEAM_RESULT_COUNT.DEFAULT;
+      var teamResultKey = race.id + constants.KEY_DELIMITER + result.team;
+      if (!teamResults[teamResultKey]) {
+        teamResults[teamResultKey] = {};
+        teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.TEAM_ID] = result.team;
+        teamResults[teamResultKey][constants.DATA_KEYS.RACE_ID] = race.id;
+      }
+
+      if (!teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS]) {
+        teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS] = [];
+        teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS].push(resultId);
+        teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.TEAM_TIME] = result.net_time;
+        teamResults[teamResultKey][constants.DATA_KEYS.RACE_ID] = race.id;
+      } else if (teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS].length < resultCount) {
+        teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS].push(resultId);
+        teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.TEAM_TIME] += parseInt(result.net_time, 10);
+      }
     });
 
     var nextButton = $(pageBody).find('a:contains("' + constants.NEXT_BTN_TEXT + ' ' + resultsPerPage + '")');
-    if (results.length < maxResults && $(nextButton).length > 0) {
+    var resultLength = _.keys(results).length;
+    if (resultLength < maxResults && $(nextButton).length > 0) {
       var nextUrl = $(nextButton).attr('href');
       browser.visit(nextUrl, function () {                                                                                          
         parsePage(startIndex + resultsPerPage);                
       });
       browser.wait();
     } else {
-      logger.infoGroup(false, 'Parsed ' + results.length + ' ' + genericUtils.getSingularOrPlural('result', results.length));
-      callback(results);
+      logger.infoGroup(false, 'Parsed ' + resultLength + ' ' + genericUtils.getSingularOrPlural('result', resultLength));
+      callback(results, teamResults);
     }
   };
   parsePage(0);

@@ -13,7 +13,8 @@ var constants = function () {
     HEADING : 'heading',
     RACE_OVERRIDE : 'race_override',
     CLUB_POINTS_RACE : 'clubpointsrace',
-    TEAM : 'team'
+    TEAM : 'team',
+    TEAM_RESULT : 'teamresult'
   };
 
   this.RESULT_MAIN_URL = 'http://web2.nyrrc.org/cgi-bin/htmlos.cgi/aes-programs/results/resultsarchive.htm';
@@ -30,7 +31,13 @@ var constants = function () {
     WOMEN : 'OPEN WOMEN A'
   };
 
+  this.KEY_DELIMITER = '-';
   this.TEAM_CHAMPS_NAME = 'Team Championships',
+  this.TEAM_RESULT_COUNT = {
+    TEAM_CHAMPS : 10,
+    MARATHON : 3,
+    DEFAULT : 5
+  };
 
   this.NEXT_BTN_TEXT = 'NEXT';
   this.SELECTORS = {
@@ -70,6 +77,11 @@ var constants = function () {
       DATE : 'date',
       DISTANCE : 'distance',
       TYPE : 'type'
+    },
+    TEAM_RESULT : {
+      TEAM_ID : 'teamId',
+      TEAM_TIME : 'teamTime',
+      RESULT_IDS : 'resultIds'
     }
   };
 

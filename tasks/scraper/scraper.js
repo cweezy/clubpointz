@@ -6,7 +6,7 @@ var _ = require('underscore');
 var constants = require('./constants').constants;
 var parseIrregularRaceData = require('./irregularRaceScraper').parseData;
 var util = require('./util');
-var genericUtils = require('./../utils');
+var genericUtils = require('./../util');
 var alertMailer = require('./../alertMailer').mailer;
 var logger = require('./../logger');
 var getTeamDropdown = require('./b31103_scraper').getTeamDropdown;
@@ -311,6 +311,7 @@ describe('Scraper', function () {
                     var url = util.getRaceURL(race.id, race.year);
                     browser.visit(url, function () {
                         raceDetails = parseRaceDetails(race.id, browser.html());
+                        race.isTeamChamps = raceDetails.isTeamChamps;
                         browser.choose('input[value="' + resultsPerPage + '"]');
                         browser.pressButton(constants.SELECTORS.SEARCH_BUTTON);
                         browser.wait(function () {
@@ -318,8 +319,9 @@ describe('Scraper', function () {
                                 parseRace(i+1);
                             };
                             race.name = $(browser.html()).find(constants.SELECTORS.RACE_NAME).text();
-                            var saveResults = function (results) {
+                            var saveResults = function (results, teamResults) {
                                 data.raceResults = _.extend({}, data.raceResults, results);
+                                data.teamResults = _.extend({}, data.teamResults, teamResults);
                                 parseRaceData(race, raceDetails, browser, parseNextRace);
                             };
                             parseResults(race, browser, saveResults);
@@ -339,17 +341,16 @@ describe('Scraper', function () {
     it('parses irregular race data', function (done) {
         if (data.irregularRaces.length > 0) {
             var parseRace = function (i) {
-                var saveRaceData = function (resultData) {
-                    if (resultData) {
-                        data.raceResults = _.extend({}, data.raceResults, resultData.raceResults);
-                        data.raceData[resultData.raceData[constants.DATA_KEYS.DB_ID]] = resultData.raceData;
-                        data.headingData = _.extend({}, data.headingData, resultData.headingData);
-                    }
-                    parseRace(i+1);
-                };
                 if (data.irregularRaces[i]) {
                     if (!data.savedRaces[data.irregularRaces[i][DATA_KEYS.DB_ID]]) {
-                        parseIrregularRaceData(data.irregularRaces[i], saveRaceData);
+                        parseIrregularRaceData(data.irregularRaces[i], function (resultData) {
+                            data.raceResults = _.extend({}, data.raceResults, resultData.results);
+                            data.teamResults = _.extend({}, data.teamResults, resultData.teamResults);
+                            if (!data.raceData) data.raceData = {}; 
+                            data.raceData[resultData.raceData[constants.DATA_KEYS.DB_ID]] = resultData.raceData;
+                            data.headingData = _.extend({}, data.headingData, resultData.headingData);
+                            parseRace(i+1);
+                        });
                     }
                 } else {
                     done();
@@ -397,6 +398,11 @@ describe('Scraper', function () {
             collection = db.collection(constants.DB_COLLECTIONS.TEAM);
             _.each(data.teamData, function (team, key) {
                 collection.insert(team, {w:1}, onDbError);
+            });
+
+            collection = db.collection(constants.DB_COLLECTIONS.TEAM_RESULT);
+            _.each(data.teamResults, function (data) {
+                collection.insert(data, {w:1}, onDbError);
             });
 
             logger.info('All new data saved');

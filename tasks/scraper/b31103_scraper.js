@@ -24,9 +24,9 @@ var getRaceDetails = function () {
 var adjustHeadingData = function (data) {
     // Original field data; replaceCount is the number of fields that will replace the original
     var originalFields = [{key : 'state_country', replaceCount : 2}, {key : 'age', replaceCount : 1},
-                          {key : 'bib_no', replaceCount : 1}];
+                          {key : 'bib_no', replaceCount : 1}, {key : 'finish_time', replaceCount : 1}];
     var newFields = {'state' : {text : 'State'}, 'country' : {text : 'Country'}, 'sex_age' : {text : 'Sex/Age'},
-                     'bib' : {text : 'Bib'}};
+                     'bib' : {text : 'Bib'}, 'net_time' : {text : 'Net Time'}};
 
     newFields = _.map(newFields, function (field, key) {
         var data = {};
@@ -61,10 +61,10 @@ var parseTeamResults = function (browser, headingData, isFirstTeam, callback) {
         headingData = data.headingData;
     }
     var rowSelector = 'tr[bgcolor="#EEEEEE"]';
-    var saveResults = function (results) {
-        var team = results[0].team;
+    var saveResults = function (results, teamResults) {
+        var team = _.values(results)[0].team;
         logger.infoGroup(false, 'Parsed team results for ' + team);
-        callback(results, headingData);
+        callback(results, teamResults, headingData);
     };
 
     var raceInfo = {id : RACE_ID};
@@ -111,8 +111,9 @@ var parseData = function (callback) {
                     browser.select(dropdown, $(teamOptions[i]).text());
                     browser.pressButton('input[type="submit"]');
                     browser.wait(function () {
-                        parseTeamResults(browser, data.headingData, i === 0, function (results, headingData) {
-                            data.results = data.results.concat(results);
+                        parseTeamResults(browser, data.headingData, i === 0, function (results, teamResults, headingData) {
+                            data.results = _.extend({}, data.results, results);
+                            data.teamResults = _.extend({}, data.teamResults, teamResults);
                             data.headingData = _.extend(data.headingData, headingData);
                             visitTeamPage(i+1);
                         });
