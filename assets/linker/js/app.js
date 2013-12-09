@@ -8,5 +8,7 @@ Backbone.View.prototype.template = function (viewName, data) {
 
 $(function() {
   new app.Router();
+  app.races.reset(sailsExports.racesJson);
+  app.teams.reset(sailsExports.teamsJson);
   Backbone.history.start();
 });
