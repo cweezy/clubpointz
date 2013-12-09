@@ -1,1 +1,7 @@
 this is the standings view
+There are <%- app.races.length %> races.
+<br>
+<% app.races.each(function (race) { %>
+  <%= race.get('name') %>
+  <br>
+<% }) %>
