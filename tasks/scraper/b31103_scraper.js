@@ -69,8 +69,6 @@ var parseTeamResults = function (browser, headingData, isFirstTeam, callback) {
 
     var raceInfo = {};
     raceInfo[constants.DATA_KEYS.DB_ID] = RACE_ID;
-    raceInfo[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_MEN] = constants.TEAM_RESULT_COUNT.MARATHON;
-    raceInfo[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_WOMEN] = constants.TEAM_RESULT_COUNT.MARATHON;
 
     // We only want to report the race name on first call
     if (isFirstTeam) {
@@ -106,7 +104,7 @@ var parseData = function (callback) {
         var data = {};
         data.headingData = {};
         data.results = [];
-        data.raceData = util.makeRaceData(RACE_ID, RACE_NAME, RACE_YEAR, getRaceDetails(), [true, true], false);
+        data.raceData = util.makeRaceData(RACE_ID, RACE_NAME, RACE_YEAR, getRaceDetails(), [true, true], true);
 
         var visitTeamPage = function (i) {
             if (i < 4 && teamOptions[i]) {

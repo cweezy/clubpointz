@@ -101,7 +101,8 @@ exports.getHeadingData = function (headings, headingData) {
  */
 exports.parseResults = function (browser, race, resultKeys, rowSelector, maxResults, resultsPerPage, dataTransforms, callback) {
   if (race[constants.DATA_KEYS.NAME]) {
-    logger.infoGroup(true, 'Parsing results for ' + race[constants.DATA_KEYS.NAME]);
+    logger.infoGroup(true, 'Parsing results for ' + race[constants.DATA_KEYS.NAME] +
+       (race[constants.DATA_KEYS.YEAR] ? ' ' + race[constants.DATA_KEYS.YEAR] : ''));
   }
   var results = {};
   var teamResults = {};
@@ -179,12 +180,13 @@ exports.parseResults = function (browser, race, resultKeys, rowSelector, maxResu
 /**
  * Returns an object of data describing a race
  * Arguments:
- *    id : race id
- *    name : race name
- *    details : object of race details
- *    isClubPoints : list of boolean values [isClubPointsMen, isClubPointsWomen]
+ *  id : race id
+ *  name : race name
+ *  details : object of race details
+ *  isClubPoints : list of boolean values [isClubPointsMen, isClubPointsWomen]
+ *  isMarathon (optional) : default false
  */
-exports.makeRaceData = function (id, name, year, details, isClubPoints) {
+exports.makeRaceData = function (id, name, year, details, isClubPoints, isMarathon) {
   raceData = {};
   raceData[constants.DATA_KEYS.DB_ID] = id;                                                                           
   raceData[constants.DATA_KEYS.NAME] = name;                                                                     
@@ -201,6 +203,8 @@ exports.makeRaceData = function (id, name, year, details, isClubPoints) {
     if (clubPoints) {
       if (isTeamChamps[i]) {
         teamResultCounts[i] = constants.TEAM_RESULT_COUNT.TEAM_CHAMPS;
+      } else if (isMarathon) {
+        teamResultCounts[i] = constants.TEAM_RESULT_COUNT.MARATHON;
       } else {
         teamResultCounts[i] = constants.TEAM_RESULT_COUNT.DEFAULT;
       }
