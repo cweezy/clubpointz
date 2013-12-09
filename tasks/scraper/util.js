@@ -90,7 +90,7 @@ exports.getHeadingData = function (headings, headingData) {
  * Parses all results of a race, page by page
  * Arguments:
  *    browser: browser instance
- *    race: race object {id : 'id', name : 'name'}
+ *    race: race date object
  *    resultKeys : list of data keys we're concerned with parsing
  *    rowSelector : CSS selector for a table row of data
  *    maxResults : maximum number of results to parse
@@ -100,8 +100,8 @@ exports.getHeadingData = function (headings, headingData) {
  *    callback
  */
 exports.parseResults = function (browser, race, resultKeys, rowSelector, maxResults, resultsPerPage, dataTransforms, callback) {
-  if (race.name) {
-    logger.infoGroup(true, 'Parsing results for ' + race.name);
+  if (race[constants.DATA_KEYS.NAME]) {
+    logger.infoGroup(true, 'Parsing results for ' + race[constants.DATA_KEYS.NAME]);
   }
   var results = {};
   var teamResults = {};
@@ -128,29 +128,35 @@ exports.parseResults = function (browser, race, resultKeys, rowSelector, maxResu
           result[key] = data;
         }
       });
-      var resultId = race.id + constants.KEY_DELIMITER + result.bib;
+      var resultId = race[constants.DATA_KEYS.DB_ID] + constants.KEY_DELIMITER + result.bib;
       result[constants.DATA_KEYS.DB_ID] = resultId;
-      result[constants.DATA_KEYS.RACE_ID] = race.id;
+      result[constants.DATA_KEYS.RACE_ID] = race[constants.DATA_KEYS.DB_ID];
       results[resultId] = result;
 
       // Add result to team results
-      var resultCount = race.isTeamChamps ? constants.TEAM_RESULT_COUNT.TEAM_CHAMPS :
-        constants.TEAM_RESULT_COUNT.DEFAULT;
-      var teamResultKey = race.id + constants.KEY_DELIMITER + result.team;
-      if (!teamResults[teamResultKey]) {
-        teamResults[teamResultKey] = {};
-        teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.TEAM_ID] = result.team;
-        teamResults[teamResultKey][constants.DATA_KEYS.RACE_ID] = race.id;
-      }
+      if (race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_MEN] > 0 || race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_WOMEN] > 0) {
+      var resultCount = { M : race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_MEN],
+                          F : race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_WOMEN]};
+      var teamResultKey = race[constants.DATA_KEYS.DB_ID] + constants.KEY_DELIMITER + result.team;
+      var resultSex = result.sex_age[0];
 
-      if (!teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS]) {
-        teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS] = [];
-        teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS].push(resultId);
-        teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.TEAM_TIME] = result.net_time;
-        teamResults[teamResultKey][constants.DATA_KEYS.RACE_ID] = race.id;
-      } else if (teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS].length < resultCount) {
-        teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS].push(resultId);
-        teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.TEAM_TIME] += parseInt(result.net_time, 10);
+        if (!teamResults[teamResultKey]) {
+          teamResults[teamResultKey] = {};
+          teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.TEAM_ID] = result.team;
+          teamResults[teamResultKey][constants.DATA_KEYS.RACE_ID] = race[constants.DATA_KEYS.DB_ID];
+        }
+
+        if (resultCount[resultSex] > 0) {
+          if (!teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS]) {
+            teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS] = [];
+            teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS].push(resultId);
+            teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.TEAM_TIME] = result.net_time;
+            teamResults[teamResultKey][constants.DATA_KEYS.RACE_ID] = race[constants.DATA_KEYS.DB_ID];
+          } else if (teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS].length < resultCount) {
+            teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS].push(resultId);
+            teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.TEAM_TIME] += parseInt(result.net_time, 10);
+          }
+        }
       }
     });
 
@@ -177,18 +183,32 @@ exports.parseResults = function (browser, race, resultKeys, rowSelector, maxResu
  *    name : race name
  *    details : object of race details
  *    isClubPoints : list of boolean values [isClubPointsMen, isClubPointsWomen]
- *    isTeamChamps : whether race is a Team Championship race
  */
-exports.makeRaceData = function (id, name, year, details, isClubPoints, isTeamChamps) {
+exports.makeRaceData = function (id, name, year, details, isClubPoints) {
   raceData = {};
   raceData[constants.DATA_KEYS.DB_ID] = id;                                                                           
   raceData[constants.DATA_KEYS.NAME] = name;                                                                     
-  raceData[constants.DATA_KEYS.RACE.IS_CLUB_POINTS_MEN] = isClubPoints[0];                                                 
-  raceData[constants.DATA_KEYS.RACE.IS_CLUB_POINTS_WOMEN] = isClubPoints[1];                                               
   raceData[constants.DATA_KEYS.YEAR] = year;                                                                          
   raceData[constants.DATA_KEYS.RACE.DETAILS] = details;
-  raceData[constants.DATA_KEYS.RACE.IS_TEAM_CHAMPS] = isTeamChamps;
 
+  // Get team result counts for [men, women]
+  var teamResultCounts = [0, 0];
+  var isTeamChamps = [];
+  isTeamChamps[0] = name === constants.TEAM_CHAMPS_NAME_MEN ? true : false;
+  isTeamChamps[1] = name === constants.TEAM_CHAMPS_NAME_WOMEN ? true : false;
+
+  _.each(isClubPoints, function (clubPoints, i) {
+    if (clubPoints) {
+      if (isTeamChamps[i]) {
+        teamResultCounts[i] = constants.TEAM_RESULT_COUNT.TEAM_CHAMPS;
+      } else {
+        teamResultCounts[i] = constants.TEAM_RESULT_COUNT.DEFAULT;
+      }
+    }
+  });
+
+  raceData[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_MEN] = teamResultCounts[0];
+  raceData[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_WOMEN] = teamResultCounts[1];
   return raceData;
 };
 

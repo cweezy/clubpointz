@@ -39,13 +39,10 @@ var bail = function (errorMessage, callback) {
     waitForMessages(forceFail);
 };
 
-var determineIfTeamChamps = function (raceName) {
-    return raceName.indexOf(constants.TEAM_CHAMPS_NAME) !== -1;
-};
-
-var determineIfClubPoints = function (pageBody, race, details) {
+var determineIfClubPoints = function (race, details) {
     // All team results are reported for club points races
-    var allTeamsShown = $(pageBody).find('pre').length > 50;
+    //var allTeamsShown = $(pageBody).find('pre').length > 50;
+    allTeamsShown = true;
     var isClubPointsMen = false;
     var isClubPointsWomen = false;
 
@@ -55,13 +52,13 @@ var determineIfClubPoints = function (pageBody, race, details) {
         var raceDistances = util.getSmallDistances(details['Distance']);
 
         _.each(raceDistances, function (distance) {
-            _.each(data.clubPointsRaces, function (race) {
-                if (race[constants.DATA_KEYS.CLUB_POINTS.DATE] === raceDate &&
-                        race[constants.DATA_KEYS.YEAR] === race.year &&
-                        race[constants.DATA_KEYS.CLUB_POINTS.DISTANCE] === distance) {
-                    if (race[constants.DATA_KEYS.CLUB_POINTS.TYPE] === constants.CLUB_POINTS_RACE_TYPES.MEN) {
+            _.each(data.clubPointsRaces, function (clubPointsRace) {
+                if (clubPointsRace[constants.DATA_KEYS.CLUB_POINTS.DATE] === raceDate &&
+                        clubPointsRace[constants.DATA_KEYS.YEAR] === race.year &&
+                        clubPointsRace[constants.DATA_KEYS.CLUB_POINTS.DISTANCE] === distance) {
+                    if (clubPointsRace[constants.DATA_KEYS.CLUB_POINTS.TYPE] === constants.CLUB_POINTS_RACE_TYPES.MEN) {
                         isClubPointsMen = true;
-                    } else if (race[constants.DATA_KEYS.CLUB_POINTS.TYPE] === constants.CLUB_POINTS_RACE_TYPES.WOMEN) {
+                    } else if (clubPointsRace[constants.DATA_KEYS.CLUB_POINTS.TYPE] === constants.CLUB_POINTS_RACE_TYPES.WOMEN) {
                         isClubPointsWomen = true;
                     }
                 }
@@ -85,19 +82,13 @@ var parseRaceDetails = function (raceId, pageBody) {
     return raceDetails;
 };
 
-var parseRaceData = function (race, details, browser, callback) {
-    var pageBody = browser.html();
+var parseRaceData = function (race, details, callback) {
+    var isClubPoints = determineIfClubPoints(race, details);
 
-    var awardWinnersUrl = $(pageBody).find(constants.SELECTORS.AWARD_WINNERS_URL).attr('href');
-    browser.visit(awardWinnersUrl, function () {
-        var isClubPoints = determineIfClubPoints(browser.html(), race, details);
-        var isTeamChamps = determineIfTeamChamps(race.name);
-
-        if (!data.raceData) data.raceData = {};
-        data.raceData[race.id] = util.makeRaceData(race.id, race.name, race.year, details, isClubPoints, isTeamChamps);
-        data.raceData[race.id] = overrideRaceData(data.raceData[race.id]);
-        callback();
-    });
+    if (!data.raceData) data.raceData = {};
+    data.raceData[race.id] = util.makeRaceData(race.id, race.name, race.year, details, isClubPoints);
+    data.raceData[race.id] = overrideRaceData(data.raceData[race.id]);
+    callback();
 };
 
 var parseResults = function (race, browser, callback) {
@@ -311,20 +302,17 @@ describe('Scraper', function () {
                     var url = util.getRaceURL(race.id, race.year);
                     browser.visit(url, function () {
                         raceDetails = parseRaceDetails(race.id, browser.html());
-                        race.isTeamChamps = raceDetails.isTeamChamps;
                         browser.choose('input[value="' + resultsPerPage + '"]');
                         browser.pressButton(constants.SELECTORS.SEARCH_BUTTON);
                         browser.wait(function () {
-                            var parseNextRace = function () {
-                                parseRace(i+1);
-                            };
                             race.name = $(browser.html()).find(constants.SELECTORS.RACE_NAME).text();
-                            var saveResults = function (results, teamResults) {
-                                data.raceResults = _.extend({}, data.raceResults, results);
-                                data.teamResults = _.extend({}, data.teamResults, teamResults);
-                                parseRaceData(race, raceDetails, browser, parseNextRace);
-                            };
-                            parseResults(race, browser, saveResults);
+                            parseRaceData(race, raceDetails, function () {
+                                parseResults(data.raceData[race.id], browser, function (results, teamResults) {
+                                    data.raceResults = _.extend({}, data.raceResults, results);
+                                    data.teamResults = _.extend({}, data.teamResults, teamResults);
+                                    parseRace(i+1);
+                                });
+                            });
                         });
                     });
                 } else {

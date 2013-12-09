@@ -32,7 +32,8 @@ var constants = function () {
   };
 
   this.KEY_DELIMITER = '-';
-  this.TEAM_CHAMPS_NAME = 'Team Championships',
+  this.TEAM_CHAMPS_NAME_MEN = 'Team Championships-Men';
+  this.TEAM_CHAMPS_NAME_WOMEN = 'Team Championships-Women';
   this.TEAM_RESULT_COUNT = {
     TEAM_CHAMPS : 10,
     MARATHON : 3,
@@ -63,9 +64,8 @@ var constants = function () {
     NAME : 'name',
     RACE : {
       DETAILS : 'details',
-      IS_CLUB_POINTS_MEN : 'isClubPointsMen',
-      IS_CLUB_POINTS_WOMEN : 'isClubPointsWomen',
-      IS_TEAM_CHAMPS : 'isTeamChamps'
+      TEAM_RESULT_COUNT_MEN : 'teamResultCountMen',
+      TEAM_RESULT_COUNT_WOMEN : 'teamResultCountWomen'
     },
     HEADING : {
       TEXT : 'text'

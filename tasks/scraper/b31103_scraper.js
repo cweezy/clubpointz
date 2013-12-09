@@ -67,10 +67,14 @@ var parseTeamResults = function (browser, headingData, isFirstTeam, callback) {
         callback(results, teamResults, headingData);
     };
 
-    var raceInfo = {id : RACE_ID};
+    var raceInfo = {};
+    raceInfo[constants.DATA_KEYS.DB_ID] = RACE_ID;
+    raceInfo[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_MEN] = constants.TEAM_RESULT_COUNT.MARATHON;
+    raceInfo[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_WOMEN] = constants.TEAM_RESULT_COUNT.MARATHON;
+
     // We only want to report the race name on first call
     if (isFirstTeam) {
-        raceInfo.name = RACE_NAME;
+        raceInfo[constants.DATA_KEYS.NAME] = RACE_NAME;
     }
 
     var transformSexAge = function (data) {
