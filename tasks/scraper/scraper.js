@@ -40,31 +40,26 @@ var bail = function (errorMessage, callback) {
 };
 
 var determineIfClubPoints = function (race, details) {
-    // All team results are reported for club points races
-    //var allTeamsShown = $(pageBody).find('pre').length > 50;
-    allTeamsShown = true;
     var isClubPointsMen = false;
     var isClubPointsWomen = false;
 
-    // If all teams are shown, also check that race date/distance matches a club points race
-    if (allTeamsShown) {
-        var raceDate = util.getSmallDate(details['Date/Time']);
-        var raceDistances = util.getSmallDistances(details['Distance']);
+    var raceDate = util.getSmallDate(details['Date/Time']);
+    var raceDistances = util.getSmallDistances(details['Distance']);
 
-        _.each(raceDistances, function (distance) {
-            _.each(data.clubPointsRaces, function (clubPointsRace) {
-                if (clubPointsRace[constants.DATA_KEYS.CLUB_POINTS.DATE] === raceDate &&
-                        clubPointsRace[constants.DATA_KEYS.YEAR] === race.year &&
-                        clubPointsRace[constants.DATA_KEYS.CLUB_POINTS.DISTANCE] === distance) {
-                    if (clubPointsRace[constants.DATA_KEYS.CLUB_POINTS.TYPE] === constants.CLUB_POINTS_RACE_TYPES.MEN) {
-                        isClubPointsMen = true;
-                    } else if (clubPointsRace[constants.DATA_KEYS.CLUB_POINTS.TYPE] === constants.CLUB_POINTS_RACE_TYPES.WOMEN) {
-                        isClubPointsWomen = true;
-                    }
+    _.each(raceDistances, function (distance) {
+        _.each(data.clubPointsRaces, function (clubPointsRace) {
+            if (clubPointsRace[constants.DATA_KEYS.CLUB_POINTS.DATE] === raceDate &&
+                    clubPointsRace[constants.DATA_KEYS.YEAR] === race.year &&
+                    clubPointsRace[constants.DATA_KEYS.CLUB_POINTS.DISTANCE] === distance) {
+                if (clubPointsRace[constants.DATA_KEYS.CLUB_POINTS.TYPE] === constants.CLUB_POINTS_RACE_TYPES.MEN) {
+                    isClubPointsMen = true;
+                } else if (clubPointsRace[constants.DATA_KEYS.CLUB_POINTS.TYPE] === constants.CLUB_POINTS_RACE_TYPES.WOMEN) {
+                    isClubPointsWomen = true;
                 }
-            });
+            }
         });
-    } 
+    });
+
     return [isClubPointsMen, isClubPointsWomen];
 };
 
