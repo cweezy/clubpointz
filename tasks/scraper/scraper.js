@@ -184,7 +184,12 @@ describe('Scraper', function () {
     }),
 
     it('finds saved data', function (done) {
-        var collection = db.collection(constants.DB_COLLECTIONS.RACE);
+        var collection = db.collection(constants.DB_COLLECTIONS.CLUB_POINTS_RACE);
+        collection.find().toArray(function (err, docs) {
+            data.clubPointsRaces = docs;
+        });
+
+        collection = db.collection(constants.DB_COLLECTIONS.RACE);
         var allRaces = data.races.concat(data.irregularRaces);
         _.each(allRaces, function (race, i) {
             var raceId = race.id;
@@ -198,10 +203,6 @@ describe('Scraper', function () {
                     done();
                 }
             });
-        });
-        collection = db.collection(constants.DB_COLLECTIONS.CLUB_POINTS_RACE);
-        collection.find().toArray(function (err, docs) {
-            data.clubPointsRaces = docs;
         });
     }),
 
@@ -227,18 +228,19 @@ describe('Scraper', function () {
     }),
 
     it('finds club points race info', function (done) {
+        if (!data.clubPointsRaces) data.clubPointsRaces = [];
         if (_.isEmpty(data.clubPointsRaces)) {
             var browser = new Browser();
             browser.runScripts = false;
             browser.loadCSS = false;
 
+            var allRaces = data.races.concat(data.irregularRaces);
             var years = [];
-            _.each(data.races, function (race) {
+            _.each(allRaces, function (race) {
                 years.push(race.year);
             });
             years = _.uniq(years);
 
-            if (!data.clubPointsRaces) data.clubPointsRaces = [];
             _.each(years, function (year, i) {
                 browser.visit(constants.CLUB_POINTS_DATA_URL + year, function () {
                     var pageBody = browser.text();
@@ -325,15 +327,19 @@ describe('Scraper', function () {
         if (data.irregularRaces.length > 0) {
             var parseRace = function (i) {
                 if (data.irregularRaces[i]) {
-                    if (!data.savedRaces[data.irregularRaces[i][DATA_KEYS.DB_ID]]) {
+                    if (!data.savedRaces[data.irregularRaces[i].id]) {
                         parseIrregularRaceData(data.irregularRaces[i], function (resultData) {
-                            data.raceResults = _.extend({}, data.raceResults, resultData.results);
-                            data.teamResults = _.extend({}, data.teamResults, resultData.teamResults);
-                            if (!data.raceData) data.raceData = {}; 
-                            data.raceData[resultData.raceData[constants.DATA_KEYS.DB_ID]] = resultData.raceData;
-                            data.headingData = _.extend({}, data.headingData, resultData.headingData);
+                            if (resultData) {
+                                data.raceResults = _.extend({}, data.raceResults, resultData.results);
+                                data.teamResults = _.extend({}, data.teamResults, resultData.teamResults);
+                                if (!data.raceData) data.raceData = {}; 
+                                data.raceData[resultData.raceData[constants.DATA_KEYS.DB_ID]] = resultData.raceData;
+                                data.headingData = _.extend({}, data.headingData, resultData.headingData);
+                            }
                             parseRace(i+1);
                         });
+                    } else {
+                        parseRace(i+1);
                     }
                 } else {
                     done();
