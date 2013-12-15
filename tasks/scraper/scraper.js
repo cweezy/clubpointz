@@ -68,7 +68,6 @@ var determineIfClubPoints = function (race, details, browser, callback) {
                 });
             });
         }
-        browser.back();
         callback([isClubPointsMen, isClubPointsWomen]);
     });
 };
@@ -96,14 +95,20 @@ var parseRaceData = function (race, details, browser, callback) {
     });
 };
 
-var parseResults = function (race, browser, callback) {
-    var headings = $(browser.html()).find(constants.SELECTORS.HEADING);
-    var headingData = util.getHeadingData(headings);
-    var resultKeys = headingData.resultKeys;
-    headingData = headingData.headingData;
+var parseResults = function (raceURL, race, browser, callback) {
+    browser.visit(raceURL, function () {
+        browser.choose('input[value="' + resultsPerPage + '"]');
+        browser.pressButton(constants.SELECTORS.SEARCH_BUTTON);
+        browser.wait(function () {
+            var headings = $(browser.html()).find(constants.SELECTORS.HEADING);
+            var headingData = util.getHeadingData(headings);
+            var resultKeys = headingData.resultKeys;
+            headingData = headingData.headingData;
 
-    var rowSelector = 'table:eq(3) tr[bgcolor!="EEEEEE"]';
-    util.parseResults(browser, race, resultKeys, rowSelector, maxResults, resultsPerPage, {}, callback);
+            var rowSelector = 'table:eq(3) tr[bgcolor!="EEEEEE"]';
+            util.parseResults(browser, race, resultKeys, rowSelector, maxResults, resultsPerPage, {}, callback);
+        });
+    });
 };
 
 var overrideRaceData = function (raceData) {
@@ -317,12 +322,10 @@ describe('Scraper', function () {
                     var url = util.getRaceURL(race.id, race.year);
                     browser.visit(url, function () {
                         raceDetails = parseRaceDetails(race.id, browser.html());
-                        browser.choose('input[value="' + resultsPerPage + '"]');
-                        browser.pressButton(constants.SELECTORS.SEARCH_BUTTON);
                         browser.wait(function () {
                             race.name = $(browser.html()).find(constants.SELECTORS.RACE_NAME).text();
                             parseRaceData(race, raceDetails, browser, function () {
-                                parseResults(data.raceData[race.id], browser, function (results, teamResults) {
+                                parseResults(url, data.raceData[race.id], browser, function (results, teamResults) {
                                     data.raceResults = _.extend({}, data.raceResults, results);
                                     data.teamResults = _.extend({}, data.teamResults, teamResults);
                                     parseRace(i+1);
