@@ -136,10 +136,10 @@ exports.parseResults = function (browser, race, resultKeys, rowSelector, maxResu
 
       // Add result to team results
       if (race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_MEN] > 0 || race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_WOMEN] > 0) {
-      var resultCount = { M : race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_MEN],
-                          F : race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_WOMEN]};
-      var teamResultKey = race[constants.DATA_KEYS.DB_ID] + constants.KEY_DELIMITER + result.team;
-      var resultSex = result.sex_age[0];
+        var resultCount = { M : race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_MEN],
+                            F : race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_WOMEN]};
+        var teamResultKey = race[constants.DATA_KEYS.DB_ID] + constants.KEY_DELIMITER + result.team;
+        var resultSex = result.sex_age[0];
 
         if (!teamResults[teamResultKey]) {
           teamResults[teamResultKey] = {};
