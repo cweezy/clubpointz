@@ -378,6 +378,11 @@ describe('Scraper', function () {
             var onDbError = function (err, objects) {
                 if (err) throw (err);
             };
+            var getQuery = function (item) {
+                var query = {};
+                query[constants.DATA_KEYS.DB_ID] = item[constants.DATA_KEYS.DB_ID];
+                return query;
+            };
 
             var collection = db.collection(constants.DB_COLLECTIONS.RACE);
             _.each(data.raceData, function (race, key) {
@@ -387,25 +392,23 @@ describe('Scraper', function () {
             });
 
             collection = db.collection(constants.DB_COLLECTIONS.HEADING);
-            _.each(data.headingData, function (heading, key) {
-                var query = {};
-                query[constants.DATA_KEYS.DB_ID] = heading[constants.DATA_KEYS.DB_ID];
-                collection.update(query, heading, {upsert:true}, onDbError);
+            _.each(data.headingData, function (heading) {
+                collection.update(getQuery(heading), heading, {upsert:true}, onDbError);
             });
 
             collection = db.collection(constants.DB_COLLECTIONS.RESULT);
             _.each(data.raceResults, function (result) {
-                collection.insert(result, {w:1}, onDbError);
+                collection.update(getQuery(result), result, {upsert:true}, onDbError);
             });
 
             collection = db.collection(constants.DB_COLLECTIONS.DIVISION);
             _.each(data.divisionData, function (division, key) {
-                collection.insert(division, {w:1}, onDbError);
+                collection.update(getQuery(division), division, {upsert:true}, onDbError);
             });
 
             collection = db.collection(constants.DB_COLLECTIONS.TEAM);
-            _.each(data.teamData, function (team, key) {
-                collection.insert(team, {w:1}, onDbError);
+            _.each(data.teamData, function (team) {
+                collection.update(getQuery(team), team, {upsert:true}, onDbError);
             });
 
             collection = db.collection(constants.DB_COLLECTIONS.TEAM_RESULT);
