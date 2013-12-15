@@ -12,24 +12,21 @@ var constants = function () {
     RESULT : 'result',
     HEADING : 'heading',
     RACE_OVERRIDE : 'race_override',
-    CLUB_POINTS_RACE : 'clubpointsrace',
     TEAM : 'team',
-    TEAM_RESULT : 'teamresult'
+    TEAM_RESULT : 'teamresult',
+    DIVISION : 'division'
   };
 
   this.RESULT_MAIN_URL = 'http://web2.nyrrc.org/cgi-bin/htmlos.cgi/aes-programs/results/resultsarchive.htm';
   this.RACE_PAGE_BASE_URL = 'http://web2.nyrrc.org/cgi-bin/start.cgi/aes-programs/results/startup.html';
-  this.CLUB_POINTS_DATA_URL = 'http://www.nyrr.org/causes-and-community/local-clubs/club-standings-search/';
+  this.DIVISION_DATA_URL = 'http://www.nyrr.org/causes-and-community/local-clubs/club-standings-search/';
   this.EXPECTED_RESULT_MAIN_TITLE = 'NYRR Race Results';
   this.MARATHON_RESULT_URL = 'http://web2.nyrrc.org/cgi-bin/start.cgi/nyrrc/monitor/pages/postrace/postracestartup.html';
   this.EXPECTED_MARATHON_RESULT_TITLE = 'ING New York City Marathon';
 
-  this.CLUB_POINTS_TYPES = ['OPEN MEN A', 'OPEN WOMEN A'];
-  this.CLUB_POINTS_NON_RACE_LABELS = ['OPEN MEN A', 'OPEN WOMEN A', 'TEAM', 'TOTAL'];
-  this.CLUB_POINTS_RACE_TYPES = {
-    MEN : 'OPEN MEN A',
-    WOMEN : 'OPEN WOMEN A'
-  };
+  this.DIVISION_NON_RACE_LABELS = ['TEAM', 'TOTAL'];
+  this.MENS_DIVISION_A = 'OPEN MEN A';
+  this.WOMENS_DIVISION_A = 'OPEN WOMEN A';
 
   this.KEY_DELIMITER = '-';
   this.TEAM_CHAMPS_NAME_MEN = 'Team Championships-Men';
@@ -73,7 +70,7 @@ var constants = function () {
     OVERRIDE : {
       DATA : 'data'
     },
-    CLUB_POINTS : {
+    DIVISION : {
       DATE : 'date',
       DISTANCE : 'distance',
       TYPE : 'type'

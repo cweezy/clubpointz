@@ -136,10 +136,10 @@ exports.parseResults = function (browser, race, resultKeys, rowSelector, maxResu
 
       // Add result to team results
       if (race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_MEN] > 0 || race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_WOMEN] > 0) {
-      var resultCount = { M : race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_MEN],
-                          F : race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_WOMEN]};
-      var teamResultKey = race[constants.DATA_KEYS.DB_ID] + constants.KEY_DELIMITER + result.team;
-      var resultSex = result.sex_age[0];
+        var resultCount = { M : race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_MEN],
+                            F : race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_WOMEN]};
+        var teamResultKey = race[constants.DATA_KEYS.DB_ID] + constants.KEY_DELIMITER + result.team;
+        var resultSex = result.sex_age[0];
 
         if (!teamResults[teamResultKey]) {
           teamResults[teamResultKey] = {};
@@ -153,7 +153,7 @@ exports.parseResults = function (browser, race, resultKeys, rowSelector, maxResu
             teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS].push(resultId);
             teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.TEAM_TIME] = result.net_time;
             teamResults[teamResultKey][constants.DATA_KEYS.RACE_ID] = race[constants.DATA_KEYS.DB_ID];
-          } else if (teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS].length < resultCount) {
+          } else if (teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS].length < resultCount[resultSex]) {
             teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS].push(resultId);
             teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.TEAM_TIME] += parseInt(result.net_time, 10);
           }
