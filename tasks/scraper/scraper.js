@@ -399,10 +399,9 @@ describe('Scraper', function () {
             });
 
             collection = db.collection(constants.DB_COLLECTIONS.DIVISION);
-            collection.insert(data.divisionData, {w:1}, onDbError);
-            //_.each(data.divisionData, function (division, key) {
-            //    collection.insert(division, {w:1}, onDbError);
-            //});
+            _.each(data.divisionData, function (division, key) {
+                collection.insert(division, {w:1}, onDbError);
+            });
 
             collection = db.collection(constants.DB_COLLECTIONS.TEAM);
             _.each(data.teamData, function (team, key) {
