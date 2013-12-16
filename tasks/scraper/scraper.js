@@ -51,8 +51,8 @@ var determineIfClubPoints = function (race, details, browser, callback) {
             var raceDate = util.getSmallDate(details['Date/Time']);
             var raceDistances = util.getSmallDistances(details['Distance']);
             _.each(raceDistances, function (distance) {
-                var mensDivision = data.divisionData[constants.MENS_DIVISION_A];
-                var womensDivision = data.divisionData[constants.WOMENS_DIVISION_A];
+                var mensDivision = data.divisionData[constants.MENS_DIVISION_A + constants.KEY_DELIMITER + race.year];
+                var womensDivision = data.divisionData[constants.WOMENS_DIVISION_A + constants.KEY_DELIMITER  + race.year];
                 _.each([mensDivision, womensDivision], function (division) {
                     _.each(division.races, function (divisionRace) {
                         if (divisionRace[constants.DATA_KEYS.DIVISION.DATE] === raceDate &&
@@ -198,15 +198,7 @@ describe('Scraper', function () {
     }),
 
     it('finds saved data', function (done) {
-        var collection = db.collection(constants.DB_COLLECTIONS.DIVISION);
-        collection.find().toArray(function (err, docs) {
-            data.divisionData = {};
-            _.each(docs, function (doc) {
-                data.divisionData[doc[constants.DATA_KEYS.DB_ID]] = doc;
-            });
-        });
-
-        collection = db.collection(constants.DB_COLLECTIONS.RACE);
+        var collection = db.collection(constants.DB_COLLECTIONS.RACE);
         var allRaces = data.races.concat(data.irregularRaces);
         _.each(allRaces, function (race, i) {
             var raceId = race.id;
@@ -242,9 +234,10 @@ describe('Scraper', function () {
                     var pageJSON = JSON.parse(browser.text());
 
                     _.each(pageJSON.data, function (item) {
-                        if (!data.divisionData[item.type]) {
-                            data.divisionData[item.type] = {};
-                            data.divisionData[item.type][constants.DATA_KEYS.DB_ID] = item.type;
+                        var divisionId = item.type + constants.KEY_DELIMITER + year;
+                        if (!data.divisionData[divisionId]) {
+                            data.divisionData[divisionId] = {};
+                            data.divisionData[divisionId][constants.DATA_KEYS.DB_ID] = divisionId;
                         }
                         if (item.is_label === '1') {
                             _.each(item.data, function (label) {
@@ -256,13 +249,13 @@ describe('Scraper', function () {
                                     raceData[constants.DATA_KEYS.DIVISION.DISTANCE] = parts[1];
                                     raceData[constants.DATA_KEYS.YEAR] = year;
                                     
-                                    if (!data.divisionData[item.type].races) data.divisionData[item.type].races = [];
-                                    data.divisionData[item.type].races.push(raceData);
+                                    if (!data.divisionData[divisionId].races) data.divisionData[divisionId].races = [];
+                                    data.divisionData[divisionId].races.push(raceData);
                                 }
                             });
                         } else if (item.name !== '') {
-                            if (!data.divisionData[item.type].teams) data.divisionData[item.type].teams = [];
-                            data.divisionData[item.type].teams.push(item.name);
+                            if (!data.divisionData[divisionId].teams) data.divisionData[divisionId].teams = [];
+                            data.divisionData[divisionId].teams.push(item.name);
                         }
                     });
 
@@ -373,18 +366,25 @@ describe('Scraper', function () {
     }),
 
     it('saves data', function (done) {
-        if (!_.isEmpty(data.raceData)) {
-            var createDate = new Date();
-            var onDbError = function (err, objects) {
-                if (err) throw (err);
-            };
-            var getQuery = function (item) {
-                var query = {};
-                query[constants.DATA_KEYS.DB_ID] = item[constants.DATA_KEYS.DB_ID];
-                return query;
-            };
+        var createDate = new Date();
+        var onDbError = function (err, objects) {
+            if (err) throw (err);
+        };
+        var getQuery = function (item) {
+            var query = {};
+            query[constants.DATA_KEYS.DB_ID] = item[constants.DATA_KEYS.DB_ID];
+            return query;
+        };
 
-            var collection = db.collection(constants.DB_COLLECTIONS.RACE);
+        var collection = db.collection(constants.DB_COLLECTIONS.DIVISION);
+        _.each(data.divisionData, function (division, key) {
+            collection.update(getQuery(division), division, {upsert:true}, onDbError);
+        });
+        logger.infoGroup(true, 'Division data saved');
+
+        if (!_.isEmpty(data.raceData)) {
+
+            collection = db.collection(constants.DB_COLLECTIONS.RACE);
             _.each(data.raceData, function (race, key) {
                 race[constants.DATA_KEYS.CREATED_AT] = createDate;
                 race[constants.DATA_KEYS.UPDATED_AT] = createDate;
@@ -401,11 +401,6 @@ describe('Scraper', function () {
                 collection.update(getQuery(result), result, {upsert:true}, onDbError);
             });
 
-            collection = db.collection(constants.DB_COLLECTIONS.DIVISION);
-            _.each(data.divisionData, function (division, key) {
-                collection.update(getQuery(division), division, {upsert:true}, onDbError);
-            });
-
             collection = db.collection(constants.DB_COLLECTIONS.TEAM);
             _.each(data.teamData, function (team) {
                 collection.update(getQuery(team), team, {upsert:true}, onDbError);
@@ -416,10 +411,10 @@ describe('Scraper', function () {
                 collection.insert(data, {w:1}, onDbError);
             });
 
-            logger.info('All new data saved');
+            logger.infoGroup(false, 'New race data saved');
             done();
         } else {
-            logger.info('No new data saved');
+            logger.infoGroup(false, 'No new race data saved');
             done();
         }
     }),
