@@ -63,7 +63,7 @@ var parseTeamResults = function (browser, headingData, isFirstTeam, callback) {
     var rowSelector = 'tr[bgcolor="#EEEEEE"]';
     var saveResults = function (results, teamResults) {
         var team = _.values(results)[0].team;
-        logger.infoGroup(false, 'Parsed team results for ' + team);
+        logger.reportOutGroup('Parsed team results for ' + team);
         callback(results, teamResults, headingData);
     };
 

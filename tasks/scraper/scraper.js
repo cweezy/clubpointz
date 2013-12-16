@@ -124,6 +124,8 @@ var overrideRaceData = function (raceData) {
 describe('Scraper', function () {
 
     it('sets up db connection', function (done) {
+        logger.report('Scrape start time ' + new Date().toString());
+
         MongoClient.connect(constants.MONGO_URI, function (err, database) {
             if (err) {
                 bail('Error establishing MongoDB connection - ' + err, done);
@@ -177,7 +179,7 @@ describe('Scraper', function () {
                     }
                 });
                 var allRacesLength = data.races.concat(data.irregularRaces).length;
-                logger.info('Found ' + allRacesLength + ' ' + genericUtils.getSingularOrPlural('race', allRacesLength) +
+                logger.reportOut('Found ' + allRacesLength + ' ' + genericUtils.getSingularOrPlural('race', allRacesLength) +
                             ' on web');
                 done();
             });
@@ -191,7 +193,7 @@ describe('Scraper', function () {
                 }
                 raceList.push(race);
             });
-            logger.info('Found ' + data.races.length + ' ' + genericUtils.getSingularOrPlural('race', data.races.length) + ' in file');
+            logger.reportOut('Found ' + data.races.length + ' ' + genericUtils.getSingularOrPlural('race', data.races.length) + ' in file');
             data.races = regularRaces;
             done();
         }
@@ -292,7 +294,7 @@ describe('Scraper', function () {
                         }
                     });
 
-                    logger.info('Parsed division info for ' + year);
+                    logger.reportOut('Parsed division info for ' + year);
                     if (i === years.length - 1) {
                         done();
                     }
@@ -337,7 +339,8 @@ describe('Scraper', function () {
                 }
 
             });
-            done(); 
+            logger.report('\nNon-club teams found:\n' + JSON.stringify(unmatchedTeams) + '\n');
+            done();
         }); 
     }),
 
@@ -431,9 +434,9 @@ describe('Scraper', function () {
             _.each(data.divisionData, function (division, key) {
                 collection.update(getQuery(division), division, {upsert:true}, onDbError);
             });
-            logger.infoGroup(true, 'Division data saved');
+            logger.reportOut('Division data saved');
         } else {
-            logger.infoGroup(false, 'No new division data saved');
+            logger.reportOut('No new division data saved');
         }
 
         if (!_.isEmpty(data.raceData)) {
@@ -464,15 +467,17 @@ describe('Scraper', function () {
                 collection.insert(data, {w:1}, onDbError);
             });
 
-            logger.infoGroup(false, 'New race data saved');
+            logger.reportOut('New race data saved');
             done();
         } else {
-            logger.infoGroup(false, 'No new race data saved');
+            logger.reportOut('No new race data saved');
             done();
         }
     }),
 
-    it ('waits for any pending messages to finish sending', function (done) {
+    it ('sends scrape report and waits for any pending messages to finish sending', function (done) {
+        logger.report('Scrape end time: ' + new Date().toString());
+        logger.report('Scrape Report', true);
         waitForMessages(done);
     });
 });

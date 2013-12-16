@@ -101,8 +101,8 @@ exports.getHeadingData = function (headings, headingData) {
  */
 exports.parseResults = function (browser, race, resultKeys, rowSelector, maxResults, resultsPerPage, dataTransforms, callback) {
   if (race[constants.DATA_KEYS.NAME]) {
-    logger.infoGroup(true, 'Parsing results for ' + race[constants.DATA_KEYS.NAME] +
-       (race[constants.DATA_KEYS.YEAR] ? ' ' + race[constants.DATA_KEYS.YEAR] : ''));
+    logger.reportOutGroup('Parsing results for ' + race[constants.DATA_KEYS.NAME] +
+       (race[constants.DATA_KEYS.YEAR] ? ' ' + race[constants.DATA_KEYS.YEAR] : ''), false, true);
   }
   var results = {};
   var teamResults = {};
@@ -110,7 +110,7 @@ exports.parseResults = function (browser, race, resultKeys, rowSelector, maxResu
 
   var that = this;
   var parsePage = function (startIndex) {
-    logger.infoGroup(false, 'Parsing results ' + startIndex + '-' + parseInt(startIndex + resultsPerPage, 10));
+    logger.reportOutGroup('Parsing results ' + startIndex + '-' + parseInt(startIndex + resultsPerPage, 10));
 
     var pageBody = browser.html();
     _.each($(pageBody).find(rowSelector), function (row, i) {
@@ -170,7 +170,7 @@ exports.parseResults = function (browser, race, resultKeys, rowSelector, maxResu
       });
       browser.wait();
     } else {
-      logger.infoGroup(false, 'Parsed ' + resultLength + ' ' + genericUtils.getSingularOrPlural('result', resultLength));
+      logger.reportOutGroup('Parsed ' + resultLength + ' ' + genericUtils.getSingularOrPlural('result', resultLength));
       callback(results, teamResults);
     }
   };
