@@ -74,9 +74,8 @@ var constants = function () {
       DATA : 'data'
     },
     DIVISION : {
-      DATE : 'date',
-      DISTANCE : 'distance',
-      TYPE : 'type'
+      RACES : 'races',
+      TEAMS : 'teams'
     },
     TEAM_RESULT : {
       TEAM_ID : 'teamId',
