@@ -1,4 +1,5 @@
 var alertMailer = require('./../alertMailer').mailer;
+var util = require('./../util');
 var _ = require('underscore');
 var $ = require('jquery');
 
@@ -50,6 +51,7 @@ var getFormattedReport = function () {
 };
 
 var reportInfo = $.extend(true, {}, blankReportInfo);
+var noMail = util.getEnvVar('NO_MAIL');
 
 exports.addRaceInfo = function (message) {
   reportInfo.RACE.INFO.push(message);
@@ -76,9 +78,11 @@ exports.addGeneralInfo = function (message) {
 };
 
 exports.sendReport = function () {
-  alertMailer.send({
-    subject : 'Scrape Report',
-    html : getFormattedReport()
-  });
+  if (!noMail) {
+    alertMailer.send({
+      subject : 'Scrape Report',
+      html : getFormattedReport()
+    });
+  }
   resetReportInfo();
 };

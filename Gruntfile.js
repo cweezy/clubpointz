@@ -492,7 +492,7 @@ module.exports = function (grunt) {
   grunt.registerTask('scrape', 'Scrapes recent race results from web\n' +
         '":from_file" parses races from tasks/scraper/races.json\n' +
         '":max_results=n" sets max results to n\n' +
-        '":no_mail" suppresses email notifications',
+        '":mail" send email notifications',
         function (arg1, arg2, arg3) {
     var args = [arg1, arg2, arg3].join(',');
     var quietReporter = require('./' + path.join(SCRAPER_FILE_DIR, 'quietMochaReporter')).quietReporter;
@@ -507,7 +507,7 @@ module.exports = function (grunt) {
       process.env.MAX_RESULTS = maxResults;
     }
 
-    if (args.indexOf('no_mail') !== -1) {
+    if (args.indexOf('mail') === -1) {
       process.env.NO_MAIL = true;
     }
 
