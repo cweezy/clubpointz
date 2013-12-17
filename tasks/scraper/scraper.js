@@ -60,12 +60,13 @@ var determineIfClubPoints = function (race, details, browser, callback) {
                 var womensDivision = data.divisionData[constants.WOMENS_DIVISION_A + constants.KEY_DELIMITER  + race.year];
                 _.each([mensDivision, womensDivision], function (division) {
                     _.each(division[constants.DATA_KEYS.DIVISION.RACES], function (divisionRace) {
-                        if (divisionRace.date  === raceDate &&
-                            divisionRace.year === race.year &&
-                            divisionRace.distance === distance) {
-                            if (division[constants.DATA_KEYS.DB_ID] === constants.MENS_DIVISION_A + constants.KEY_DELIMITER + divisionRace.year) {
+                        if (divisionRace[constants.DATA_KEYS.DIVISION.RACE.DATE] === raceDate &&
+                                divisionRace[constants.DATA_KEYS.DIVISION.RACE.DISTANCE] === distance) {
+                            if (division[constants.DATA_KEYS.DB_ID] === constants.MENS_DIVISION_A + constants.KEY_DELIMITER +
+                                    division[constants.DATA_KEYS.YEAR]) {
                                 isClubPointsMen = true;
-                            } else if (division[constants.DATA_KEYS.DB_ID] === constants.WOMENS_DIVISION_A + constants.KEY_DELIMITER + divisionRace.year) {
+                            } else if (division[constants.DATA_KEYS.DB_ID] === constants.WOMENS_DIVISION_A + constants.KEY_DELIMITER +
+                                    division[constants.DATA_KEYS.YEAR]) {
                                 isClubPointsWomen = true;
                             }
                         }
@@ -268,7 +269,7 @@ describe('Scraper', function () {
             isMissingData = false;
             _.each(years, function (year) {
                 var match = _.find(data.divisionData, function (division) {
-                    return division[constants.DATA_KEYS.DB_ID].indexOf(constants.KEY_DELIMITER + year) !== -1;
+                    return division[constants.DATA_KEYS.YEAR] === year;
                 });
                 if (!match) isMissingData = true;
             });
@@ -291,6 +292,7 @@ describe('Scraper', function () {
                         if (!data.divisionData[divisionId]) {
                             data.divisionData[divisionId] = {};
                             data.divisionData[divisionId][constants.DATA_KEYS.DB_ID] = divisionId;
+                            data.divisionData[divisionId][constants.DATA_KEYS.YEAR] = year;
                         }
                         if (item.is_label === '1') {
                             _.each(item.data, function (label) {
@@ -298,9 +300,8 @@ describe('Scraper', function () {
                                         item.type !== label) {
                                     var parts = label.split('-');
                                     var raceData = {};
-                                    raceData.date = parts[0];
-                                    raceData.distance = parts[1];
-                                    raceData.year = year;
+                                    raceData[constants.DATA_KEYS.DIVISION.RACE.DATE] = parts[0];
+                                    raceData[constants.DATA_KEYS.DIVISION.RACE.DISTANCE] = parts[1];
                                     
                                     if (!data.divisionData[divisionId][constants.DATA_KEYS.DIVISION.RACES]) {
                                         data.divisionData[divisionId][constants.DATA_KEYS.DIVISION.RACES] = [];
