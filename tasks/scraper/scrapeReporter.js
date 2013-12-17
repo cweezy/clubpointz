@@ -6,7 +6,7 @@ var $ = require('jquery');
 var blankReportInfo = {
   GENERAL : {
     NAME : 'General',
-    INFO : [],
+    INFO : []
   },
   RACE : {
     NAME : 'Races',
@@ -14,15 +14,15 @@ var blankReportInfo = {
   },
   RESULT : {
     NAME : 'Results',
-    INFO : [],
+    INFO : []
   },
   TEAM : {
     NAME : 'Teams',
-    INFO : [],
+    INFO : []
   },
   DIVISION : {
     NAME : 'Divisions',
-    INFO : [],
+    INFO : []
   },
   DATA : {
     NAME : 'Data',
