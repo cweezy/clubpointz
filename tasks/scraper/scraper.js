@@ -9,6 +9,7 @@ var util = require('./util');
 var genericUtils = require('./../util');
 var alertMailer = require('./../alertMailer').mailer;
 var logger = require('./../logger');
+var scrapeReporter = require('./scrapeReporter');
 var getTeamDropdown = require('./b31103_scraper').getTeamDropdown;
 
 var maxResults = constants.MAX_RESULTS;
@@ -16,16 +17,20 @@ var resultsPerPage = constants.RESULTS_PER_PAGE;
 
 var db;
 var data = {};
+var startTime;
 
 var waitForMessages = function (callback) {
+    var count = 0;
     var checkMessages = function () {
         var pendingMessages = alertMailer.getPendingMessages();
         if (pendingMessages === 0) {
             callback();
         } else {
-            logger.info('Waiting for ' + pendingMessages + ' pending ' +
-                        genericUtils.getSingularOrPlural('message', pendingMessages));
+            logger.infoGroup('Waiting for ' + pendingMessages + ' pending ' +
+                        genericUtils.getSingularOrPlural('message', pendingMessages),
+                        count === 0);
         }
+        count += 1;
     };
     setInterval(checkMessages, 1000);
 };
@@ -58,9 +63,9 @@ var determineIfClubPoints = function (race, details, browser, callback) {
                         if (divisionRace.date  === raceDate &&
                             divisionRace.year === race.year &&
                             divisionRace.distance === distance) {
-                            if (division[constants.DATA_KEYS.DB_ID] === constants.MENS_DIVISION_A) {
+                            if (division[constants.DATA_KEYS.DB_ID] === constants.MENS_DIVISION_A + constants.KEY_DELIMITER + divisionRace.year) {
                                 isClubPointsMen = true;
-                            } else if (division[constants.DATA_KEYS.DB_ID] === constants.WOMENS_DIVISION_A) {
+                            } else if (division[constants.DATA_KEYS.DB_ID] === constants.WOMENS_DIVISION_A + constants.KEY_DELIMITER + divisionRace.year) {
                                 isClubPointsWomen = true;
                             }
                         }
@@ -124,7 +129,8 @@ var overrideRaceData = function (raceData) {
 describe('Scraper', function () {
 
     it('sets up db connection', function (done) {
-        logger.report('Scrape start time ' + new Date().toString());
+        startTime = new Date();
+        scrapeReporter.addGeneralInfo('Scrape start time ' + startTime.toString());
 
         MongoClient.connect(constants.MONGO_URI, function (err, database) {
             if (err) {
@@ -153,6 +159,15 @@ describe('Scraper', function () {
             data.races = [];
         }
 
+        var reportRaces = function (regularRaces, irregularRaces, raceSource) {
+            var raceCount = regularRaces.concat(irregularRaces).length;
+            scrapeReporter.addRaceInfo('Found ' + raceCount + ' ' + genericUtils.getSingularOrPlural('race', raceCount) +
+                    ' ' + raceSource);
+            scrapeReporter.addRaceDetail('Regular races found: ' + _.pluck(regularRaces, 'id').join(', '));
+            scrapeReporter.addRaceDetail('Irregular races found: ' + _.pluck(irregularRaces, 'id').join(', '));
+            return;
+        };
+
         if (_.isEmpty(data.races)) {
             var browser = new Browser();
             browser.runScripts = false;
@@ -178,9 +193,7 @@ describe('Scraper', function () {
                         });
                     }
                 });
-                var allRacesLength = data.races.concat(data.irregularRaces).length;
-                logger.reportOut('Found ' + allRacesLength + ' ' + genericUtils.getSingularOrPlural('race', allRacesLength) +
-                            ' on web');
+                reportRaces(data.races, data.irregularRaces, 'on web');
                 done();
             });
         } else {
@@ -193,14 +206,14 @@ describe('Scraper', function () {
                 }
                 raceList.push(race);
             });
-            logger.reportOut('Found ' + data.races.length + ' ' + genericUtils.getSingularOrPlural('race', data.races.length) + ' in file');
             data.races = regularRaces;
+            reportRaces(data.races, data.irregularRaces, 'in file');
             done();
         }
     }),
 
     it('finds saved data', function (callback) {
-        var collectionCount = 2;
+        var collectionCount = 3;
         var count = 0;
         var done = function () {
             count += 1;
@@ -230,6 +243,13 @@ describe('Scraper', function () {
             _.each(docs, function (doc) {
                 data.divisionData[doc[constants.DATA_KEYS.DB_ID]] = doc;
             });
+            done();
+        });
+
+        collection = db.collection(constants.DB_COLLECTIONS.TEAM);
+        collection.find().toArray(function (err, docs) {
+            if (err) throw err;
+            data.teamData = docs;
             done();
         });
     }),
@@ -294,7 +314,7 @@ describe('Scraper', function () {
                         }
                     });
 
-                    logger.reportOut('Parsed division info for ' + year);
+                    scrapeReporter.addDivisionInfo('Parsed division info for ' + year);
                     if (i === years.length - 1) {
                         done();
                     }
@@ -307,41 +327,46 @@ describe('Scraper', function () {
 
 
     it('finds team info', function (done) {
-        var browser = new Browser();
-        browser.runScripts = false;
-        browser.loadCSS = false;
+        if (_.isEmpty(data.teamData) || data.isNewDivisionData) {
+            data.isNewTeamData = true;
+            var browser = new Browser();
+            browser.runScripts = false;
+            browser.loadCSS = false;
 
-        var allClubTeams = [];
-        _.each(data.divisionData, function (division) {
-            allClubTeams = allClubTeams.concat(division[constants.DATA_KEYS.DIVISION.TEAMS]);
-        });
-        allClubTeams = _.uniq(allClubTeams);
-
-        var unmatchedTeams = [];
-        data.teamData = [];
-        browser.visit(constants.MARATHON_RESULT_URL, function () {
-            assert.equal(constants.EXPECTED_MARATHON_RESULT_TITLE, browser.text('title'));
-            var teamDropdown = getTeamDropdown(browser);
-            _.each($(teamDropdown).find('option'), function (teamOption) {
-                var key = $(teamOption).attr('value');
-                var name = $(teamOption).text();
-
-                var divisionTeam = _.find(allClubTeams, function (clubTeam) {
-                    return name.indexOf(clubTeam) !== -1;
-                });
-                if (!divisionTeam) {
-                    unmatchedTeams.push(name);
-                } else {
-                    var teamData = {};
-                    teamData[constants.DATA_KEYS.NAME] = divisionTeam;
-                    teamData[constants.DATA_KEYS.DB_ID] = key;
-                    data.teamData.push(teamData);
-                }
-
+            var allClubTeams = [];
+            _.each(data.divisionData, function (division) {
+                allClubTeams = allClubTeams.concat(division[constants.DATA_KEYS.DIVISION.TEAMS]);
             });
-            logger.report('\nNon-club teams found:\n' + JSON.stringify(unmatchedTeams) + '\n');
+            allClubTeams = _.uniq(allClubTeams);
+
+            var unmatchedTeams = [];
+            data.teamData = [];
+            browser.visit(constants.MARATHON_RESULT_URL, function () {
+                assert.equal(constants.EXPECTED_MARATHON_RESULT_TITLE, browser.text('title'));
+                var teamDropdown = getTeamDropdown(browser);
+                _.each($(teamDropdown).find('option'), function (teamOption) {
+                    var key = $(teamOption).attr('value');
+                    var name = $(teamOption).text();
+
+                    var divisionTeam = _.find(allClubTeams, function (clubTeam) {
+                        return name.indexOf(clubTeam) !== -1;
+                    });
+                    if (!divisionTeam) {
+                        unmatchedTeams.push(name);
+                    } else {
+                        var teamData = {};
+                        teamData[constants.DATA_KEYS.NAME] = divisionTeam;
+                        teamData[constants.DATA_KEYS.DB_ID] = key;
+                        data.teamData.push(teamData);
+                    }
+
+                });
+                scrapeReporter.addTeamDetail('Non-club teams found:\n\n' + JSON.stringify(unmatchedTeams) + '\n');
+                done();
+            }); 
+        } else {
             done();
-        }); 
+        }
     }),
 
     it('finds manual race override data', function (done) {
@@ -434,9 +459,19 @@ describe('Scraper', function () {
             _.each(data.divisionData, function (division, key) {
                 collection.update(getQuery(division), division, {upsert:true}, onDbError);
             });
-            logger.reportOut('Division data saved');
+            scrapeReporter.addDataInfo('Division data saved');
         } else {
-            logger.reportOut('No new division data saved');
+            scrapeReporter.addDataInfo('No new division data saved');
+        }
+
+        if (data.isNewTeamData) {
+            collection = db.collection(constants.DB_COLLECTIONS.TEAM);
+            _.each(data.teamData, function (team) {
+                collection.update(getQuery(team), team, {upsert:true}, onDbError);
+            });
+            scrapeReporter.addDataInfo('Team data saved');
+        } else {
+            scrapeReporter.addDataInfo('No new team data saved');
         }
 
         if (!_.isEmpty(data.raceData)) {
@@ -457,27 +492,24 @@ describe('Scraper', function () {
                 collection.update(getQuery(result), result, {upsert:true}, onDbError);
             });
 
-            collection = db.collection(constants.DB_COLLECTIONS.TEAM);
-            _.each(data.teamData, function (team) {
-                collection.update(getQuery(team), team, {upsert:true}, onDbError);
-            });
-
             collection = db.collection(constants.DB_COLLECTIONS.TEAM_RESULT);
             _.each(data.teamResults, function (data) {
                 collection.insert(data, {w:1}, onDbError);
             });
 
-            logger.reportOut('New race data saved');
+            scrapeReporter.addDataInfo('New race data saved');
             done();
         } else {
-            logger.reportOut('No new race data saved');
+            scrapeReporter.addDataInfo('No new race data saved');
             done();
         }
     }),
 
     it ('sends scrape report and waits for any pending messages to finish sending', function (done) {
-        logger.report('Scrape end time: ' + new Date().toString());
-        logger.report('Scrape Report', true);
+        var endTime = new Date();
+        scrapeReporter.addGeneralInfo('Scrape end time: ' + endTime.toString());
+        scrapeReporter.addGeneralInfo('Duration: ' + ((endTime - startTime) / 1000).toString() + ' seconds');
+        scrapeReporter.sendReport();
         waitForMessages(done);
     });
 });

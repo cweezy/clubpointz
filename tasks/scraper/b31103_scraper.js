@@ -5,6 +5,7 @@ var _ = require('underscore');
 var constants = require('./constants').constants;
 var util = require('./util');
 var logger = require('./../logger');
+var scrapeReporter = require('./scrapeReporter');
 
 
 var RACE_ID = 'b31103';
@@ -63,7 +64,7 @@ var parseTeamResults = function (browser, headingData, isFirstTeam, callback) {
     var rowSelector = 'tr[bgcolor="#EEEEEE"]';
     var saveResults = function (results, teamResults) {
         var team = _.values(results)[0].team;
-        logger.reportOutGroup('Parsed team results for ' + team);
+        logger.infoGroup('Parsed team results for ' + team);
         callback(results, teamResults, headingData);
     };
 

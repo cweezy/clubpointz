@@ -495,7 +495,7 @@ module.exports = function (grunt) {
         '":no_mail" suppresses email notifications',
         function (arg1, arg2, arg3) {
     var args = [arg1, arg2, arg3].join(',');
-    var quietReporter = require('./' + path.join(SCRAPER_FILE_DIR, 'quietReporter')).quietReporter;
+    var quietReporter = require('./' + path.join(SCRAPER_FILE_DIR, 'quietMochaReporter')).quietReporter;
 
     if (args.indexOf('from_file') !== -1) {
       var file = fs.readFileSync(path.join(SCRAPER_FILE_DIR, 'races.json'));
