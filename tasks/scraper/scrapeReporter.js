@@ -1,4 +1,3 @@
-var logger = require ('./../logger');
 var alertMailer = require('./../alertMailer').mailer;
 var _ = require('underscore');
 var $ = require('jquery');
@@ -53,11 +52,6 @@ var getFormattedReport = function () {
 var reportInfo = $.extend(true, {}, blankReportInfo);
 
 exports.addRaceInfo = function (message) {
-  logger.info(message);
-  reportInfo.RACE.INFO.push(message);
-};
-
-exports.addRaceDetail = function (message) {
   reportInfo.RACE.INFO.push(message);
 };
 
@@ -66,21 +60,14 @@ exports.addResultInfo = function (message) {
 };
 
 exports.addTeamInfo = function (message) {
-  logger.info(message);
-  reportInfo.TEAM.INFO.push(message);
-};
-
-exports.addTeamDetail = function (message) {
   reportInfo.TEAM.INFO.push(message);
 };
 
 exports.addDivisionInfo = function (message) {
-  logger.info(message);
   reportInfo.DIVISION.INFO.push(message);
 };
 
 exports.addDataInfo = function (message) {
-  logger.info(message);
   reportInfo.DATA.INFO.push(message);
 };
 
