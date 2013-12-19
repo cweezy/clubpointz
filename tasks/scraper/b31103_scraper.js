@@ -54,7 +54,7 @@ var adjustHeadingData = function (data) {
     return data;
 };
 
-var parseTeamResults = function (browser, headingData, isFirstTeam, callback) {
+var parseTeamResults = function (browser, teamData, headingData, isFirstTeam, callback) {
     if (_.isEmpty(headingData)) { 
         var row = $(browser.html()).find('tr[bgcolor="#E0E0E0"] td');
         var data =  adjustHeadingData(util.getHeadingData(row, {}));
@@ -85,14 +85,14 @@ var parseTeamResults = function (browser, headingData, isFirstTeam, callback) {
     };
     var dataTransforms = {'sex_age' : transformSexAge};
 
-    util.parseResults(browser, raceInfo, resultKeys, rowSelector, 200, 100, dataTransforms, saveResults);
+    util.parseResults(browser, raceInfo, teamData, resultKeys, rowSelector, 200, 100, dataTransforms, saveResults);
 };
 
 var getTeamDropdown = function (browser) {
     return browser.queryAll('select[name="ft"]')[2];
 };
 
-var parseData = function (callback) {
+var parseData = function (teamData, callback) {
     var browser = new Browser();
     browser.runScripts = false;
     browser.loadCSS = false;
@@ -116,7 +116,7 @@ var parseData = function (callback) {
                     browser.select(dropdown, $(teamOptions[i]).text());
                     browser.pressButton('input[type="submit"]');
                     browser.wait(function () {
-                        parseTeamResults(browser, data.headingData, i === 0, function (results, teamResults, headingData) {
+                        parseTeamResults(browser, teamData, data.headingData, i === 0, function (results, teamResults, headingData) {
                             data.results = _.extend({}, data.results, results);
                             data.teamResults = _.extend({}, data.teamResults, teamResults);
                             data.headingData = _.extend(data.headingData, headingData);
@@ -125,6 +125,7 @@ var parseData = function (callback) {
                     });
                 });
             } else {
+                data.teamResults = util.getScoredTeamResults(data.teamResults);
                 callback(data);
             }
         };

@@ -9,6 +9,9 @@ var constants = function () {
   this.MAX_RACE_RESULTS = 200;
   this.RESULTS_PER_PAGE = 50;  // can be 50 or 500
 
+  this.POINT_VALUES = [15, 12, 10, 8, 6, 5, 4, 3, 2];
+  this.DEFAULT_POINT_VALUE = 1;
+
   this.MONGO_URI = 'mongodb://localhost:27017/clubpointz';
   this.DB_COLLECTIONS = {
     RACE : 'race',
@@ -76,6 +79,7 @@ var constants = function () {
     DIVISION : {
       RACES : 'races',
       TEAMS : 'teams',
+      SEX : 'sex',
       RACE : {
         DATE : 'date',
         DISTANCE : 'distance'
@@ -84,7 +88,10 @@ var constants = function () {
     TEAM_RESULT : {
       TEAM_ID : 'teamId',
       TEAM_TIME : 'teamTime',
-      RESULT_IDS : 'resultIds'
+      RESULT_IDS : 'resultIds',
+      IS_FULL_TEAM : 'isFullTeam',
+      SCORE : 'score',
+      DIVISION : 'division'
     }
   };
 
@@ -108,6 +115,35 @@ var constants = function () {
     'mile' : 'M',
     'kilometers' : 'K'
   };
+
+  this.TEAM_NAME_TRANSFORMS = {
+    '0Training' : ['0 Training'],
+    'Adobo Social & Anti-Social Athletic' : ['Adobo Social & Athletic'],
+    'Athletic Club' : ['AC'],
+    'Columbia University Medical Center' : ['Columbia University Med.', 'Columbia Univ. Medicine'],
+    'Girls' : ['GirDrop'],
+    'Kills' : ['KilDrop'],
+    ' In ' : [' in '],
+    ' Running Team' : [' RT'],
+    ' RT' : [' Running Team'],
+    'Cortland' : ['Cortlandt', 'Cortlandt Park'],
+    ' Track' : [' TC'],
+    'NY ' : ['New York ', 'N.Y. '],
+    'N.Y.' : ['New York'],
+    'New York' : ['N.Y.', 'N. Y.', 'NY'],
+    'Dept' : ['Dept.', 'Department'],
+    'Dept.' : ['Dept', 'Department'],
+    ' For ' : [' for '],
+    'Road Runners Club' : ['RR'],
+    'Runners' : ['Running'],
+    'South Brooklyn' : ['So Brooklyn'],                                                                                                   
+    'To The' : ['to the'],                                                                                                                
+    'UNRR(United Nations Road Runne' : ['United Nations Road Runners', 'UNRR (United Nations Runne)'],                                    
+    'University' : ['university'],                                                                                                        
+    "Wall Street Alpha's" : ["Wall Street's Alpha"],                                                                                      
+    'Westchester' : ['Westcherster'],                                                                                                     
+    'Whippets Running Team' : ['Wippets RT']                                                                                              
+  }; 
 
   return this;
 };

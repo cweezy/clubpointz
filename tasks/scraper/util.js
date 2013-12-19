@@ -16,6 +16,17 @@ exports.getRaceURL = function (raceId, year) {
     '=' + year;                                                                                                                    
 }; 
 
+
+exports.getDivisionSex = function (divisionId) {
+  if (divisionId.indexOf('WOMEN') !== -1 || divisionId.indexOf('Women') !== -1) {
+    return 'F';
+  } else if (divisionId.indexOf('MEN') !== -1 || divisionId.indexOf('Men') !== -1) {
+    return 'M';
+  }
+  logger.warning('No sex found for division ' + divisionId);
+};
+
+
 /**
  * Get the request parameters from a URL string and return as
  * an object.
@@ -92,15 +103,16 @@ exports.getHeadingData = function (headings, headingData) {
  * Arguments:
  *    browser: browser instance
  *    race: race date object
- *    resultKeys : list of data keys we're concerned with parsing
- *    rowSelector : CSS selector for a table row of data
- *    maxResults : maximum number of results to parse
- *    resultsPerPage : number of results to parse per page
- *    dataTransforms : map of data keys to functions to be called
+ *    data: object containing all data that has been scraped so far
+ *    resultKeys: list of data keys we're concerned with parsing
+ *    rowSelector: CSS selector for a table row of data
+ *    maxResults: maximum number of results to parse
+ *    resultsPerPage: number of results to parse per page
+ *    dataTransforms: map of data keys to functions to be called
  *      if data needs transformation
  *    callback
  */
-exports.parseResults = function (browser, race, resultKeys, rowSelector, maxResults, resultsPerPage, dataTransforms, callback) {
+exports.parseResults = function (browser, race, data, resultKeys, rowSelector, maxResults, resultsPerPage, dataTransforms, callback) {
   if (race[constants.DATA_KEYS.NAME]) {
     logger.infoGroup('Parsing results for ' + race[constants.DATA_KEYS.NAME] +
        (race[constants.DATA_KEYS.YEAR] ? ' ' + race[constants.DATA_KEYS.YEAR] : ''), true);
@@ -135,28 +147,53 @@ exports.parseResults = function (browser, race, resultKeys, rowSelector, maxResu
       result[constants.DATA_KEYS.RACE_ID] = race[constants.DATA_KEYS.DB_ID];
       results[resultId] = result;
 
-      // Add result to team results
-      if (race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_MEN] > 0 || race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_WOMEN] > 0) {
-        var resultCount = { M : race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_MEN],
-                            F : race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_WOMEN]};
-        var teamResultKey = race[constants.DATA_KEYS.DB_ID] + constants.KEY_DELIMITER + result.team;
+      var team = _.find(data.teamData, function (team) {
+        return team[constants.DATA_KEYS.DB_ID] === result.team;
+      });
+
+      if (team) {
         var resultSex = result.sex_age[0];
 
-        if (!teamResults[teamResultKey]) {
-          teamResults[teamResultKey] = {};
-          teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.TEAM_ID] = result.team;
-          teamResults[teamResultKey][constants.DATA_KEYS.RACE_ID] = race[constants.DATA_KEYS.DB_ID];
-        }
+        // Find division for result (if any)
+        var sexYearDivisions = _.filter(data.divisionData, function (div) {
+          return div[constants.DATA_KEYS.DIVISION.SEX] === resultSex && div[constants.DATA_KEYS.YEAR] === race[constants.DATA_KEYS.YEAR];
+        });
 
-        if (resultCount[resultSex] > 0) {
-          if (!teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS]) {
-            teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS] = [];
-            teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS].push(resultId);
-            teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.TEAM_TIME] = result.net_time;
+        var division = _.find(sexYearDivisions, function (div) {
+          return _.find(div[constants.DATA_KEYS.DIVISION.TEAMS], function (testTeam) {
+            return testTeam === team[constants.DATA_KEYS.NAME];
+          });
+        });
+
+        // Add result to team results
+        if (!_.isUndefined(division) && (race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_MEN] > 0 ||
+            race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_WOMEN] > 0)) {
+          var resultCount = { M : race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_MEN],
+                              F : race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_WOMEN]};
+          var teamResultKey = race[constants.DATA_KEYS.DB_ID] + constants.KEY_DELIMITER + result.team + constants.KEY_DELIMITER + resultSex;
+
+          if (!teamResults[teamResultKey]) {
+            teamResults[teamResultKey] = {};
+            teamResults[teamResultKey][constants.DATA_KEYS.DB_ID] = teamResultKey;
+            teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.TEAM_ID] = result.team;
             teamResults[teamResultKey][constants.DATA_KEYS.RACE_ID] = race[constants.DATA_KEYS.DB_ID];
-          } else if (teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS].length < resultCount[resultSex]) {
-            teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS].push(resultId);
-            teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.TEAM_TIME] += parseInt(result.net_time, 10);
+            teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.SCORE] = 0;
+            teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.DIVISION] = division[constants.DATA_KEYS.DB_ID];
+          }
+
+          if (resultCount[resultSex] > 0) {
+            if (!teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS]) {
+              teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS] = [];
+              teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS].push(resultId);
+              teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.TEAM_TIME] = result.net_time;
+              teamResults[teamResultKey][constants.DATA_KEYS.RACE_ID] = race[constants.DATA_KEYS.DB_ID];
+              teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.IS_FULL_TEAM] = (1 === resultCount[resultSex]);
+            } else if (teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS].length < resultCount[resultSex]) {
+              teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS].push(resultId);
+              teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.TEAM_TIME] += parseInt(result.net_time, 10);
+              teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.IS_FULL_TEAM] =
+                 (teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS].length === resultCount[resultSex]);
+            }
           }
         }
       }
@@ -166,11 +203,12 @@ exports.parseResults = function (browser, race, resultKeys, rowSelector, maxResu
     var resultLength = _.keys(results).length;
     if (resultLength < maxResults && $(nextButton).length > 0) {
       var nextUrl = $(nextButton).attr('href');
-      browser.visit(nextUrl, function () {                                                                                          
-        parsePage(startIndex + resultsPerPage);                
+      browser.visit(nextUrl, function () {
+        parsePage(startIndex + resultsPerPage);
       });
       browser.wait();
     } else {
+
       var parseMessage = 'Parsed ' + resultLength + ' ' + genericUtils.getSingularOrPlural('result', resultLength);
       logger.infoGroup(parseMessage);
       if (race[constants.DATA_KEYS.NAME]) {
@@ -182,6 +220,36 @@ exports.parseResults = function (browser, race, resultKeys, rowSelector, maxResu
     }
   };
   parsePage(0);
+};
+
+exports.getScoredTeamResults = function (teamResults) {
+  var divisionGroupedTeamResults = _.groupBy(teamResults, function (result) {
+    return result[constants.DATA_KEYS.TEAM_RESULT.DIVISION];
+  });
+
+  var allResults = [];
+  _.each(divisionGroupedTeamResults, function (teamResults) {
+    // calculate team scores
+    var groupedTeamResults = _.groupBy(teamResults, function (result) {
+      return result[constants.DATA_KEYS.TEAM_RESULT.IS_FULL_TEAM];
+    });
+    var sortedTeamResults = _.sortBy(groupedTeamResults[true], function (result) {
+      return result[constants.DATA_KEYS.TEAM_RESULT.TEAM_TIME];
+    });
+
+    // assign point values to the top teams, default points to any full team
+    _.each(sortedTeamResults, function (result, i) {
+      if (constants.POINT_VALUES[i]) {
+        result[constants.DATA_KEYS.TEAM_RESULT.SCORE] = constants.POINT_VALUES[i];
+      } else {
+        result[constants.DATA_KEYS.TEAM_RESULT.SCORE] = constants.DEFAULT_POINT_VALUE;
+      }
+    });
+    // add pointed results to unpointed (non-full team) results
+    var resultsForDivision = (sortedTeamResults || []).concat(groupedTeamResults[false] || []);
+    allResults = allResults.concat(resultsForDivision);
+  });
+  return allResults;
 };
 
 /**

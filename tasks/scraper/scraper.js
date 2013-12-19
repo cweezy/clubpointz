@@ -19,6 +19,28 @@ var db;
 var data = {};
 var startTime;
 
+
+var getNameMatches = function (name) {
+  var nameMatches = [name, name.trim()];
+  _.each(constants.TEAM_NAME_TRANSFORMS, function (replacements, key) {
+    if (name.indexOf(key) !== -1) {
+      _.each(replacements, function (replacement) {
+        nameMatches.push(name.replace(key, replacement));
+      });
+    }
+  });
+  return nameMatches;
+};
+
+var getTeamName = function (name) {
+    var nameCorrections = {
+        'Van Cortland TC' : {
+            corrected : 'Van Cortlandt TC'
+        }
+    };
+    return nameCorrections[name] ? nameCorrections[name].corrected : name;
+};
+
 var waitForMessages = function (callback) {
     var count = 0;
     var checkMessages = function () {
@@ -112,7 +134,10 @@ var parseResults = function (raceURL, race, browser, callback) {
             headingData = headingData.headingData;
 
             var rowSelector = 'table:eq(3) tr[bgcolor!="EEEEEE"]';
-            util.parseResults(browser, race, resultKeys, rowSelector, maxResults, resultsPerPage, {}, callback);
+            util.parseResults(browser, race, data, resultKeys, rowSelector, maxResults, resultsPerPage, {}, function (results, teamResults) {
+                teamResults = util.getScoredTeamResults(teamResults);
+                callback(results, teamResults);
+            });
         });
     });
 };
@@ -293,6 +318,7 @@ describe('Scraper', function () {
                             data.divisionData[divisionId] = {};
                             data.divisionData[divisionId][constants.DATA_KEYS.DB_ID] = divisionId;
                             data.divisionData[divisionId][constants.DATA_KEYS.YEAR] = year;
+                            data.divisionData[divisionId][constants.DATA_KEYS.DIVISION.SEX] = util.getDivisionSex(divisionId);
                         }
                         if (item.is_label === '1') {
                             _.each(item.data, function (label) {
@@ -344,29 +370,34 @@ describe('Scraper', function () {
             });
             allClubTeams = _.uniq(allClubTeams);
 
-            var unmatchedTeams = [];
             data.teamData = [];
+            var foundClubTeams = [];
             browser.visit(constants.MARATHON_RESULT_URL, function () {
                 assert.equal(constants.EXPECTED_MARATHON_RESULT_TITLE, browser.text('title'));
                 var teamDropdown = getTeamDropdown(browser);
                 _.each($(teamDropdown).find('option'), function (teamOption) {
                     var key = $(teamOption).attr('value');
                     var name = $(teamOption).text();
-
-                    var divisionTeam = _.find(allClubTeams, function (clubTeam) {
-                        return name.indexOf(clubTeam) !== -1;
+                    
+                    var divisionTeam;
+                     _.each(allClubTeams, function (clubTeam) {
+                        _.each(getNameMatches(name), function (match) {
+                           if (match.indexOf(clubTeam) !== -1) {
+                               foundClubTeams.push(clubTeam);
+                               divisionTeam =  clubTeam;
+                           }
+                        });
                     });
-                    if (!divisionTeam) {
-                        unmatchedTeams.push(name);
-                    } else {
+
+                    if (divisionTeam) {
                         var teamData = {};
-                        teamData[constants.DATA_KEYS.NAME] = divisionTeam;
+                        teamData[constants.DATA_KEYS.NAME] = getTeamName(divisionTeam);
                         teamData[constants.DATA_KEYS.DB_ID] = key;
                         data.teamData.push(teamData);
                     }
-
                 });
-                scrapeReporter.addTeamInfo('Non-club teams found:\n\n' + JSON.stringify(unmatchedTeams) + '\n');
+                var unfoundClubTeams = _.difference(allClubTeams, foundClubTeams);
+                scrapeReporter.addTeamInfo('Unfound club teams:<br>' + unfoundClubTeams.join('<br>') + '\n');
                 done();
             }); 
         } else {
@@ -424,7 +455,7 @@ describe('Scraper', function () {
             var parseRace = function (i) {
                 if (data.irregularRaces[i]) {
                     if (!data.savedRaces[data.irregularRaces[i].id]) {
-                        parseIrregularRaceData(data.irregularRaces[i], function (resultData) {
+                        parseIrregularRaceData(data.irregularRaces[i], data, function (resultData) {
                             if (resultData) {
                                 data.raceResults = _.extend({}, data.raceResults, resultData.results);
                                 data.teamResults = _.extend({}, data.teamResults, resultData.teamResults);
