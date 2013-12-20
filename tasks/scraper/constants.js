@@ -6,6 +6,16 @@ var constants = function () {
   this.IRREGULAR_RACES_IGNORE = ['b30103', 'b30117', 'b30207', 'b30305', 'b30611',
                                  'b30625', 'b30709', 'b30723'];
 
+  this.TEAM_WEBSITES = {
+    'NBR' : 'http://northbrooklynrunners.org/',
+    'NYAC' : 'http://www.nyac.org/',
+    'GCTR' : 'http://www.gothamcityrunners.com/',
+    'WSX' : 'http://www.wsxnyc.org/',
+    'CPTC' : 'http://www.centralparktc.org/',
+    'VCTC' : 'http://www.vctc.org/',
+    'NYH' : 'http://www.newyorkharriers.com/'
+  };
+
   this.MAX_RACE_RESULTS = 200;
   this.RESULTS_PER_PAGE = 50;  // can be 50 or 500
 
@@ -92,6 +102,9 @@ var constants = function () {
       IS_FULL_TEAM : 'isFullTeam',
       SCORE : 'score',
       DIVISION : 'division'
+    },
+    TEAM : {
+      WEBSITE : 'website'
     }
   };
 

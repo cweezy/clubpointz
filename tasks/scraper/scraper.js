@@ -393,6 +393,9 @@ describe('Scraper', function () {
                         var teamData = {};
                         teamData[constants.DATA_KEYS.NAME] = getTeamName(divisionTeam);
                         teamData[constants.DATA_KEYS.DB_ID] = key;
+                        if (constants.TEAM_WEBSITES[key]) {
+                            teamData[constants.DATA_KEYS.TEAM.WEBSITE] = constants.TEAM_WEBSITES[key];
+                        }
                         data.teamData.push(teamData);
                     }
                 });
