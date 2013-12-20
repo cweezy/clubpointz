@@ -2,6 +2,14 @@ body {
   font-family: 'Bitter', sans-serif;
 }
 
+a {
+  cursor: pointer;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
 .top-bar {
   z-index: 99999;
   height: 32px;
@@ -14,6 +22,19 @@ body {
   left: 0;
   color: #ccc;
   padding-right: 8px;
+  padding-left: 8px;
+}
+
+.top-bar a {
+  color: #ccc;
+}
+
+.top-bar a:hover {
+  color: #555;
+}
+
+.top-bar .last-updated {
+  float: left;
 }
 
 .header {
@@ -36,6 +57,14 @@ body {
   background-position: -340px -180px;
   background-attachment: fixed;
 }
+
+.header a {                                                                                                                               
+  color: #fff;                                                                                                                            
+}                                                                                                                                         
+                                                                                                                                          
+.header a:hover {                                                                                                                         
+  color: #fff;                                                                                                                            
+} 
 
 .header .header-secondary {
   color: #ccc;
@@ -99,6 +128,10 @@ body {
 .table-label .race-name {
   text-align: left;
   float: left;
+}
+
+.team-results-table {
+  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 }
 
 .team-results-table tbody {

@@ -7,6 +7,14 @@ body {
   background-attachment: fixed;
 }
 
+a {
+  cursor: pointer;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
 .top-bar {
   z-index: 99999;
   height: 32px;
@@ -19,6 +27,19 @@ body {
   left: 0;
   color: #ccc;
   padding-right: 8px;
+  padding-left: 8px;
+}
+
+.top-bar a {
+  color: #ccc;
+}
+
+.top-bar a:hover {
+  color: #555;
+}
+
+.top-bar .last-updated {
+  float: left;
 }
 
 .header {
@@ -35,7 +56,14 @@ body {
   text-transform: uppercase;
 
   font-weight: bold;
-  <!--text-shadow: 2px 2px 0 #222;-->
+}
+
+.header a {
+  color: #fff;
+}
+
+.header a:hover {
+  color: #fff;
 }
 
 .header .header-secondary {
@@ -60,16 +88,16 @@ body {
   background-color: #fff;
 }
 
+.team-table {
+  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
 .team-table tbody {
   text-align: center;
 }
 
 .team-table tbody .team-name {
   text-align: left;
-}
-
-.team-link {
-  cursor: pointer;
 }
 
 .tooltip {
