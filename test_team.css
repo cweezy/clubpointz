@@ -1,0 +1,111 @@
+body {
+  font-family: 'Bitter', sans-serif;
+}
+
+.top-bar {
+  z-index: 99999;
+  height: 32px;
+  width: 100%;
+  line-height: 32px;
+  background-color: #000;
+  text-align: right;
+  position: fixed;
+  top: 0;
+  left: 0;
+  color: #ccc;
+  padding-right: 8px;
+}
+
+.header {
+  font-family: 'Roboto Condensed', sans-serif;
+  height: 120px;
+  width: 100%;
+  line-height: 120px;
+  position: absolute;
+  top: 32px;
+  left: 0;
+  font-size: 90px;
+  text-align: center;
+  color: #fff;
+  text-transform: uppercase;
+  font-weight: bold;
+
+  background-image:url("race.jpg");
+  background-size: 1944px 1296px;
+  background-repeat: no-repeat;
+  background-position: -340px -180px;
+  background-attachment: fixed;
+}
+
+.header .header-secondary {
+  color: #ccc;
+}
+
+.navigation {
+  margin: 160px auto auto auto;
+  width: 100%;
+  text-align: left;
+  padding-left: 12px;
+}
+
+.main {
+  margin: 20px auto auto auto;
+  width: 800px;
+}
+
+.team-header {
+  font-size: 24px;
+  text-align: center;
+  padding-bottom: 14px;
+  font-weight: bold;
+}
+
+.team-header .division {
+  font-size: 18px;
+  color: #888;
+}
+
+.table-label {
+  border-bottom: 1px solid #333;
+  color: #333;
+  font-size: 20px;
+  text-align: right;
+  margin-bottom: 10px;
+  padding-top: 18px;
+}
+
+.table-label .race-name {
+  text-align: left;
+  float: left;
+}
+
+.team-table {
+  opacity: 0.9;
+  background-color: #fff;
+  font-family: 'Bitter';
+}
+
+.team-table tbody {
+  text-align: center;
+}
+
+.team-table tbody .team-name {
+  text-align: left;
+  float: left;
+}
+
+.team-link {
+  cursor: pointer;
+}
+
+.tooltip {
+  font-family: sans-serif;
+}
+
+a {
+  color: #003300;
+}
+
+a:hover {
+  color: #000;
+}
