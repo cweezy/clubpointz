@@ -55,18 +55,40 @@ body {
 
 .team-header {
   font-size: 24px;
-  text-align: center;
-  padding-bottom: 14px;
   font-weight: bold;
+  height: 120px;
+}
+
+.team-header .team-name {
+  display: inline-block;
+  padding-left: 20px;
+  padding-top: 24px;
+}
+
+.team-header .team-image {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  float: left;
+}
+
+.team-header .team-image.nbr_men {
+  background-image:url("nbr_men.jpg");
+  background-position: -180px -80px;
+}
+
+.team-header .team-image.nbr_women {
+  background-image:url("nbr_women.jpg");
+  background-position: -170px -50px;
 }
 
 .team-header .division {
   font-size: 18px;
   color: #888;
+  vertical-align: top;
 }
 
 .table-label {
-  border-bottom: 1px solid #333;
   color: #333;
   font-size: 20px;
   text-align: right;
@@ -79,19 +101,8 @@ body {
   float: left;
 }
 
-.team-table {
-  opacity: 0.9;
-  background-color: #fff;
-  font-family: 'Bitter';
-}
-
-.team-table tbody {
+.team-results-table tbody {
   text-align: center;
-}
-
-.team-table tbody .team-name {
-  text-align: left;
-  float: left;
 }
 
 .team-link {

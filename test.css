@@ -48,7 +48,6 @@ body {
 }
 
 .table-label {
-  border-bottom: 1px solid #ddd;
   color: #fff;
   font-size: 20px;
   text-align: right;
@@ -59,7 +58,6 @@ body {
 .team-table {
   opacity: 0.9;
   background-color: #fff;
-  font-family: 'Bitter';
 }
 
 .team-table tbody {

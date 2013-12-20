@@ -1,1 +1,4 @@
-image source: http://www.flickr.com/photos/26719212@N02/6014664327/in/pool-1231522@N25/
+image sources:
+
+http://www.flickr.com/photos/26719212@N02/5869661079/sizes/m/in/pool-1231522@N25/
+http://www.flickr.com/photos/26719212@N02/6014732275/sizes/m/in/pool-1231522@N25/
