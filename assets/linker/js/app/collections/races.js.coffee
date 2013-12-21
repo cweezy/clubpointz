@@ -5,11 +5,11 @@ Races = Backbone.Collection.extend({
   url: '/race'
 
   getMensClubPointsRaces: ->
-    @find (race) ->
+    @filter (race) ->
       race.get('teamResultCountMen') > 0
 
   getWomensClubPointsRaces: ->
-    @find (race) ->
+    @filter (race) ->
       race.get('teamResultCountWomen') > 0
 })
 app.races = new Races()

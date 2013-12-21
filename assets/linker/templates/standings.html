@@ -1,3 +1,14 @@
+
+<table class='table'>
+  <tr>
+    <th>
+    <% _.each(app.races.getMensClubPointsRaces(), function(race) { %>
+	  <th><%= race.get('name') %></th>
+    <% }); %>
+  </tr>
+</table>
+
+
 this is the standings view
 There are <%- app.races.length %> races.
 <br>
