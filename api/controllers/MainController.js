@@ -15,7 +15,7 @@ _addDivisionsToTeam = function (teams, divisions) {
 module.exports = {
   index: function (req, res) {
 	var promises = [
-      Race.find({year: (new Date()).getFullYear().toString()}),
+      Race.find({year: (new Date()).getFullYear().toString()}).sort('_id'),
 	  Team.find(),
       Division.find(),
       TeamResult.find(),
