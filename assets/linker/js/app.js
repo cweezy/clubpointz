@@ -10,5 +10,6 @@ $(function() {
   new app.Router();
   app.races.reset(sailsExports.racesJson);
   app.teams.reset(sailsExports.teamsJson);
+  app.teamResults.reset(sailsExports.teamResultsJson);
   Backbone.history.start();
 });
