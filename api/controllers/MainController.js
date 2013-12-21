@@ -18,7 +18,8 @@ module.exports = {
       Race.find({year: (new Date()).getFullYear().toString()}),
 	  Team.find(),
       Division.find(),
-      TeamResult.find()
+      TeamResult.find(),
+      Heading.find()
     ];
 
 	Q.allSettled(promises).then(function (results) {
@@ -26,12 +27,14 @@ module.exports = {
 	  teams = results[1].value;
 	  divisions = results[2].value;
       teamResults = results[3].value;
+      headings = results[4].value;
 		 
       _addDivisionsToTeam(teams, divisions);
 	  res.view({
         races: races,
         teams: teams,
-        teamResults: teamResults
+        teamResults: teamResults,
+        headings: headings
       });
     });
   },
