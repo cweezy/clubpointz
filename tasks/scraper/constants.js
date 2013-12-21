@@ -78,7 +78,8 @@ var constants = function () {
     RACE : {
       DETAILS : 'details',
       TEAM_RESULT_COUNT_MEN : 'teamResultCountMen',
-      TEAM_RESULT_COUNT_WOMEN : 'teamResultCountWomen'
+      TEAM_RESULT_COUNT_WOMEN : 'teamResultCountWomen',
+      LABEL : 'label'
     },
     HEADING : {
       TEXT : 'text'

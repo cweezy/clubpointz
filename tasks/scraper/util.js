@@ -258,36 +258,40 @@ exports.getScoredTeamResults = function (teamResults) {
  *  id : race id
  *  name : race name
  *  details : object of race details
- *  isClubPoints : list of boolean values [isClubPointsMen, isClubPointsWomen]
+ *  isClubPoints : object
  *  isMarathon (optional) : default false
  */
-exports.makeRaceData = function (id, name, year, details, isClubPoints, isMarathon) {
+exports.makeRaceData = function (id, name, year, details, clubPointsData, isMarathon) {
   raceData = {};
   raceData[constants.DATA_KEYS.DB_ID] = id;                                                                           
   raceData[constants.DATA_KEYS.NAME] = name;                                                                     
   raceData[constants.DATA_KEYS.YEAR] = year;                                                                          
   raceData[constants.DATA_KEYS.RACE.DETAILS] = details;
 
-  // Get team result counts for [men, women]
-  var teamResultCounts = [0, 0];
-  var isTeamChamps = [];
-  isTeamChamps[0] = name === constants.TEAM_CHAMPS_NAME_MEN ? true : false;
-  isTeamChamps[1] = name === constants.TEAM_CHAMPS_NAME_WOMEN ? true : false;
+  var teamResultCounts = {
+    men : 0,
+    women : 0
+  };
+  var isTeamChamps = {
+    men : (name === constants.TEAM_CHAMPS_NAME_MEN ? true : false),
+    women : (name === constants.TEAM_CHAMPS_NAME_WOMEN ? true : false)
+  };
 
-  _.each(isClubPoints, function (clubPoints, i) {
-    if (clubPoints) {
-      if (isTeamChamps[i]) {
-        teamResultCounts[i] = constants.TEAM_RESULT_COUNT.TEAM_CHAMPS;
+  _.each(clubPointsData, function (clubPointsData, key) {
+    if (clubPointsData.isClubPoints) {
+      raceData[constants.DATA_KEYS.RACE.LABEL] = clubPointsData.raceLabel;
+      if (isTeamChamps[key]) {
+        teamResultCounts[key] = constants.TEAM_RESULT_COUNT.TEAM_CHAMPS;
       } else if (isMarathon) {
-        teamResultCounts[i] = constants.TEAM_RESULT_COUNT.MARATHON;
+        teamResultCounts[key] = constants.TEAM_RESULT_COUNT.MARATHON;
       } else {
-        teamResultCounts[i] = constants.TEAM_RESULT_COUNT.DEFAULT;
+        teamResultCounts[key] = constants.TEAM_RESULT_COUNT.DEFAULT;
       }
     }
   });
 
-  raceData[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_MEN] = teamResultCounts[0];
-  raceData[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_WOMEN] = teamResultCounts[1];
+  raceData[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_MEN] = teamResultCounts.men;
+  raceData[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_WOMEN] = teamResultCounts.women;
   return raceData;
 };
 

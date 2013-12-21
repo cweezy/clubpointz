@@ -67,8 +67,16 @@ var bail = function (errorMessage, callback) {
 };
 
 var determineIfClubPoints = function (race, details, browser, callback) {
-    var isClubPointsMen = false;
-    var isClubPointsWomen = false;
+    var clubPointsData = {
+        men : {
+            isClubPoints : false,
+            raceLabel : ''
+        },
+        women : {
+            isClubPoints : false,
+            raceLabel : ''
+       }
+    };
 
     var allTeamsShown = false;
     var awardWinnersUrl = $(browser.html()).find(constants.SELECTORS.AWARD_WINNERS_URL).attr('href');
@@ -86,17 +94,19 @@ var determineIfClubPoints = function (race, details, browser, callback) {
                                 divisionRace[constants.DATA_KEYS.DIVISION.RACE.DISTANCE] === distance) {
                             if (division[constants.DATA_KEYS.DB_ID] === constants.MENS_DIVISION_A + constants.KEY_DELIMITER +
                                     division[constants.DATA_KEYS.YEAR]) {
-                                isClubPointsMen = true;
+                                clubPointsData.men.isClubPoints = true;
+                                clubPointsData.men.raceLabel = raceDate + ' ' + distance;
                             } else if (division[constants.DATA_KEYS.DB_ID] === constants.WOMENS_DIVISION_A + constants.KEY_DELIMITER +
                                     division[constants.DATA_KEYS.YEAR]) {
-                                isClubPointsWomen = true;
+                                clubPointsData.women.isClubPoints = true;
+                                clubPointsData.women.raceLabel = raceDate + ' ' + distance;
                             }
                         }
                     });
                 });
             });
         }
-        callback([isClubPointsMen, isClubPointsWomen]);
+        callback(clubPointsData);
     });
 };
 
@@ -115,9 +125,9 @@ var parseRaceDetails = function (raceId, pageBody) {
 };
 
 var parseRaceData = function (race, details, browser, callback) {
-    determineIfClubPoints(race, details, browser, function (isClubPoints) {
+    determineIfClubPoints(race, details, browser, function (clubPointsData) {
         if (!data.raceData) data.raceData = {};
-        data.raceData[race.id] = util.makeRaceData(race.id, race.name, race.year, details, isClubPoints);
+        data.raceData[race.id] = util.makeRaceData(race.id, race.name, race.year, details, clubPointsData);
         data.raceData[race.id] = overrideRaceData(data.raceData[race.id]);
         callback();
     });

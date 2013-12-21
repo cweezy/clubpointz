@@ -103,11 +103,22 @@ var parseData = function (teamData, callback) {
 
         // Remove 'Team' and unattached
         teamOptions.splice(0, 2);
-      
+
+        var clubPointsData = {
+          men: {
+            isClubPoints: true,
+            raceLabel : '11/3 26.2M'
+          },
+          women : {
+            isClubPoints: true,
+            raceLabel : '11/3 26.2M'
+          }
+        };
+
         var data = {};
         data.headingData = {};
         data.results = [];
-        data.raceData = util.makeRaceData(RACE_ID, RACE_NAME, RACE_YEAR, getRaceDetails(), [true, true], true);
+        data.raceData = util.makeRaceData(RACE_ID, RACE_NAME, RACE_YEAR, getRaceDetails(), clubPointsData, true);
 
         var visitTeamPage = function (i) {
             if (i < 4 && teamOptions[i]) {
