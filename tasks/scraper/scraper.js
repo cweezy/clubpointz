@@ -20,25 +20,20 @@ var data = {};
 var startTime;
 
 
-var getNameMatches = function (name) {
-  var nameMatches = [name, name.trim()];
-  _.each(constants.TEAM_NAME_TRANSFORMS, function (replacements, key) {
-    if (name.indexOf(key) !== -1) {
-      _.each(replacements, function (replacement) {
-        nameMatches.push(name.replace(key, replacement));
-      });
-    }
-  });
-  return nameMatches;
-};
 
 var getTeamName = function (name) {
     var nameCorrections = {
         'Van Cortland TC' : {
-            corrected : 'Van Cortlandt TC'
-        }
+            corrected : ['Van Cortlandt TC']
+        },
+        'Dashing Whippets Running Team' : {
+            corrected : ['Dashing Whippets RT', 'Dashing Whippets Running Team']
+       },
+       'Greater NY RT' : {
+           corrected : ['Greater NY RT', 'Greater New York RT']
+       }
     };
-    return nameCorrections[name] ? nameCorrections[name].corrected : name;
+    return nameCorrections[name] ? nameCorrections[name].corrected : [name.trim()];
 };
 
 var waitForMessages = function (callback) {
@@ -349,7 +344,7 @@ describe('Scraper', function () {
                             if (!data.divisionData[divisionId][constants.DATA_KEYS.DIVISION.TEAMS]) {
                                 data.divisionData[divisionId][constants.DATA_KEYS.DIVISION.TEAMS] = [];
                             }
-                            data.divisionData[divisionId][constants.DATA_KEYS.DIVISION.TEAMS].push(item.name);
+                            data.divisionData[divisionId][constants.DATA_KEYS.DIVISION.TEAMS].push(item.name.trim());
                         }
                     });
 
@@ -391,7 +386,7 @@ describe('Scraper', function () {
                     
                     var divisionTeam;
                      _.each(allClubTeams, function (clubTeam) {
-                        _.each(getNameMatches(name), function (match) {
+                        _.each(util.getNameMatches(name), function (match) {
                            if (match.indexOf(clubTeam) !== -1) {
                                foundClubTeams.push(clubTeam);
                                divisionTeam =  clubTeam;
@@ -399,7 +394,7 @@ describe('Scraper', function () {
                         });
                     });
 
-                    if (divisionTeam) {
+                    if (divisionTeam && !data.teamData[key]) {
                         var teamData = {};
                         teamData[constants.DATA_KEYS.NAME] = getTeamName(divisionTeam);
                         teamData[constants.DATA_KEYS.DB_ID] = key;

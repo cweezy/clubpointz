@@ -6,6 +6,20 @@ var genericUtils = require('./../util');
 var scrapeReporter = require('./scrapeReporter');
 
 
+var getNameMatches = function (name) {
+  var nameMatches = [name, name.trim()];
+  _.each(constants.TEAM_NAME_TRANSFORMS, function (replacements, key) {
+    if (name.indexOf(key) !== -1) {
+      _.each(replacements, function (replacement) {
+        nameMatches.push(name.replace(key, replacement));
+      });
+    }
+  });
+  return nameMatches;
+};
+exports.getNameMatches = getNameMatches;
+
+
 /**
  * Get the URL for a race's results from its race id and year.
  */
@@ -156,12 +170,19 @@ exports.parseResults = function (browser, race, data, resultKeys, rowSelector, m
 
         // Find division for result (if any)
         var sexYearDivisions = _.filter(data.divisionData, function (div) {
-          return div[constants.DATA_KEYS.DIVISION.SEX] === resultSex && div[constants.DATA_KEYS.YEAR] === race[constants.DATA_KEYS.YEAR];
+          return div[constants.DATA_KEYS.DB_ID].indexOf('OPEN') !== -1 &&
+                 div[constants.DATA_KEYS.DIVISION.SEX] === resultSex &&
+                 div[constants.DATA_KEYS.YEAR] === race[constants.DATA_KEYS.YEAR];
         });
 
+        
         var division = _.find(sexYearDivisions, function (div) {
           return _.find(div[constants.DATA_KEYS.DIVISION.TEAMS], function (testTeam) {
-            return testTeam === team[constants.DATA_KEYS.NAME];
+            return _.find(getNameMatches(testTeam), function (testName) {
+              return _.find(team[constants.DATA_KEYS.NAME], function (teamName) {
+                return testName === teamName;
+              });
+            });
           });
         });
 
