@@ -1,4 +1,26 @@
-<% var division = 'OPEN MEN A-2013'; %>
+<%
+  var division = 'OPEN MEN A-2013',
+      mensClubPointsRaces = app.races.getMensClubPointsRaces(),
+      mensDivisionATeams = app.teams.getMenDivisionTeams('A'),
+      teamResults = {};
+  _.each(mensDivisionATeams, function (team) {
+    var teamId = team.get('id');
+    teamResults[teamId] = {};
+    teamResults[teamId].team = team;
+    teamResults[teamId].scoreSum = 0;
+    teamResults[teamId].raceScores = [];
+    _.each(mensClubPointsRaces, function (race) {
+      var teamResult = app.teamResults.getResultsForRaceTeamDivision(race.get('id'), team.get('id'), division);
+      if (teamResult) {
+        teamResults[teamId].raceScores.push(teamResult.get('score'));
+        teamResults[teamId].scoreSum += parseInt(teamResult.get('score'), 10);
+      }
+    });
+  });
+  teamResults = _.sortBy(teamResults, function (result) {
+    return 0 - result.scoreSum;
+  });
+%>
 
 <div class="table-label">
   <%= division %> Standings
@@ -15,18 +37,13 @@
     </tr>
   </thead>
   <tbody>
-    <% _.each(app.teams.getMenDivisionTeams('A'), function (team) { %>
+    <% _.each(teamResults, function (teamResult, i) { %>
       <tr>
-        <td></td>
-        <td><%= team.get('name')[0] %></td>
-        <td></td>
-        <% _.each(app.races.getMensClubPointsRaces(), function (race) { %>
-          <% var teamResult =app.teamResults.getResultsForRaceTeamDivision(race.get('id'), team.get('id'), division)%>
-          <% if (teamResult) { %>
-            <td><%= teamResult.get('score') %></td>
-          <% } else { %>
-            <td></td>
-          <% } %>
+        <td><%= i + 1 %></td>
+        <td><%= teamResult.team.get('name')[0] %></td>
+        <td><%= teamResult.scoreSum %></td>
+        <% _.each(teamResult.raceScores, function (score) { %>
+          <td><%= score %></td>
         <% }); %>
       </tr>
     <% }); %>
