@@ -310,6 +310,7 @@ exports.makeRaceData = function (id, name, year, details, clubPointsData, isMara
         teamResultCounts[key] = constants.TEAM_RESULT_COUNT.MARATHON;
       } else {
         teamResultCounts[key] = constants.TEAM_RESULT_COUNT.DEFAULT;
+        if (name.indexOf('Team Championships') !== -1) teamResultCounts[key] = 0;
       }
     }
   });
