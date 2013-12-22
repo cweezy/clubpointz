@@ -14,6 +14,8 @@
       if (teamResult) {
         teamResults[teamId].raceScores.push(teamResult.get('score'));
         teamResults[teamId].scoreSum += parseInt(teamResult.get('score'), 10);
+      } else {
+        teamResults[teamId].raceScores.push('');
       }
     });
   });
