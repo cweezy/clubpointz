@@ -11,6 +11,7 @@ app.StandingsView = Backbone.View.extend(
     @teams = app.teams.getMenDivisionTeams('A')
 
   render: ->
+    @cssClass = 'standings'
     @$el.html(@template('standings',
       division : @division
     ))
@@ -31,11 +32,11 @@ app.StandingsView = Backbone.View.extend(
     rows = []
     _.each(sortedTeams, (team, i) ->
       cells = []
-      cells.push(i + 1)
-      cells.push(team.team.get('name')[0])
-      cells.push(team.scoreSum)
+      cells.push({text :(i + 1)})
+      cells.push({text : team.team.get('name')[0], cellClass : 'team-name'})
+      cells.push({text : team.scoreSum})
       _.each(team.raceScores, (score) ->
-        cells.push(score)
+        cells.push({text : score})
       )
       rows += @template('standings_team_row', {cells : cells})
     , @)

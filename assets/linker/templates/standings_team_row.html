@@ -1,5 +1,5 @@
 <tr>
   <% _.each(cells, function (cell) { %>
-    <td><%= cell %></td>
+    <td class="<%= cell.cellClass %>"><%= cell.text %></td>
   <% }); %>
 </tr>

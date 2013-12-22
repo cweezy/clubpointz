@@ -148,9 +148,9 @@ module.exports = function (grunt) {
   grunt.loadTasks(depsPath + '/grunt-contrib-watch/tasks');
   grunt.loadTasks(depsPath + '/grunt-contrib-uglify/tasks');
   grunt.loadTasks(depsPath + '/grunt-contrib-cssmin/tasks');
-  grunt.loadTasks(depsPath + '/grunt-contrib-less/tasks');
   grunt.loadTasks(depsPath + '/grunt-contrib-coffee/tasks');
 
+  grunt.loadNpmTasks('grunt-contrib-sass');
   grunt.loadNpmTasks('grunt-contrib-jshint');
 
   // Project configuration.
@@ -201,20 +201,20 @@ module.exports = function (grunt) {
       }
     },
 
-    less: {
+    sass: {
       dev: {
         files: [
           {
           expand: true,
           cwd: 'assets/styles/',
-          src: ['*.less'],
+          src: ['*.scss'],
           dest: '.tmp/public/styles/',
           ext: '.css'
         }, {
           expand: true,
           cwd: 'assets/linker/styles/',
-          src: ['*.less'],
-          dest: '.tmp/public/linker/styles/',
+          src: ['*.scss'],
+          dest: '.tmp/public/linker/styles/css/',
           ext: '.css'
         }
         ]
@@ -445,7 +445,7 @@ module.exports = function (grunt) {
   grunt.registerTask('compileAssets', [
     'clean:dev',
     'jst:dev',
-    'less:dev',
+    'sass:dev',
     'copy:dev',    
     'coffee:dev'
   ]);
@@ -475,7 +475,7 @@ module.exports = function (grunt) {
   grunt.registerTask('prod', [
     'clean:dev',
     'jst:dev',
-    'less:dev',
+    'sass:dev',
     'copy:dev',
     'coffee:dev',
     'concat',
