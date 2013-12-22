@@ -3,6 +3,12 @@ TeamResults = Backbone.Collection.extend(
 
   forRace: (race) ->
     @filter (tr) ->
-      tr.get('raceId') is race.('id') and
+      tr.get('raceId') is race.('id')
+
+  getResultsForRaceTeamDivision: (raceId, teamId, division) ->
+    @find (result) ->
+      result.get('raceId') is raceId and result.get('teamId') is teamId and result.get('division') is division
+
 )
+
 app.teamResults = new TeamResults()

@@ -6,6 +6,20 @@ var genericUtils = require('./../util');
 var scrapeReporter = require('./scrapeReporter');
 
 
+var getNameMatches = function (name) {
+  var nameMatches = [name, name.trim()];
+  _.each(constants.TEAM_NAME_TRANSFORMS, function (replacements, key) {
+    if (name.indexOf(key) !== -1) {
+      _.each(replacements, function (replacement) {
+        nameMatches.push(name.replace(key, replacement));
+      });
+    }
+  });
+  return nameMatches;
+};
+exports.getNameMatches = getNameMatches;
+
+
 /**
  * Get the URL for a race's results from its race id and year.
  */
@@ -122,6 +136,7 @@ exports.parseResults = function (browser, race, data, resultKeys, rowSelector, m
   results = {};
 
   var that = this;
+  var teamResultKeys = [];
   var parsePage = function (startIndex) {
     logger.infoGroup('Parsing results ' + startIndex + '-' + parseInt(startIndex + resultsPerPage, 10));
 
@@ -156,12 +171,19 @@ exports.parseResults = function (browser, race, data, resultKeys, rowSelector, m
 
         // Find division for result (if any)
         var sexYearDivisions = _.filter(data.divisionData, function (div) {
-          return div[constants.DATA_KEYS.DIVISION.SEX] === resultSex && div[constants.DATA_KEYS.YEAR] === race[constants.DATA_KEYS.YEAR];
+          return div[constants.DATA_KEYS.DB_ID].indexOf('OPEN') !== -1 &&
+                 div[constants.DATA_KEYS.DIVISION.SEX] === resultSex &&
+                 div[constants.DATA_KEYS.YEAR] === race[constants.DATA_KEYS.YEAR];
         });
 
+        
         var division = _.find(sexYearDivisions, function (div) {
           return _.find(div[constants.DATA_KEYS.DIVISION.TEAMS], function (testTeam) {
-            return testTeam === team[constants.DATA_KEYS.NAME];
+            return _.find(getNameMatches(testTeam), function (testName) {
+              return _.find(team[constants.DATA_KEYS.NAME], function (teamName) {
+                return testName === teamName;
+              });
+            });
           });
         });
 
@@ -171,6 +193,7 @@ exports.parseResults = function (browser, race, data, resultKeys, rowSelector, m
           var resultCount = { M : race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_MEN],
                               F : race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_WOMEN]};
           var teamResultKey = race[constants.DATA_KEYS.DB_ID] + constants.KEY_DELIMITER + result.team + constants.KEY_DELIMITER + resultSex;
+          teamResultKeys.push(teamResultKey);
 
           if (!teamResults[teamResultKey]) {
             teamResults[teamResultKey] = {};
@@ -208,7 +231,6 @@ exports.parseResults = function (browser, race, data, resultKeys, rowSelector, m
       });
       browser.wait();
     } else {
-
       var parseMessage = 'Parsed ' + resultLength + ' ' + genericUtils.getSingularOrPlural('result', resultLength);
       logger.infoGroup(parseMessage);
       if (race[constants.DATA_KEYS.NAME]) {
@@ -227,7 +249,7 @@ exports.getScoredTeamResults = function (teamResults) {
     return result[constants.DATA_KEYS.TEAM_RESULT.DIVISION];
   });
 
-  var allResults = [];
+  var allResults = {};
   _.each(divisionGroupedTeamResults, function (teamResults) {
     // calculate team scores
     var groupedTeamResults = _.groupBy(teamResults, function (result) {
@@ -244,10 +266,12 @@ exports.getScoredTeamResults = function (teamResults) {
       } else {
         result[constants.DATA_KEYS.TEAM_RESULT.SCORE] = constants.DEFAULT_POINT_VALUE;
       }
+      allResults[result[constants.DATA_KEYS.DB_ID]] = result;
     });
-    // add pointed results to unpointed (non-full team) results
-    var resultsForDivision = (sortedTeamResults || []).concat(groupedTeamResults[false] || []);
-    allResults = allResults.concat(resultsForDivision);
+
+    _.each(groupedTeamResults[false], function (result) {
+      allResults[result[constants.DATA_KEYS.DB_ID]] = result;
+    });
   });
   return allResults;
 };
