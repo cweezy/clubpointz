@@ -12,7 +12,7 @@ app.Router = Backbone.Router.extend(
     @_showView(this.standingsView)
   
   raceResults: (id) ->
-    rrView = new app.RaceResultsView()
+    rrView = new app.RaceResultsView(model: app.races.get(id))
     @_showView(rrView)
 
   _showView: (view) =>
