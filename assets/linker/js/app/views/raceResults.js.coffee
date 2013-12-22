@@ -10,11 +10,13 @@ app.RaceResultsView = Backbone.View.extend(
     @
 
   _showResults: ->
-    table = @$('.results-table')
+    table = @$('.indiv-results')
+    str = ""
     @results.each( (result, idx) =>
-      table.append(@template('race_results_row',
+      str += @template('race_results_row',
         result: result
         place: idx + 1
-      ))
+      )
     )
+    table.append(str)
 )
