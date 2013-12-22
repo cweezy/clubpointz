@@ -136,6 +136,7 @@ exports.parseResults = function (browser, race, data, resultKeys, rowSelector, m
   results = {};
 
   var that = this;
+  var teamResultKeys = [];
   var parsePage = function (startIndex) {
     logger.infoGroup('Parsing results ' + startIndex + '-' + parseInt(startIndex + resultsPerPage, 10));
 
@@ -192,6 +193,7 @@ exports.parseResults = function (browser, race, data, resultKeys, rowSelector, m
           var resultCount = { M : race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_MEN],
                               F : race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_WOMEN]};
           var teamResultKey = race[constants.DATA_KEYS.DB_ID] + constants.KEY_DELIMITER + result.team + constants.KEY_DELIMITER + resultSex;
+          teamResultKeys.push(teamResultKey);
 
           if (!teamResults[teamResultKey]) {
             teamResults[teamResultKey] = {};
@@ -229,7 +231,6 @@ exports.parseResults = function (browser, race, data, resultKeys, rowSelector, m
       });
       browser.wait();
     } else {
-
       var parseMessage = 'Parsed ' + resultLength + ' ' + genericUtils.getSingularOrPlural('result', resultLength);
       logger.infoGroup(parseMessage);
       if (race[constants.DATA_KEYS.NAME]) {
@@ -248,7 +249,7 @@ exports.getScoredTeamResults = function (teamResults) {
     return result[constants.DATA_KEYS.TEAM_RESULT.DIVISION];
   });
 
-  var allResults = [];
+  var allResults = {};
   _.each(divisionGroupedTeamResults, function (teamResults) {
     // calculate team scores
     var groupedTeamResults = _.groupBy(teamResults, function (result) {
@@ -265,10 +266,12 @@ exports.getScoredTeamResults = function (teamResults) {
       } else {
         result[constants.DATA_KEYS.TEAM_RESULT.SCORE] = constants.DEFAULT_POINT_VALUE;
       }
+      allResults[result[constants.DATA_KEYS.DB_ID]] = result;
     });
-    // add pointed results to unpointed (non-full team) results
-    var resultsForDivision = (sortedTeamResults || []).concat(groupedTeamResults[false] || []);
-    allResults = allResults.concat(resultsForDivision);
+
+    _.each(groupedTeamResults[false], function (result) {
+      allResults[result[constants.DATA_KEYS.DB_ID]] = result;
+    });
   });
   return allResults;
 };
