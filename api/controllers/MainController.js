@@ -3,12 +3,25 @@ var $ = require('jquery');
 var Q = require('q');
 
 _addDivisionsToTeam = function (teams, divisions) {
-  menATeams = _.findWhere(divisions, {id: 'OPEN MEN A-2013'}).teams;
-  womenATeams = _.findWhere(divisions, {id: 'OPEN WOMEN A-2013'}).teams;
+  var menATeams = _.findWhere(divisions, {id: 'OPEN MEN A-2013'}).teams;
+  var womenATeams = _.findWhere(divisions, {id: 'OPEN WOMEN A-2013'}).teams;
+  var menBTeams = _.findWhere(divisions, {id: 'OPEN MEN B-2013'}).teams;
+  var womenBTeams = _.findWhere(divisions, {id: 'OPEN WOMEN B-2013'}).teams;
 
   _.each(teams, function (team) {
-    team.menDivision = _.contains(menATeams, team.name) ? 'A' : 'B';
-    team.womenDivision = _.contains(womenATeams, team.name) ? 'A' : 'B';
+    _.each(team.name, function (name) {
+      if (_.contains(menATeams, name)) {
+        team.menDivision = 'A';
+      } else if (_.contains(menBTeams, name)) {
+        team.menDivision = 'B';
+      }
+
+      if (_.contains(womenATeams, name)) {
+        team.womenDivision = 'A';
+      } else if (_.contains(womenBTeams, name)) {
+        team.womenDivision = 'B';
+      }
+    });
   });
 }
 
