@@ -21,19 +21,20 @@ var startTime;
 
 
 
-var getTeamName = function (name) {
-    var nameCorrections = {
-        'Van Cortland TC' : {
-            corrected : ['Van Cortlandt TC']
-        },
-        'Dashing Whippets Running Team' : {
-            corrected : ['Dashing Whippets RT', 'Dashing Whippets Running Team']
-       },
-       'Greater NY RT' : {
-           corrected : ['Greater NY RT', 'Greater New York RT']
-       }
+var getAllTeamNames = function (name) {
+    var names = {
+       'Van Cortland TC' :
+           ['Van Cortlandt TC'],
+       'Dashing Whippets Running Team' :
+           ['Dashing Whippets RT', 'Dashing Whippets Running Team'],
+       'Greater NY RT' :
+           ['Greater New York RT', 'Greater NY RT'],
+       'Prospect Park Track' :
+           ['Prospect Park TC', 'Prospect Park Track'],
+       'Henwood Hounds' :
+           ['Henwood Hounds Racing Team', 'Henwood Hounds']
     };
-    return nameCorrections[name] ? nameCorrections[name].corrected : [name.trim()];
+    return names[name.trim()] || [name.trim()];
 };
 
 var waitForMessages = function (callback) {
@@ -396,7 +397,7 @@ describe('Scraper', function () {
 
                     if (divisionTeam && !data.teamData[key]) {
                         var teamData = {};
-                        teamData[constants.DATA_KEYS.NAME] = getTeamName(divisionTeam);
+                        teamData[constants.DATA_KEYS.NAME] = getAllTeamNames(divisionTeam);
                         teamData[constants.DATA_KEYS.DB_ID] = key;
                         if (constants.TEAM_WEBSITES[key]) {
                             teamData[constants.DATA_KEYS.TEAM.WEBSITE] = constants.TEAM_WEBSITES[key];
