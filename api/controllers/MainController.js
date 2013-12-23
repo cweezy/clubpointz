@@ -23,27 +23,27 @@ _addDivisionsToTeam = function (teams, divisions) {
       }
     });
   });
-}
+};
 
 module.exports = {
   index: function (req, res) {
 	var promises = [
       Race.find({year: (new Date()).getFullYear().toString()}).sort('_id'),
-	  Team.find(),
+      Team.find(),
       Division.find(),
       TeamResult.find(),
       Heading.find()
     ];
 
 	Q.allSettled(promises).then(function (results) {
-	  races = results[0].value;
-	  teams = results[1].value;
-	  divisions = results[2].value;
+      races = results[0].value;
+      teams = results[1].value;
+      divisions = results[2].value;
       teamResults = results[3].value;
       headings = results[4].value;
 		 
       _addDivisionsToTeam(teams, divisions);
-	  res.view({
+      res.view({
         races: races,
         teams: teams,
         teamResults: teamResults,
@@ -51,6 +51,5 @@ module.exports = {
         divisions: divisions
       });
     });
-  },
-
+  }
 };
