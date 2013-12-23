@@ -4,11 +4,24 @@ Races = Backbone.Collection.extend({
 
   url: '/race'
 
-  getMensClubPointsRaces: ->
+  getDivisionRaces: (division) ->
+    divisionSex = division.get('sex')
+    if divisionSex == 'M'
+      possibleRaces = @_getMensClubPointsRaces()
+    else if divisionSex == 'F'
+      possibleRaces = @_getWomensClubPointsRaces()
+
+    _.filter(possibleRaces, (race) ->
+      _.find(division.get('races'), (divisionRace) ->
+        divisionRace['date'] + ' ' + divisionRace['distance'] == race.get('label')
+      )
+    ) if possibleRaces
+
+  _getMensClubPointsRaces: ->
     @filter (race) ->
       race.get('teamResultCountMen') > 0
 
-  getWomensClubPointsRaces: ->
+  _getWomensClubPointsRaces: ->
     @filter (race) ->
       race.get('teamResultCountWomen') > 0
 })

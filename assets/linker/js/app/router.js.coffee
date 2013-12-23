@@ -20,7 +20,7 @@ app.Router = Backbone.Router.extend(
   _showView: (view) =>
     view.render()
     $('#content').html(view.el)
-    $('#content').addClass(view.cssClass) if view.cssClass
+    $('#content').addClass(view.contentClass) if view.contentClass
     $('body').addClass(view.bodyClass) if view.bodyClass
     $(document).attr('title', view.title) if view.title
 )

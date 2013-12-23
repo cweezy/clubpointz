@@ -47,7 +47,8 @@ module.exports = {
         races: races,
         teams: teams,
         teamResults: teamResults,
-        headings: headings
+        headings: headings,
+        divisions: divisions
       });
     });
   },

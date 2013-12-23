@@ -2,9 +2,10 @@ Teams = Backbone.Collection.extend(
   model: app.Team
   url: '/team'
 
-  getMenDivisionTeams : (division) ->
+  getDivisionTeams : (division) ->
     @filter (team) ->
-      team.get('menDivision') is division      
-
+      _.find(division.get('teams'), (divisionTeam) ->
+        _.contains(team.get('name'), divisionTeam)
+      )
 )
 app.teams = new Teams()
