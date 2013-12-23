@@ -11,16 +11,17 @@ app.Router = Backbone.Router.extend(
 
   standings: ->
     this.standingsView or= new app.StandingsView()
-    @_showView(this.standingsView, 'main')
+    @_showView(this.standingsView)
   
   raceResults: (id) ->
     rrView = new app.RaceResultsView(model: app.races.get(id))
     @_showView(rrView)
 
-  _showView: (view, bodyClass) =>
+  _showView: (view) =>
     view.render()
-    $('body').addClass(bodyClass) if bodyClass
     $('#content').html(view.el)
-    $('#content').addClass(view.cssClass)
+    $('#content').addClass(view.cssClass) if view.cssClass
+    $('body').addClass(view.bodyClass) if view.bodyClass
+    $(document).attr('title', view.title) if view.title
 )
 
