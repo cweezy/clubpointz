@@ -6,6 +6,10 @@ var genericUtils = require('./../util');
 var scrapeReporter = require('./scrapeReporter');
 
 
+var getIsTeamChamps = function (raceName) {
+  return raceName.indexOf('Team Championships') !== -1;
+};
+
 var getNameMatches = function (name) {
   var nameMatches = [name, name.trim()];
   _.each(constants.TEAM_NAME_TRANSFORMS, function (replacements, key) {
@@ -202,6 +206,7 @@ exports.parseResults = function (browser, race, data, resultKeys, rowSelector, m
             teamResults[teamResultKey][constants.DATA_KEYS.RACE_ID] = race[constants.DATA_KEYS.DB_ID];
             teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.SCORE] = 0;
             teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.DIVISION] = division[constants.DATA_KEYS.DB_ID];
+            teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.IS_TEAM_CHAMPS] = getIsTeamChamps(race[constants.DATA_KEYS.NAME]);
           }
 
           if (resultCount[resultSex] > 0) {
@@ -261,8 +266,9 @@ exports.getScoredTeamResults = function (teamResults) {
 
     // assign point values to the top teams, default points to any full team
     _.each(sortedTeamResults, function (result, i) {
+      var scoreFactor = result[constants.DATA_KEYS.TEAM_RESULT.IS_TEAM_CHAMPS] ? 2 : 1;
       if (constants.POINT_VALUES[i]) {
-        result[constants.DATA_KEYS.TEAM_RESULT.SCORE] = constants.POINT_VALUES[i];
+        result[constants.DATA_KEYS.TEAM_RESULT.SCORE] = constants.POINT_VALUES[i] * scoreFactor;
       } else {
         result[constants.DATA_KEYS.TEAM_RESULT.SCORE] = constants.DEFAULT_POINT_VALUE;
       }
@@ -308,9 +314,11 @@ exports.makeRaceData = function (id, name, year, details, clubPointsData, isMara
         teamResultCounts[key] = constants.TEAM_RESULT_COUNT.TEAM_CHAMPS;
       } else if (isMarathon) {
         teamResultCounts[key] = constants.TEAM_RESULT_COUNT.MARATHON;
+      } else if (name.indexOf('Fifth Avenue') !== -1) {
+        teamResultCounts[key] = 1;
       } else {
         teamResultCounts[key] = constants.TEAM_RESULT_COUNT.DEFAULT;
-        if (name.indexOf('Team Championships') !== -1) teamResultCounts[key] = 0;
+        if (getIsTeamChamps(name)) teamResultCounts[key] = 0;
       }
     }
   });

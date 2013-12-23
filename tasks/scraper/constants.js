@@ -102,7 +102,8 @@ var constants = function () {
       RESULT_IDS : 'resultIds',
       IS_FULL_TEAM : 'isFullTeam',
       SCORE : 'score',
-      DIVISION : 'division'
+      DIVISION : 'division',
+      IS_TEAM_CHAMPS : 'isTeamChamps'
     },
     TEAM : {
       WEBSITE : 'website'
