@@ -8,6 +8,10 @@
     opacity: 0.9;
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 
+    .race-link span {
+      cursor: pointer;
+    }
+
     tbody {
       text-align: center;
       .team-name {

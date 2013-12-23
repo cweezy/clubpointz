@@ -1,5 +1,8 @@
 <tr>
   <% _.each(headings, function (heading) { %>
-    <th><%= heading %></th>
+    <% var classAttr = heading.cssClass ? 'class ="' + heading.cssClass + '"': '';
+       var raceNameAttr = heading.raceName ? 'raceName ="' + heading.raceName + '"': '';
+    %>
+    <th <%= classAttr %><%= raceNameAttr %>><span><%= heading.text %></span></th>
   <% }); %>
 </tr>

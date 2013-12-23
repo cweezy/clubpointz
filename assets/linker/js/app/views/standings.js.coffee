@@ -1,10 +1,14 @@
 app.StandingsView = Backbone.View.extend(
 
+  HEADINGS: [
+    {text: 'Rank'},
+    {text: 'Club Name'},
+    {text: 'Total Points'}
+  ]
+
   title: 'ClubPointz'
   cssClass: 'standings'
   bodyClass: 'main'
-
-  HEADINGS: ['Rank', 'Club Name', 'Total Points']
 
   initialize: ->
     @division = 'OPEN MEN A-2013'
@@ -24,10 +28,15 @@ app.StandingsView = Backbone.View.extend(
   _appendHeadings: ->
     headings = @HEADINGS.concat(
       _.map(@races, (race) ->
-        race.get('label')
+        {text: race.get('label'), cssClass: 'race-link', raceName: race.get('name')}
       )
     )
     @$('.standings-table thead').append(@template('standings_heading_row', {headings : headings}))
+    _.each(@$('.race-link'), (link) ->
+      @$(link).find('span').tooltip(
+        title: @$(link).attr('raceName')
+      )
+    )
 
   _appendTeamRows: ->
     sortedTeams = @_getSortedTeams()
