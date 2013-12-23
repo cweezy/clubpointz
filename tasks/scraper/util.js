@@ -314,8 +314,6 @@ exports.makeRaceData = function (id, name, year, details, clubPointsData, isMara
         teamResultCounts[key] = constants.TEAM_RESULT_COUNT.TEAM_CHAMPS;
       } else if (isMarathon) {
         teamResultCounts[key] = constants.TEAM_RESULT_COUNT.MARATHON;
-      } else if (name.indexOf('Fifth Avenue') !== -1) {
-        teamResultCounts[key] = 1;
       } else {
         teamResultCounts[key] = constants.TEAM_RESULT_COUNT.DEFAULT;
         if (getIsTeamChamps(name)) teamResultCounts[key] = 0;
