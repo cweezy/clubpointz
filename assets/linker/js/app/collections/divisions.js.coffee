@@ -2,18 +2,19 @@ Divisions = Backbone.Collection.extend({
 
   model: app.Division
 
-  SORT_ORDER: [
-    'OPEN MEN A-2013',
-    'OPEN WOMEN A-2013',
-    'OPEN MEN B-2013',
-    'OPEN WOMEN B-2013'
+  ORDERED_DIVISIONS: [
+    'OPEN MEN A',
+    'OPEN WOMEN A',
+    'OPEN MEN B',
+    'OPEN WOMEN B'
   ]
 
-  getOpenDivisions: ->
-    openDivisions = @filter (division) ->
-      division.get('id').indexOf('OPEN') != -1
-    _.sortBy(openDivisions, (division) ->
-      @SORT_ORDER.indexOf(division.get('id'))
+  getDivisionsForYear: (year) ->
+    divisions = @filter (division) ->
+      division.get('year') is year and _.contains(@ORDERED_DIVISIONS, division.get('name'))
+    , @
+    _.sortBy(divisions, (division) ->
+      @ORDERED_DIVISIONS.indexOf(division.get('name'))
     , @)
 
 })

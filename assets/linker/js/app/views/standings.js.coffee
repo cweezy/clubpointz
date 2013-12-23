@@ -11,21 +11,19 @@ app.StandingsView = Backbone.View.extend(
   contentClass: 'standings'
 
   initialize: ->
-    @divisions = app.divisions.getOpenDivisions()
+    year = String(new Date().getFullYear())
+    @divisions = app.divisions.getDivisionsForYear(year)
 
   render: ->
     @$el.html(@template('standings'))
-    @_appendTables()
-    @
-
-  _appendTables: ->
     _.each(@divisions, (division) ->
       @_appendDivisionTable(division)
     , @)
+    @
 
   _appendDivisionTable: (division) ->
     tableId = division.get('id').replace(/\s/g, '_')
-    labelText = division.get('id') + ' Standings'
+    labelText = division.get('name') + ' Standings'
 
     @$el.find('#division-tables').append(
       @template('standings_division_table', {
