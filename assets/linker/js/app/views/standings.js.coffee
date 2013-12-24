@@ -3,7 +3,7 @@ app.StandingsView = Backbone.View.extend(
   HEADINGS: [
     {text: 'Rank'},
     {text: 'Club Name'},
-    {text: 'Total Points'}
+    {text: 'Total Points', cssClass: 'total-points'}
   ]
 
   title: 'ClubPointz'

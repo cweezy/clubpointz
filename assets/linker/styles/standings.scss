@@ -8,8 +8,16 @@
     opacity: 0.9;
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 
-    .race-link span {
-      cursor: pointer;
+    .total-points {
+      width: 100px;
+    }
+
+    .race-link {
+      width: 60px;
+      text-align: center;
+      span {
+        cursor: pointer;
+      }
     }
 
     tbody {
