@@ -8,13 +8,20 @@
     opacity: 0.9;
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 
+    th {
+      text-align: center;
+    }
+
+    .club-name {
+      text-align: left;
+    }
+
     .total-points {
       width: 100px;
     }
 
     .race-link {
       width: 60px;
-      text-align: center;
       span {
         cursor: pointer;
       }
