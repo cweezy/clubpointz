@@ -323,6 +323,7 @@ describe('Scraper', function () {
                         if (!data.divisionData[divisionId]) {
                             data.divisionData[divisionId] = {};
                             data.divisionData[divisionId][constants.DATA_KEYS.DB_ID] = divisionId;
+                            data.divisionData[divisionId][constants.DATA_KEYS.NAME] = item.type;
                             data.divisionData[divisionId][constants.DATA_KEYS.YEAR] = year;
                             data.divisionData[divisionId][constants.DATA_KEYS.DIVISION.SEX] = util.getDivisionSex(divisionId);
                         }
