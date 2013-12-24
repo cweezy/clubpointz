@@ -32,7 +32,15 @@ var getAllTeamNames = function (name) {
        'Prospect Park Track' :
            ['Prospect Park TC', 'Prospect Park Track'],
        'Henwood Hounds' :
-           ['Henwood Hounds Racing Team', 'Henwood Hounds']
+           ['Henwood Hounds Racing Team', 'Henwood Hounds'],
+       'Columbia university RR' :
+           ['Columbia University RR', 'Columbia university RR'],
+       'Columbia Univ. Medicine' :
+           ['Columbia University Medicine', 'Columbia Univ. Medicine'],
+       'Black GirDrop Run' :
+           ['Black Girls Run', 'Black GirDrop Run'],
+       'So Brooklyn Running Club' :
+           ['South Brooklyn Running Club', 'So Brooklyn Running Club']
     };
     return names[name.trim()] || [name.trim()];
 };
