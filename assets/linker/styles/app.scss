@@ -5,6 +5,24 @@ a {
   }
 }
 
+.navbar {
+  border-radius: 0;
+  height: 28px;
+  min-height: 28px;
+  margin: 0;
+  background-image: none;
+
+  .navbar-brand {
+    font-size: 16px;
+    line-height: 28px;
+    padding: 0 10px 0 10px;
+  }
+
+  .navbar-link {
+    float: right;
+  }
+}
+
 #title {
   a {
     color: #fff;
