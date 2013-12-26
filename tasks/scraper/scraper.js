@@ -142,9 +142,13 @@ var parseRaceDetails = function (raceId, pageBody) {
         var id = String($(team).attr('value'));
         if (!data.teamData[id]) {
             var name = $(team).text();
-            // TODO find this character in a better way
-            var delimiterIndex = name.indexOf('�');
-            name = name.substring(0, delimiterIndex);
+            if (name.indexOf('(unnamed team)') !== -1) {
+                name = constants.NAMELESS_TEAMS[id];
+            } else {
+                // TODO find this character in a better way
+                var delimiterIndex = name.indexOf('�');
+                name = name.substring(0, delimiterIndex);
+            }
             if (id && name && !data.teamData[id]) {
                 data.teamData[id] = {};
                 data.teamData[id][constants.DATA_KEYS.DB_ID] = id;

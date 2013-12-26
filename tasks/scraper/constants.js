@@ -168,6 +168,7 @@ var constants = function () {
         'N.Y. Police Dept.', 'N.Y. Police Department'],
     'PODropKA Running Team' : ['POLSKA Running Team'],
     'Prospect Park Track' : ['Prospect Park TC'],
+    'RRF Ps 46' : ['RRF PS 46'],
     'Shore AC' : ['Shore Athletic Club'],
     'So Brooklyn Running Club' : ['South Brooklyn Running Club'],
     'Taconic RR' : ['Taconic Road Runners', 'Taconic Road Runners Club'],
@@ -180,6 +181,13 @@ var constants = function () {
     'Van Cortland TC' : ['Van Cortlandt TC', 'Van Cortland TC', 'Van Cortlandt Park TC'],
     "Wall Street Alpha's Road Runners" : ["Wall Street's Alpha Road Runners"]
   }; 
+
+  this.NAMELESS_TEAMS = {
+    '15' : 'RRF MS/PS 15',
+    '321' : 'RRF PS 321',
+    '46' : 'RRF PS 46',
+    'NEST' : 'RRF Nest+m (m539)'
+  };
 
   return this;
 };
