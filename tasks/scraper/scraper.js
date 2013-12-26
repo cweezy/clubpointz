@@ -384,7 +384,7 @@ describe('Scraper', function () {
                             if (!data.divisionData[divisionId][constants.DATA_KEYS.DIVISION.TEAMS]) {
                                 data.divisionData[divisionId][constants.DATA_KEYS.DIVISION.TEAMS] = [];
                             }
-                            data.divisionData[divisionId][constants.DATA_KEYS.DIVISION.TEAMS].push(item.name.trim());
+                            data.divisionData[divisionId][constants.DATA_KEYS.DIVISION.TEAMS].push(util.getNameMatches(item.name.trim())[0]);
                         }
                     });
 
