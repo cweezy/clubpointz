@@ -28,6 +28,30 @@ var getIsNameMatch = function (longName, shortName) {
     }
 };
 
+var reportUnfoundTeams = function () {
+    var divisionTeams = [];
+    var foundDivisionTeams = [];
+
+    _.each(data.divisionData, function (division) {
+        _.each(division.teams, function (team) {
+            divisionTeams.push(util.getNameMatches(team)[0]);
+        });
+    });
+    divisionTeams = _.uniq(divisionTeams);
+
+    _.each(data.foundTeams, function (teamNames) {
+        _.each(teamNames, function (name) {
+            if (_.contains(divisionTeams, name)) foundDivisionTeams.push(name);
+        });
+    });
+
+    var unfoundTeams = _.uniq(_.difference(divisionTeams, foundDivisionTeams));
+    if (unfoundTeams) {
+        scrapeReporter.addTeamInfo('Unfound teams' +
+            ' (' + unfoundTeams.length + '):<br>' +
+            unfoundTeams.join('<br>'));
+    }
+};
 
 var waitForMessages = function (callback) {
     var count = 0;
@@ -452,26 +476,6 @@ describe('Scraper', function () {
 
     it('saves data', function (done) {
 
-        var divisionTeams = [];
-        var foundDivisionTeams = [];
-        _.each(data.divisionData, function (division) {
-            _.each(division.teams, function (team) {
-                divisionTeams.push(util.getNameMatches(team)[0]);
-            });
-        });
-        divisionTeams = _.uniq(divisionTeams);
-        _.each(data.foundTeams, function (teamNames) {
-            _.each(teamNames, function (name) {
-                if (_.contains(divisionTeams, name)) foundDivisionTeams.push(name);
-            });
-        });
-
-        var unfoundTeams = _.difference(divisionTeams, foundDivisionTeams);
-        if (unfoundTeams) {
-            console.log('Unfound teams:');
-            console.log(_.uniq(unfoundTeams));
-            console.log(_.uniq(unfoundTeams).length);
-        }
 
         var createDate = new Date();
         var onDbError = function (err, objects) {
@@ -498,6 +502,8 @@ describe('Scraper', function () {
         scrapeReporter.addDataInfo(message);
 
         if (!_.isEmpty(data.raceData)) {
+            reportUnfoundTeams();
+
             collection = db.collection(constants.DB_COLLECTIONS.RACE);
             _.each(data.raceData, function (race, key) {
                 race[constants.DATA_KEYS.CREATED_AT] = createDate;
