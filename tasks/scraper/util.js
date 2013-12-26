@@ -175,11 +175,7 @@ exports.parseResults = function (browser, race, data, resultKeys, rowSelector, m
         
         var division = _.find(sexYearDivisions, function (div) {
           return _.find(div[constants.DATA_KEYS.DIVISION.TEAMS], function (testTeam) {
-            return _.find(getNameMatches(testTeam), function (testName) {
-              return _.find(team[constants.DATA_KEYS.NAME], function (teamName) {
-                return testName === teamName;
-              });
-            });
+            return testTeam === getNameMatches(team[constants.DATA_KEYS.NAME])[0];
           });
         });
 
