@@ -13,9 +13,9 @@ var getIsTeamChamps = function (raceName) {
 var getNameMatches = function (name) {
   var nameMatches = [name, name.trim()];
   _.each(constants.TEAM_NAME_TRANSFORMS, function (replacements, key) {
-    if (name.indexOf(key) !== -1) {
+    if ((name.trim()).indexOf(key) !== -1) {
       _.each(replacements, function (replacement) {
-        nameMatches.push(name.replace(key, replacement));
+        nameMatches.push((name.trim()).replace(key, replacement));
       });
     }
   });

@@ -20,6 +20,13 @@ var data = {};
 var startTime;
 
 
+var getIsNameMatch = function (longName, shortName) {
+    if (longName.indexOf('(') !== -1) {
+        var fullName = longName.match(/.* \(/g)[0];
+        fullName = fullName.substring(0, fullName.length - 1);
+        return fullName.trim() === shortName.trim();
+    }
+};
 
 var getAllTeamNames = function (name) {
     var names = {
@@ -397,7 +404,7 @@ describe('Scraper', function () {
                     var divisionTeam;
                      _.each(allClubTeams, function (clubTeam) {
                         _.each(util.getNameMatches(name), function (match) {
-                           if (match.indexOf(clubTeam) !== -1) {
+                           if (getIsNameMatch(match, clubTeam)) {
                                foundClubTeams.push(clubTeam);
                                divisionTeam =  clubTeam;
                            }
