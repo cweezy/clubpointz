@@ -5,7 +5,7 @@ Teams = Backbone.Collection.extend(
   getDivisionTeams : (division) ->
     @filter (team) ->
       _.find(division.get('teams'), (divisionTeam) ->
-        _.contains(team.get('name'), divisionTeam)
+        team.get('name') == divisionTeam
       )
 )
 app.teams = new Teams()

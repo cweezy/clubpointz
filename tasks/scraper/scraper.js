@@ -28,29 +28,6 @@ var getIsNameMatch = function (longName, shortName) {
     }
 };
 
-var getAllTeamNames = function (name) {
-    var names = {
-       'Van Cortland TC' :
-           ['Van Cortlandt TC'],
-       'Dashing Whippets Running Team' :
-           ['Dashing Whippets RT', 'Dashing Whippets Running Team'],
-       'Greater NY RT' :
-           ['Greater New York RT', 'Greater NY RT'],
-       'Prospect Park Track' :
-           ['Prospect Park TC', 'Prospect Park Track'],
-       'Henwood Hounds' :
-           ['Henwood Hounds Racing Team', 'Henwood Hounds'],
-       'Columbia university RR' :
-           ['Columbia University RR', 'Columbia university RR'],
-       'Columbia Univ. Medicine' :
-           ['Columbia University Medicine', 'Columbia Univ. Medicine'],
-       'Black GirDrop Run' :
-           ['Black Girls Run', 'Black GirDrop Run'],
-       'So Brooklyn Running Club' :
-           ['South Brooklyn Running Club', 'So Brooklyn Running Club']
-    };
-    return names[name.trim()] || [name.trim()];
-};
 
 var waitForMessages = function (callback) {
     var count = 0;
@@ -132,6 +109,27 @@ var parseRaceDetails = function (raceId, pageBody) {
             raceDetails[$.trim(detailParts[0])] = $.trim(detailParts[1]);
         }
     });
+
+    // parse race teams
+    data.teamData = data.teamData || {};
+    data.foundTeams = data.foundTeams || [];
+    var teamDropdown = $(pageBody).find('select[name="team_code"]');
+    _.each($(teamDropdown).find('option'), function (team) {
+        var id = String($(team).attr('value'));
+        if (!data.teamData[id]) {
+            var name = $(team).text();
+            // TODO find this character in a better way
+            var delimiterIndex = name.indexOf('�');
+            name = name.substring(0, delimiterIndex);
+            if (id && name && !data.teamData[id]) {
+                data.teamData[id] = {};
+                data.teamData[id][constants.DATA_KEYS.DB_ID] = id;
+                data.teamData[id][constants.DATA_KEYS.NAME] = util.getNameMatches(name.trim())[0];
+                data.foundTeams.push(util.getNameMatches(name.trim()));
+            }
+        }
+    });
+
     return raceDetails;
 };
 
@@ -139,6 +137,7 @@ var parseRaceData = function (race, details, browser, callback) {
     determineIfClubPoints(race, details, browser, function (clubPointsData) {
         if (!data.raceData) data.raceData = {};
         data.raceData[race.id] = util.makeRaceData(race.id, race.name, race.year, details, clubPointsData);
+
         data.raceData[race.id] = overrideRaceData(data.raceData[race.id]);
         callback();
     });
@@ -298,7 +297,7 @@ describe('Scraper', function () {
         collection = db.collection(constants.DB_COLLECTIONS.TEAM);
         collection.find().toArray(function (err, docs) {
             if (err) throw err;
-            data.teamData = docs;
+            if (!_.isEmpty(docs)) data.teamData = docs;
             done();
         });
     }),
@@ -378,58 +377,6 @@ describe('Scraper', function () {
         }
     }),
 
-
-    it('finds team info', function (done) {
-        if (_.isEmpty(data.teamData) || data.isNewDivisionData) {
-            data.isNewTeamData = true;
-            var browser = new Browser();
-            browser.runScripts = false;
-            browser.loadCSS = false;
-
-            var allClubTeams = [];
-            _.each(data.divisionData, function (division) {
-                allClubTeams = allClubTeams.concat(division[constants.DATA_KEYS.DIVISION.TEAMS]);
-            });
-            allClubTeams = _.uniq(allClubTeams);
-
-            data.teamData = [];
-            var foundClubTeams = [];
-            browser.visit(constants.MARATHON_RESULT_URL, function () {
-                assert.equal(constants.EXPECTED_MARATHON_RESULT_TITLE, browser.text('title'));
-                var teamDropdown = getTeamDropdown(browser);
-                _.each($(teamDropdown).find('option'), function (teamOption) {
-                    var key = $(teamOption).attr('value');
-                    var name = $(teamOption).text();
-                    
-                    var divisionTeam;
-                     _.each(allClubTeams, function (clubTeam) {
-                        _.each(util.getNameMatches(name), function (match) {
-                           if (getIsNameMatch(match, clubTeam)) {
-                               foundClubTeams.push(clubTeam);
-                               divisionTeam =  clubTeam;
-                           }
-                        });
-                    });
-
-                    if (divisionTeam && !data.teamData[key]) {
-                        var teamData = {};
-                        teamData[constants.DATA_KEYS.NAME] = getAllTeamNames(divisionTeam);
-                        teamData[constants.DATA_KEYS.DB_ID] = key;
-                        if (constants.TEAM_WEBSITES[key]) {
-                            teamData[constants.DATA_KEYS.TEAM.WEBSITE] = constants.TEAM_WEBSITES[key];
-                        }
-                        data.teamData.push(teamData);
-                    }
-                });
-                var unfoundClubTeams = _.difference(allClubTeams, foundClubTeams);
-                scrapeReporter.addTeamInfo('Unfound club teams:<br>' + unfoundClubTeams.join('<br>') + '\n');
-                done();
-            }); 
-        } else {
-            done();
-        }
-    }),
-
     it('finds manual race override data', function (done) {
         var collection = db.collection(constants.DB_COLLECTIONS.RACE_OVERRIDE);
         data.raceOverrideData = {};
@@ -504,6 +451,28 @@ describe('Scraper', function () {
     }),
 
     it('saves data', function (done) {
+
+        var divisionTeams = [];
+        var foundDivisionTeams = [];
+        _.each(data.divisionData, function (division) {
+            _.each(division.teams, function (team) {
+                divisionTeams.push(util.getNameMatches(team)[0]);
+            });
+        });
+        divisionTeams = _.uniq(divisionTeams);
+        _.each(data.foundTeams, function (teamNames) {
+            _.each(teamNames, function (name) {
+                if (_.contains(divisionTeams, name)) foundDivisionTeams.push(name);
+            });
+        });
+
+        var unfoundTeams = _.difference(divisionTeams, foundDivisionTeams);
+        if (unfoundTeams) {
+            console.log('Unfound teams:');
+            console.log(_.uniq(unfoundTeams));
+            console.log(_.uniq(unfoundTeams).length);
+        }
+
         var createDate = new Date();
         var onDbError = function (err, objects) {
             if (err) throw (err);
@@ -528,24 +497,17 @@ describe('Scraper', function () {
         logger.info(message);
         scrapeReporter.addDataInfo(message);
 
-        if (data.isNewTeamData) {
-            collection = db.collection(constants.DB_COLLECTIONS.TEAM);
-            _.each(data.teamData, function (team) {
-                collection.update(getQuery(team), team, {upsert:true}, onDbError);
-            });
-            message = 'Team data saved';
-        } else {
-            message = 'No new team data saved';
-        }
-        logger.info(message);
-        scrapeReporter.addDataInfo(message);
-
         if (!_.isEmpty(data.raceData)) {
             collection = db.collection(constants.DB_COLLECTIONS.RACE);
             _.each(data.raceData, function (race, key) {
                 race[constants.DATA_KEYS.CREATED_AT] = createDate;
                 race[constants.DATA_KEYS.UPDATED_AT] = createDate;
                 collection.insert(race, {w:1}, onDbError); 
+            });
+
+            collection = db.collection(constants.DB_COLLECTIONS.TEAM);
+            _.each(data.teamData, function (team) {
+                collection.update(getQuery(team), team, {upsert:true}, onDbError);
             });
 
             collection = db.collection(constants.DB_COLLECTIONS.HEADING);

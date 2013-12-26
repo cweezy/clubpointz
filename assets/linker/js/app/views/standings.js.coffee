@@ -58,7 +58,7 @@ app.StandingsView = Backbone.View.extend(
     _.each(sortedTeams, (team, i) ->
       cells = []
       cells.push({text :(i + 1)})
-      cells.push({text : team.team.get('name')[0], cellClass : 'team-name'})
+      cells.push({text : team.team.get('name'), cellClass : 'team-name'})
       cells.push({text : team.scoreSum})
       _.each(team.raceScores, (score) ->
         cells.push({text : score})

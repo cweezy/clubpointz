@@ -11,16 +11,9 @@ var getIsTeamChamps = function (raceName) {
 };
 
 var getNameMatches = function (name) {
-  var nameMatches = [name, name.trim()];
-  _.each(constants.TEAM_NAME_TRANSFORMS, function (replacements, key) {
-    if ((name.trim()).indexOf(key) !== -1) {
-      _.each(replacements, function (replacement) {
-        nameMatches.push((name.trim()).replace(key, replacement));
-      });
-    }
-  });
-  return nameMatches;
+  return (constants.TEAM_NAME_TRANSFORMS[name] || []).concat(name);
 };
+
 exports.getNameMatches = getNameMatches;
 
 
@@ -140,7 +133,6 @@ exports.parseResults = function (browser, race, data, resultKeys, rowSelector, m
   results = {};
 
   var that = this;
-  var teamResultKeys = [];
   var parsePage = function (startIndex) {
     logger.infoGroup('Parsing results ' + startIndex + '-' + parseInt(startIndex + resultsPerPage, 10));
 
@@ -192,12 +184,11 @@ exports.parseResults = function (browser, race, data, resultKeys, rowSelector, m
         });
 
         // Add result to team results
-        if (!_.isUndefined(division) && (race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_MEN] > 0 ||
+        if (division && (race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_MEN] > 0 ||
             race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_WOMEN] > 0)) {
           var resultCount = { M : race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_MEN],
                               F : race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_WOMEN]};
           var teamResultKey = race[constants.DATA_KEYS.DB_ID] + constants.KEY_DELIMITER + result.team + constants.KEY_DELIMITER + resultSex;
-          teamResultKeys.push(teamResultKey);
 
           if (!teamResults[teamResultKey]) {
             teamResults[teamResultKey] = {};
