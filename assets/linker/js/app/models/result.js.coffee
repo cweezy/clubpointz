@@ -1,1 +1,16 @@
-app.Result = Backbone.Model.extend({})
+app.Result = Backbone.Model.extend({
+  getTime: ->
+    # refactor this to not repeat TeamResult
+    totalSecs = @get('net_time')
+    hours = Math.floor totalSecs / 3600
+    minutes = Math.floor (totalSecs % 3600) / 60
+    seconds = totalSecs % 60
+
+    str = ""
+    str += hours + ":" if hours > 0
+    str += 0 if minutes < 10
+    str += minutes + ":"
+    str += 0 if seconds < 10
+    str += seconds
+    str
+  })
