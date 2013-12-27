@@ -30,7 +30,8 @@ var constants = function () {
     RACE_OVERRIDE : 'race_override',
     TEAM : 'team',
     TEAM_RESULT : 'teamresult',
-    DIVISION : 'division'
+    DIVISION : 'division',
+    SCRAPE_DATA : 'scrapedata'
   };
 
   this.RESULT_MAIN_URL = 'http://web2.nyrrc.org/cgi-bin/htmlos.cgi/aes-programs/results/resultsarchive.htm';
@@ -102,7 +103,8 @@ var constants = function () {
       RESULT_IDS : 'resultIds',
       IS_FULL_TEAM : 'isFullTeam',
       SCORE : 'score',
-      DIVISION : 'division'
+      DIVISION : 'division',
+      IS_TEAM_CHAMPS : 'isTeamChamps'
     },
     TEAM : {
       WEBSITE : 'website'
@@ -132,32 +134,60 @@ var constants = function () {
 
   this.TEAM_NAME_TRANSFORMS = {
     '0Training' : ['0 Training'],
-    'Adobo Social & Anti-Social Athletic' : ['Adobo Social & Athletic'],
-    'Athletic Club' : ['AC'],
-    'Columbia University Medical Center' : ['Columbia University Med.', 'Columbia Univ. Medicine'],
-    'Girls' : ['GirDrop'],
-    'Kills' : ['KilDrop'],
-    ' In ' : [' in '],
-    ' Running Team' : [' RT'],
-    ' RT' : [' Running Team'],
-    'Cortland' : ['Cortlandt', 'Cortlandt Park'],
-    ' Track' : [' TC'],
-    'NY ' : ['New York ', 'N.Y. '],
-    'N.Y.' : ['New York'],
-    'New York' : ['N.Y.', 'N. Y.', 'NY'],
-    'Dept' : ['Dept.', 'Department'],
-    'Dept.' : ['Dept', 'Department'],
-    ' For ' : [' for '],
-    'Road Runners Club' : ['RR'],
-    'Runners' : ['Running'],
-    'South Brooklyn' : ['So Brooklyn'],                                                                                                   
-    'To The' : ['to the'],                                                                                                                
-    'UNRR(United Nations Road Runne' : ['United Nations Road Runners', 'UNRR (United Nations Runne)'],                                    
-    'University' : ['university'],                                                                                                        
-    "Wall Street Alpha's" : ["Wall Street's Alpha"],                                                                                      
-    'Westchester' : ['Westcherster'],                                                                                                     
-    'Whippets Running Team' : ['Wippets RT']                                                                                              
+    '10 to the End' : ['10 To The End'],
+    'Adobo Social & Athletic Club' : ['Adobo Social & Anti-Social Athletic Club', 'Adobo Social & Athletic'],
+    'Adobo Social & Athletic' : ['Adobo Social & Anti-Social Athletic Club', 'Adobo Social & Athletic Club'],
+    'Asphalt Green Triath' : ['Asphalt Green Triathlon Club'],
+    'Black GirDrop Run' : ['Black Girls Run'],
+    'Clifton Road Runners' : ['Clifton Road Runners Club'],
+    'Columbia Univ. Medicine' : ['Columbia University Medical Center', 'Columbia University Med.'],
+    'Columbia University Med.' : ['Columbia University Medical Center', 'Columbia Univ. Medicine'],
+    'Columbia university RR' : ['Columbia University RR'],
+    'Dashing Whippets Running Team' : ['Dashing Whippets RT', 'Dashing Whippets Running Team', 'Dashing Wippets RT'],
+    'Dashing Wippets RT' : ['Dashing Whippets RT', 'Dashing Whippets Running Team', 'Dashing Wippets RT'],
+    "Galloway's Training" : ["Galloway's Training Team"],
+    'Great KilDrop Gateway RC' : ['Great Kills Gateway RC'],
+    'Greater Long Island' : ['Greater Long Island RC'],
+    'Greater NY RT' : ['Greater New York RT'],
+    'Green City Running' : ['Green City Runners'],
+    'Henwood Hounds' : ['Henwood Hounds Racing Team'],
+    'Hoboken Elysianettes' : ['Hoboken Elysianettes Running Society'],
+    'Jersey GirDrop RR' : ['Jersey Girls RR'],
+    'Jersey GirDrop SS' : ['Jersey Girls SS'],
+    'N.Y. Fire Dept.' : ['New York Fire Dept.', 'N.Y. Fire Dept.'],
+    'N.Y. Fire Dept' : ['New York Fire Dept.', 'N.Y. Fire Dept.'],
+    'New York Police Dept.' : ['NY Police Department', 'N.Y. Police Dept', 'N. Y. Police Dept', 'New York Police Dept.',
+        'N.Y. Police Dept.', 'N.Y. Police Department'],
+    'N.Y. Police Dept' : ['NY Police Department', 'N.Y. Police Dept', 'N. Y. Police Dept', 'New York Police Dept.',
+        'N.Y. Police Dept.', 'N.Y. Police Department'],
+    'N.Y. Police Dept.' : ['NY Police Department', 'N.Y. Police Dept', 'N. Y. Police Dept', 'New York Police Dept.',
+        'N.Y. Police Dept.', 'N.Y. Police Department'],
+    'N. Y. Police Dept' : ['NY Police Department', 'N.Y. Police Dept', 'N. Y. Police Dept', 'New York Police Dept.',
+        'N.Y. Police Dept.', 'N.Y. Police Department'],    
+    'N.Y. Police Department' : ['NY Police Department', 'N.Y. Police Dept', 'N. Y. Police Dept', 'New York Police Dept.',
+        'N.Y. Police Dept.', 'N.Y. Police Department'],
+    'PODropKA Running Team' : ['POLSKA Running Team'],
+    'Prospect Park Track' : ['Prospect Park TC'],
+    'RRF Ps 46' : ['RRF PS 46'],
+    'Shore AC' : ['Shore Athletic Club'],
+    'So Brooklyn Running Club' : ['South Brooklyn Running Club'],
+    'Taconic RR' : ['Taconic Road Runners', 'Taconic Road Runners Club'],
+    'Taconic Road Runners Club' : ['Taconic Road Runners', 'Taconic RR'],
+    'Team Boomer' : ['Team Boomer - Fighting Cystic Fibrosis'],
+    'Team for Kids' : ['Team For Kids'],
+    'Team in Training' : ['Team In Training'],
+    'UNRR (United Nations Runne)' : ['United Nations Road Runners', 'UNRR(United Nations Road Runne'],
+    'UNRR(United Nations Road Runne' : ['United Nations Road Runners', 'UNRR (United Nations Runne)'],
+    'Van Cortland TC' : ['Van Cortlandt TC', 'Van Cortland TC', 'Van Cortlandt Park TC'],
+    "Wall Street Alpha's Road Runners" : ["Wall Street's Alpha Road Runners"]
   }; 
+
+  this.NAMELESS_TEAMS = {
+    '15' : 'RRF MS/PS 15',
+    '321' : 'RRF PS 321',
+    '46' : 'RRF PS 46',
+    'NEST' : 'RRF Nest+m (m539)'
+  };
 
   return this;
 };

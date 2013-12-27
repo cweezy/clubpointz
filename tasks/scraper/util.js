@@ -6,17 +6,14 @@ var genericUtils = require('./../util');
 var scrapeReporter = require('./scrapeReporter');
 
 
-var getNameMatches = function (name) {
-  var nameMatches = [name, name.trim()];
-  _.each(constants.TEAM_NAME_TRANSFORMS, function (replacements, key) {
-    if (name.indexOf(key) !== -1) {
-      _.each(replacements, function (replacement) {
-        nameMatches.push(name.replace(key, replacement));
-      });
-    }
-  });
-  return nameMatches;
+var getIsTeamChamps = function (raceName) {
+  return raceName.indexOf('Team Championships') !== -1;
 };
+
+var getNameMatches = function (name) {
+  return (constants.TEAM_NAME_TRANSFORMS[name] || []).concat(name);
+};
+
 exports.getNameMatches = getNameMatches;
 
 
@@ -136,7 +133,6 @@ exports.parseResults = function (browser, race, data, resultKeys, rowSelector, m
   results = {};
 
   var that = this;
-  var teamResultKeys = [];
   var parsePage = function (startIndex) {
     logger.infoGroup('Parsing results ' + startIndex + '-' + parseInt(startIndex + resultsPerPage, 10));
 
@@ -179,21 +175,16 @@ exports.parseResults = function (browser, race, data, resultKeys, rowSelector, m
         
         var division = _.find(sexYearDivisions, function (div) {
           return _.find(div[constants.DATA_KEYS.DIVISION.TEAMS], function (testTeam) {
-            return _.find(getNameMatches(testTeam), function (testName) {
-              return _.find(team[constants.DATA_KEYS.NAME], function (teamName) {
-                return testName === teamName;
-              });
-            });
+            return testTeam === getNameMatches(team[constants.DATA_KEYS.NAME])[0];
           });
         });
 
         // Add result to team results
-        if (!_.isUndefined(division) && (race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_MEN] > 0 ||
+        if (division && (race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_MEN] > 0 ||
             race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_WOMEN] > 0)) {
           var resultCount = { M : race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_MEN],
                               F : race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_WOMEN]};
           var teamResultKey = race[constants.DATA_KEYS.DB_ID] + constants.KEY_DELIMITER + result.team + constants.KEY_DELIMITER + resultSex;
-          teamResultKeys.push(teamResultKey);
 
           if (!teamResults[teamResultKey]) {
             teamResults[teamResultKey] = {};
@@ -202,6 +193,7 @@ exports.parseResults = function (browser, race, data, resultKeys, rowSelector, m
             teamResults[teamResultKey][constants.DATA_KEYS.RACE_ID] = race[constants.DATA_KEYS.DB_ID];
             teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.SCORE] = 0;
             teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.DIVISION] = division[constants.DATA_KEYS.DB_ID];
+            teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.IS_TEAM_CHAMPS] = getIsTeamChamps(race[constants.DATA_KEYS.NAME]);
           }
 
           if (resultCount[resultSex] > 0) {
@@ -261,8 +253,9 @@ exports.getScoredTeamResults = function (teamResults) {
 
     // assign point values to the top teams, default points to any full team
     _.each(sortedTeamResults, function (result, i) {
+      var scoreFactor = result[constants.DATA_KEYS.TEAM_RESULT.IS_TEAM_CHAMPS] ? 2 : 1;
       if (constants.POINT_VALUES[i]) {
-        result[constants.DATA_KEYS.TEAM_RESULT.SCORE] = constants.POINT_VALUES[i];
+        result[constants.DATA_KEYS.TEAM_RESULT.SCORE] = constants.POINT_VALUES[i] * scoreFactor;
       } else {
         result[constants.DATA_KEYS.TEAM_RESULT.SCORE] = constants.DEFAULT_POINT_VALUE;
       }
@@ -310,7 +303,7 @@ exports.makeRaceData = function (id, name, year, details, clubPointsData, isMara
         teamResultCounts[key] = constants.TEAM_RESULT_COUNT.MARATHON;
       } else {
         teamResultCounts[key] = constants.TEAM_RESULT_COUNT.DEFAULT;
-        if (name.indexOf('Team Championships') !== -1) teamResultCounts[key] = 0;
+        if (getIsTeamChamps(name)) teamResultCounts[key] = 0;
       }
     }
   });

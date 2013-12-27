@@ -2,11 +2,31 @@
   .standings-table {
     max-width: 1100px;
     min-width: 600px;
-    margin: auto;
+    margin: 0 auto 24px auto;
 
     background-color: #fff;
     opacity: 0.9;
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+
+    th {
+      text-align: center;
+    }
+
+    .club-name {
+      text-align: left;
+    }
+
+    .total-points {
+      width: 100px;
+    }
+
+    .race-link {
+      width: 60px;
+      padding: 4px 10px;
+      span {
+        cursor: pointer;
+      }
+    }
 
     tbody {
       text-align: center;

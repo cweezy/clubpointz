@@ -12,5 +12,6 @@ $(function() {
   app.teams.reset(sailsExports.teamsJson);
   app.teamResults.reset(sailsExports.teamResultsJson);
   app.headings.reset(sailsExports.headingsJson);
+  app.divisions.reset(sailsExports.divisionsJson);
   Backbone.history.start();
 });
