@@ -2,7 +2,16 @@
   <% _.each(headings, function (heading) { %>
     <% var classAttr = heading.cssClass ? 'class ="' + heading.cssClass + '"': '';
        var raceNameAttr = heading.raceName ? 'raceName ="' + heading.raceName + '"': '';
+       var raceIdAttr = heading.raceId ? 'raceId = "' + heading.raceId + '"': '';
     %>
-    <th <%= classAttr %><%= raceNameAttr %>><span><%= heading.text %></span></th>
+    <th <%= classAttr %> >
+      <% if (raceNameAttr && raceIdAttr) { %>
+        <div class="race-link" <%= raceNameAttr %> <%= raceIdAttr %> >
+          <%= heading.text %>
+        </div>
+      <% } else { %>
+        <%= heading.text %>
+      <% } %>
+    </th>
   <% }); %>
 </tr>

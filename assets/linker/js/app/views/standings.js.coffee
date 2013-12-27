@@ -10,6 +10,9 @@ app.StandingsView = Backbone.View.extend(
   bodyClass: 'main'
   contentClass: 'standings'
 
+  events:
+    "click .race-link": "_goToRaceResults"
+
   initialize: ->
     year = String(new Date().getFullYear())
     @divisions = app.divisions.getDivisionsForYear(year)
@@ -41,14 +44,19 @@ app.StandingsView = Backbone.View.extend(
   _appendTableHeadings: (table, races) ->
     headings = @HEADINGS.concat(
       _.map(races, (race) ->
-        {text: race.get('label'), cssClass: 'race-link', raceName: race.get('name')}
+        {
+          text: race.get('label'),
+          cssClass: 'race-heading',
+          raceName: race.get('name'),
+          raceId : race.get('id')
+        }
       )
     )
     @$(table).find('thead').append(@template('standings_heading_row', {headings : headings}));
 
     # Add race tooltips
     _.each(@$(table).find('.race-link'), (link) ->
-      @$(link).find('span').tooltip(
+      @$(link).tooltip(
         title: @$(link).attr('raceName')
       )
     )
@@ -86,4 +94,9 @@ app.StandingsView = Backbone.View.extend(
     _.sortBy(sortedTeams, (result) ->
       0 - result.scoreSum
     )
+
+  _goToRaceResults: (target) =>
+    raceId = $(target.target).attr('raceId')
+    # TODO what is the backbone way to do this
+    window.location.hash = 'race_results/' + raceId
 )
