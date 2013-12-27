@@ -5,9 +5,7 @@ app.Router = Backbone.Router.extend(
   
   initialize: ->
     this.headerView = new app.HeaderView()
-    this.titleView = new app.TitleView()
     $('#header').html(this.headerView.render().el)
-    $('#title').html(this.titleView.render().el)
 
   standings: ->
     this.standingsView or= new app.StandingsView()
@@ -20,8 +18,8 @@ app.Router = Backbone.Router.extend(
   _showView: (view) =>
     view.render()
     $('#content').html(view.el)
-    $('#content').addClass(view.contentClass) if view.contentClass
-    $('body').addClass(view.bodyClass) if view.bodyClass
+    $('#content').attr('class', view.contentClass) if view.contentClass
+    $('body').attr('class', view.bodyClass) if view.bodyClass
     $(document).attr('title', view.title) if view.title
 )
 

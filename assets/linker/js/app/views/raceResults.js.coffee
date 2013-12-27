@@ -1,5 +1,7 @@
 app.RaceResultsView = Backbone.View.extend(
 
+  bodyClass: 'results'
+
   events:
     "click .nav-team-results": "_showTeamResults"
     "click .nav-indiv-results": "_showIndivResults"
