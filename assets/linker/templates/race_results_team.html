@@ -1,5 +1,2 @@
-<div class='team-result'>
-  <div class='team-result-header'>
-    <%= idx %>. <%= app.teams.get(tr.get('teamId')).get('name') %> <%= tr.getTeamTime() %>
-  </div>
-</div>
+<div class='table-label'> <%= app.teams.get(tr.get('teamId')).get('name') %> | <%= tr.getTeamTime() %></div>
+<table class='team-result table table-condensed table-hover'></table>

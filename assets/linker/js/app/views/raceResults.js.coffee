@@ -35,14 +35,14 @@ app.RaceResultsView = Backbone.View.extend(
     table = @$('.indiv-results')
     str = ""
     @results.each( (result, idx) =>
-      resDiv = @template('race_results_row',
+      resRow = @template('race_results_row',
         result: result
         place: idx + 1
       )
-      str += resDiv
+      str += resRow
       trDiv = @idToDiv[result.id]
       if trDiv?
-        trDiv.append resDiv
+        $(trDiv[2]).append resRow
     )
     table.append(str)
 

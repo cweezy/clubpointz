@@ -1,12 +1,15 @@
-these are the results for <%= race.get('name') %>
-<br><br>
+<div class="race-header">
+  <%= race.get('name') %>
+</div>
 
-<ul class="nav nav-pills">
-  <li class='nav-team-results active'><a>Team Results</a></li>
-  <li class='nav-indiv-results'><a>Individual Results</a></li>
-</ul>
+<div class="btn-group">
+  <button class='nav-team-results active btn btn-default'>Team Results</button>
+  <button class='nav-indiv-results btn btn-default'>Individual Results</button>
+</div>
+
 <div class='team-results'>
   <div class='men-a-results'>
   </div>
 </div>
-<div class='indiv-results'></div>
+
+<table class='indiv-results table table-condensed table-hover'></div>
