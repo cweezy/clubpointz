@@ -1,0 +1,11 @@
+<thead>
+  <tr>
+    <th>Overall Place</th>
+    <% _.each(headings, function (heading) { %>
+      <% if (heading) { %>
+        <% var classAttr = heading.get('id') == 'team' ? 'class="indiv-results"' : ''; %>
+        <th <%=classAttr %>><%= heading.get('text') %></th>
+      <% } %>
+    <% }); %>
+  </tr>
+</thead>

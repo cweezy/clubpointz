@@ -33,10 +33,18 @@ app.RaceResultsView = Backbone.View.extend(
 
   _renderResults: ->
     table = @$('.indiv-results')
+    headingData = @_getHeadings()
+    headings = @template('race_results_table_headings',
+      headings : headingData
+    )
+    table.append(headings)
+    @$('.team-result').append(headings)
+
     str = ""
-    @results.each( (result, idx) =>
+    results = @_filterResults()
+    results.each( (result, idx) =>
       resRow = @template('race_results_row',
-        result: result
+        result: result.attributes
         place: idx + 1
       )
       str += resRow
@@ -45,6 +53,24 @@ app.RaceResultsView = Backbone.View.extend(
         $(trDiv[2]).append resRow
     )
     table.append(str)
+
+  _filterResults: ->
+    # remove attributes we don't have headings for
+    results = _.clone(@results)
+    _.each(results.models, (result) ->
+      filteredAttributes = {}
+      _.each(result.attributes, (attr, key) ->
+        if app.headings.get(key)
+          filteredAttributes[key] = attr
+      )
+      result.attributes = filteredAttributes
+    )
+    results 
+
+  _getHeadings: ->
+    _.map(_.keys(this.results.first().attributes), (key) ->
+      app.headings.get(key)
+    )
 
   _showTeamResults: ->
     @$('.nav-team-results').addClass('active')
