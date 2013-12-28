@@ -5,6 +5,7 @@ var constants = function () {
   // don't send warnings when these races can't be parsed
   this.IRREGULAR_RACES_IGNORE = ['b30103', 'b30117', 'b30207', 'b30305', 'b30611',
                                  'b30625', 'b30709', 'b30723'];
+  this.FIFTH_AVE_MILE_2013 = 'b30922';
 
   this.TEAM_WEBSITES = {
     'NBR' : 'http://northbrooklynrunners.org/',

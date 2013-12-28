@@ -279,8 +279,8 @@ describe('Scraper', function () {
             _.each(data.races, function (race) {
                 if (_.contains(constants.IRREGULAR_RACES, race.id)) {
                     data.irregularRaces.push(race);
-                    if (race.id === 'b30922') {
-                        // 5th Ave Mile gets parse regularly and separately
+                    if (race.id === constants.FIFTH_AVE_MILE_2013) {
+                        // Fifth Ave Mile gets parsed regularly and separately
                         regularRaces.push(race);
                     };
                 } else {

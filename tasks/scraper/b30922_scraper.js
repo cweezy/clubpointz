@@ -8,7 +8,7 @@ var _ = require('underscore');
 var $ = require('jquery');
 
 
-var RACE_ID = 'b30922';
+var RACE_ID = constants.FIFTH_AVE_MILE_2013;
 var EXPECTED_TITLE = 'NYRR Fifth Avenue Mile Presented by Nissan';
 var DATA_KEYS = [
   'overall_place',
@@ -22,7 +22,6 @@ var DATA_KEYS = [
   'team',
   'net_time'
 ];
-
 var unfoundTeams = [];
 
 var getDivisionSex = function (divisionText) {
@@ -80,7 +79,7 @@ exports.parseData = function (data, callback) {
                 val = sex + val;
               } else if (DATA_KEYS[i] === 'team') {
                 val = findTeamId(val, data);
-              } else if (DATA_KEYS[i] == 'net_time') {
+              } else if (DATA_KEYS[i] === 'net_time') {
                 val = util.timeToSeconds(val);
               }
               result[DATA_KEYS[i]] = val;
@@ -102,8 +101,7 @@ exports.parseData = function (data, callback) {
       });
       _.each(raceData.results, function (result) {
         if (result.team) {
-          var resultId = RACE_ID + constants.KEY_DELIMITER + result.bib;
-          util.addTeamResult(data, teamResults, result, resultId, race);
+          util.addTeamResult(data, teamResults, result, result[constants.DATA_KEYS.DB_ID], race);
         }
       });
       raceData.teamResults = teamResults;
