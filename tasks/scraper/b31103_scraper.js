@@ -100,6 +100,10 @@ var parseData = function (teamData, callback) {
     browser.visit(constants.MARATHON_RESULT_URL, function () {
         assert.equal(constants.EXPECTED_MARATHON_RESULT_TITLE, browser.text('title'));
         var teamOptions = $(getTeamDropdown(browser)).find('option');
+        var cpTeams = ['WSX', 'NYAC', 'CPTC', 'UATH', 'NBR', 'WS', 'DWRT', 'VCTC', 'NYH', 'FRNY', 'GNY'];
+        teamOptions = _.filter(teamOptions, function (option) {
+          return _.contains(cpTeams, $(option).attr('value'));
+        });
 
         // Remove 'Team' and unattached
         teamOptions.splice(0, 2);
@@ -121,7 +125,7 @@ var parseData = function (teamData, callback) {
         data.raceData = util.makeRaceData(RACE_ID, RACE_NAME, RACE_YEAR, getRaceDetails(), clubPointsData, true);
 
         var visitTeamPage = function (i) {
-            if (i < 4 && teamOptions[i]) {
+            if (teamOptions[i]) {
                 browser.visit(MARATHON_RESULT_URL, function () {
                     var dropdown = getTeamDropdown(browser);
                     browser.select(dropdown, $(teamOptions[i]).text());
@@ -136,8 +140,10 @@ var parseData = function (teamData, callback) {
                     });
                 });
             } else {
-                data.teamResults = util.getScoredTeamResults(data.teamResults);
-                callback(data);
+              // Recreate this race's team results
+              data.teamResults = util.removeRaceFromTeamResults(data.teamResults, RACE_ID);
+              data.teamResults = util.createTeamResults(data.results, raceData, _.extend(data, teamData));
+              callback(data);
             }
         };
         visitTeamPage(0);

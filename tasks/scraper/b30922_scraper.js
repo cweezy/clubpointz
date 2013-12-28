@@ -50,12 +50,6 @@ exports.parseData = function (data, callback) {
   var race = data.raceData[RACE_ID];
   logger.info('Parsing pro results for ' + race[constants.DATA_KEYS.NAME]);
 
-  // Recreate this race's team results
-  var teamResults = _.filter(data.teamResults, function (teamResult) {
-    return teamResult[constants.DATA_KEYS.RACE_ID] === RACE_ID;
-  });
-  data.teamResults = _.difference(data.teamResults, teamResults);
-
   var browser = new Browser();
   browser.runScripts = false;
   browser.loadCSS = false;
@@ -96,15 +90,9 @@ exports.parseData = function (data, callback) {
         }
       });
 
-      raceData.results = _.sortBy(raceData.results, function (result) {
-        return result.net_time;
-      });
-      _.each(raceData.results, function (result) {
-        if (result.team) {
-          util.addTeamResult(data, teamResults, result, result[constants.DATA_KEYS.DB_ID], race);
-        }
-      });
-      raceData.teamResults = teamResults;
+      // Recreate this race's team results
+      data.teamResults = util.removeRaceFromTeamResults(data.teamResults, RACE_ID);
+      raceData.teamResults = util.createTeamResults(raceData.results, race, data);
 
       scrapeReporter.addTeamInfo('Unfound Fifth Ave. Mile teams:<br>' +
                                  unfoundTeams.join('<br>'));

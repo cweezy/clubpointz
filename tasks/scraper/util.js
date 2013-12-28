@@ -20,7 +20,6 @@ var addTeamResult = function (data, teamResults, result, resultId, race) {
   var team = _.find(data.teamData, function (teamData) {
     return teamData[constants.DATA_KEYS.DB_ID] === result.team;
   });
-
   if (team) {
     var resultSex = result.sex_age[0];
 
@@ -75,6 +74,25 @@ var addTeamResult = function (data, teamResults, result, resultId, race) {
 
 exports.addTeamResult = addTeamResult;
 
+exports.removeRaceFromTeamResults = function (teamResults, raceId) {
+  var teamResultsToRemove = _.filter(teamResults, function (teamResult) {
+    return teamResult[constants.DATA_KEYS.RACE_ID] === raceId;
+  });
+  return _.difference(teamResults, teamResultsToRemove);
+};
+
+exports.createTeamResults = function (results, race, data) {
+  var teamResults = {};
+  var sortedResults = _.sortBy(results, function (result) {                                                                   
+    return result.net_time;                                                                                                           
+  });                                                                                                                                 
+  _.each(sortedResults, function (result) {                                                                                      
+    if (result.team) {
+      addTeamResult(data, teamResults, result, result[constants.DATA_KEYS.DB_ID], race);                                         
+    }
+  });
+  return teamResults;
+};
 
 /**
  * Get the URL for a race's results from its race id and year.
@@ -85,7 +103,6 @@ exports.getRaceURL = function (raceId, year) {
     raceId + '&' + constants.URL_KEYS.YEAR +                                                                                       
     '=' + year;                                                                                                                    
 }; 
-
 
 exports.getDivisionSex = function (divisionId) {
   if (divisionId.indexOf('WOMEN') !== -1 || divisionId.indexOf('Women') !== -1) {
