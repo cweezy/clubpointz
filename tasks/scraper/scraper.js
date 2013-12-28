@@ -282,7 +282,7 @@ describe('Scraper', function () {
                     if (race.id === constants.FIFTH_AVE_MILE_2013) {
                         // Fifth Ave Mile gets parsed regularly and separately
                         regularRaces.push(race);
-                    };
+                    }
                 } else {
                     regularRaces.push(race);
                 }
