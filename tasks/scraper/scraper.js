@@ -234,7 +234,7 @@ describe('Scraper', function () {
         }
 
         var reportRaces = function (regularRaces, irregularRaces, raceSource) {
-            var raceCount = regularRaces.concat(irregularRaces).length;
+            var raceCount = _.uniq(regularRaces.concat(irregularRaces)).length;
             var message = 'Found ' + raceCount + ' ' + genericUtils.getSingularOrPlural('race', raceCount) +
                     ' ' + raceSource;
             logger.info(message);
@@ -258,15 +258,16 @@ describe('Scraper', function () {
                         var urlParams = util.parseURLParams(url);
                         var raceId = urlParams[constants.URL_KEYS.RACE_ID];
                         var year = urlParams[constants.URL_KEYS.YEAR];
-                        var raceList = data.races;
-                        if (_.contains(constants.IRREGULAR_RACES, raceId)) {
-                            if (!data.irregularRaces) data.irregularRaces = [];
-                            raceList = data.irregularRaces;
-                        }
-                        raceList.push({
+                        var raceData = {
                             'id' : raceId,
                             'year' : year
-                        });
+                        };
+                        if (_.contains(constants.IRREGULAR_RACES, raceId)) {
+                            data.irregularRaces = data.irregularRaces || [];
+                            data.irregularRaces.push(raceData);
+                        } else {
+                            data.races.push(raceData);
+                        }
                     }
                 });
                 reportRaces(data.races, data.irregularRaces, 'on web');
@@ -274,13 +275,17 @@ describe('Scraper', function () {
             });
         } else {
             var regularRaces = [];
+            data.irregularRaces = data.irregularRaces || [];
             _.each(data.races, function (race) {
-                var raceList = regularRaces;
-                if (!data.irregularRaces) data.irregularRaces = [];
                 if (_.contains(constants.IRREGULAR_RACES, race.id)) {
-                    raceList = data.irregularRaces;
+                    data.irregularRaces.push(race);
+                    if (race.id === 'b30922') {
+                        // 5th Ave Mile gets parse regularly and separately
+                        regularRaces.push(race);
+                    };
+                } else {
+                    regularRaces.push(race);
                 }
-                raceList.push(race);
             });
             data.races = regularRaces;
             reportRaces(data.races, data.irregularRaces, 'in file');
@@ -297,7 +302,7 @@ describe('Scraper', function () {
         };
 
         var collection = db.collection(constants.DB_COLLECTIONS.RACE);
-        var allRaces = data.races.concat(data.irregularRaces);
+        var allRaces = _.uniq(data.races.concat(data.irregularRaces));
         _.each(allRaces, function (race, i) {
             var raceId = race.id;
             var queryData = {};
@@ -458,9 +463,11 @@ describe('Scraper', function () {
                         parseIrregularRaceData(data.irregularRaces[i], data, function (resultData) {
                             if (resultData) {
                                 data.raceResults = _.extend({}, data.raceResults, resultData.results);
-                                data.teamResults = _.extend({}, data.teamResults, resultData.teamResults);
-                                if (!data.raceData) data.raceData = {}; 
-                                data.raceData[resultData.raceData[constants.DATA_KEYS.DB_ID]] = resultData.raceData;
+                                data.teamResults = _.extend({}, data.teamResults, util.getScoredTeamResults(resultData.teamResults));
+                                if (resultData.raceData) {
+                                    if (!data.raceData) data.raceData = {}; 
+                                    data.raceData[resultData.raceData[constants.DATA_KEYS.DB_ID]] = resultData.raceData;
+                                }
                                 data.headingData = _.extend({}, data.headingData, resultData.headingData);
                             }
                             parseRace(i+1);
@@ -479,8 +486,6 @@ describe('Scraper', function () {
     }),
 
     it('saves data', function (done) {
-
-
         var createDate = new Date();
         var onDbError = function (err, objects) {
             if (err) throw (err);

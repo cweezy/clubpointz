@@ -16,6 +16,65 @@ var getNameMatches = function (name) {
 
 exports.getNameMatches = getNameMatches;
 
+var addTeamResult = function (data, teamResults, result, resultId, race) {
+  var team = _.find(data.teamData, function (teamData) {
+    return teamData[constants.DATA_KEYS.DB_ID] === result.team;
+  });
+
+  if (team) {
+    var resultSex = result.sex_age[0];
+
+    // Find division for result (if any)
+    var sexYearDivisions = _.filter(data.divisionData, function (div) {
+      return div[constants.DATA_KEYS.DB_ID].indexOf('OPEN') !== -1 &&
+             div[constants.DATA_KEYS.DIVISION.SEX] === resultSex &&
+             div[constants.DATA_KEYS.YEAR] === race[constants.DATA_KEYS.YEAR];
+    });
+
+    var division = _.find(sexYearDivisions, function (div) {
+      return _.find(div[constants.DATA_KEYS.DIVISION.TEAMS], function (testTeam) {
+         return testTeam === getNameMatches(team[constants.DATA_KEYS.NAME])[0];
+      });
+    });
+
+    // Add result to team results
+    if (division && (race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_MEN] > 0 ||
+        race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_WOMEN] > 0)) {
+      var resultCount = { M : race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_MEN],
+                          F : race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_WOMEN]};
+      var teamResultKey = race[constants.DATA_KEYS.DB_ID] + constants.KEY_DELIMITER + result.team + constants.KEY_DELIMITER + resultSex;
+
+      if (!teamResults[teamResultKey]) {
+        teamResults[teamResultKey] = {};
+        teamResults[teamResultKey][constants.DATA_KEYS.DB_ID] = teamResultKey;
+        teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.TEAM_ID] = result.team;
+        teamResults[teamResultKey][constants.DATA_KEYS.RACE_ID] = race[constants.DATA_KEYS.DB_ID];
+        teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.SCORE] = 0;
+        teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.DIVISION] = division[constants.DATA_KEYS.DB_ID];
+        teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.IS_TEAM_CHAMPS] = getIsTeamChamps(race[constants.DATA_KEYS.NAME]);
+      }
+
+      if (resultCount[resultSex] > 0) {
+        if (!teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS]) {
+          teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS] = [];
+          teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS].push(resultId);
+          teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.TEAM_TIME] = result.net_time;
+          teamResults[teamResultKey][constants.DATA_KEYS.RACE_ID] = race[constants.DATA_KEYS.DB_ID];
+          teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.IS_FULL_TEAM] = (1 === resultCount[resultSex]);
+        } else if (teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS].length < resultCount[resultSex]) {
+          teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS].push(resultId);
+          teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.TEAM_TIME] += parseInt(result.net_time, 10);
+          teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.IS_FULL_TEAM] =
+             (teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS].length === resultCount[resultSex]);
+        }
+      }
+    }
+  }
+  return teamResults;
+};
+
+exports.addTeamResult = addTeamResult;
+
 
 /**
  * Get the URL for a race's results from its race id and year.
@@ -158,61 +217,9 @@ exports.parseResults = function (browser, race, data, resultKeys, rowSelector, m
       result[constants.DATA_KEYS.RACE_ID] = race[constants.DATA_KEYS.DB_ID];
       results[resultId] = result;
 
-      var team = _.find(data.teamData, function (team) {
-        return team[constants.DATA_KEYS.DB_ID] === result.team;
-      });
-
-      if (team) {
-        var resultSex = result.sex_age[0];
-
-        // Find division for result (if any)
-        var sexYearDivisions = _.filter(data.divisionData, function (div) {
-          return div[constants.DATA_KEYS.DB_ID].indexOf('OPEN') !== -1 &&
-                 div[constants.DATA_KEYS.DIVISION.SEX] === resultSex &&
-                 div[constants.DATA_KEYS.YEAR] === race[constants.DATA_KEYS.YEAR];
-        });
-
-        
-        var division = _.find(sexYearDivisions, function (div) {
-          return _.find(div[constants.DATA_KEYS.DIVISION.TEAMS], function (testTeam) {
-            return testTeam === getNameMatches(team[constants.DATA_KEYS.NAME])[0];
-          });
-        });
-
-        // Add result to team results
-        if (division && (race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_MEN] > 0 ||
-            race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_WOMEN] > 0)) {
-          var resultCount = { M : race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_MEN],
-                              F : race[constants.DATA_KEYS.RACE.TEAM_RESULT_COUNT_WOMEN]};
-          var teamResultKey = race[constants.DATA_KEYS.DB_ID] + constants.KEY_DELIMITER + result.team + constants.KEY_DELIMITER + resultSex;
-
-          if (!teamResults[teamResultKey]) {
-            teamResults[teamResultKey] = {};
-            teamResults[teamResultKey][constants.DATA_KEYS.DB_ID] = teamResultKey;
-            teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.TEAM_ID] = result.team;
-            teamResults[teamResultKey][constants.DATA_KEYS.RACE_ID] = race[constants.DATA_KEYS.DB_ID];
-            teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.SCORE] = 0;
-            teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.DIVISION] = division[constants.DATA_KEYS.DB_ID];
-            teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.IS_TEAM_CHAMPS] = getIsTeamChamps(race[constants.DATA_KEYS.NAME]);
-          }
-
-          if (resultCount[resultSex] > 0) {
-            if (!teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS]) {
-              teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS] = [];
-              teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS].push(resultId);
-              teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.TEAM_TIME] = result.net_time;
-              teamResults[teamResultKey][constants.DATA_KEYS.RACE_ID] = race[constants.DATA_KEYS.DB_ID];
-              teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.IS_FULL_TEAM] = (1 === resultCount[resultSex]);
-            } else if (teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS].length < resultCount[resultSex]) {
-              teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS].push(resultId);
-              teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.TEAM_TIME] += parseInt(result.net_time, 10);
-              teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.IS_FULL_TEAM] =
-                 (teamResults[teamResultKey][constants.DATA_KEYS.TEAM_RESULT.RESULT_IDS].length === resultCount[resultSex]);
-            }
-          }
-        }
-      }
+      teamResults = addTeamResult(data, teamResults, result, resultId, race);
     });
+
 
     var nextButton = $(pageBody).find('a:contains("' + constants.NEXT_BTN_TEXT + ' ' + resultsPerPage + '")');
     var resultLength = _.keys(results).length;

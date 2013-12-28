@@ -1,7 +1,7 @@
 var constants = function () {
 
   this.IRREGULAR_RACES = ['b31103', 'b30103', 'b30117', 'b30207', 'b30305', 'b30611',
-                          'b30625', 'b30709', 'b30723'];
+                          'b30625', 'b30709', 'b30723', 'b30922'];
   // don't send warnings when these races can't be parsed
   this.IRREGULAR_RACES_IGNORE = ['b30103', 'b30117', 'b30207', 'b30305', 'b30611',
                                  'b30625', 'b30709', 'b30723'];
