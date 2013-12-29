@@ -5,17 +5,23 @@ var logger = require('./../logger');
 var genericUtils = require('./../util');
 var scrapeReporter = require('./scrapeReporter');
 
-
+/**
+ * Determine if a club points race is a team championship.
+ */
 var getIsTeamChamps = function (raceName) {
   return raceName.indexOf('Team Championships') !== -1;
 };
 
+/**
+ * Get a list of all names that might be used for a team.
+ */
 var getNameMatches = function (name) {
   return (constants.TEAM_NAME_TRANSFORMS[name] || []).concat(name);
 };
 
-exports.getNameMatches = getNameMatches;
-
+/**
+ * Create a team result object and add it to the passed teamResults.
+ */
 var addTeamResult = function (data, teamResults, result, resultId, race) {
   var team = _.find(data.teamData, function (teamData) {
     return teamData[constants.DATA_KEYS.DB_ID] === result.team;
@@ -72,8 +78,14 @@ var addTeamResult = function (data, teamResults, result, resultId, race) {
   return teamResults;
 };
 
+// Export global functions
+exports.getIsTeamChamps = getIsTeamChamps;
+exports.getNameMatches = getNameMatches;
 exports.addTeamResult = addTeamResult;
 
+/**
+ * Remove a race from a list of team results and return the altered list.
+ */
 exports.removeRaceFromTeamResults = function (teamResults, raceId) {
   var teamResultsToRemove = _.filter(teamResults, function (teamResult) {
     return teamResult[constants.DATA_KEYS.RACE_ID] === raceId;
