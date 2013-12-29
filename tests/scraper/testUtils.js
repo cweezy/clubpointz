@@ -5,6 +5,54 @@ var logger = require('./../../tasks/logger');
 
 describe('Scraper utility function', function () {
 
+  it('removes a race from team results', function (done) {
+    var originalResults = [{
+      'raceId' : 'raceId1',
+      'resultData' : {}
+    }, {
+      'raceId' : 'raceId2',
+      'resultData' : {
+        'data1' : 12,
+        'data2' : true
+      }
+    }, {
+      'raceId' : 'raceId3',
+      'resultData' : {}
+    }];
+    var expectedResults = [{
+      'raceId' : 'raceId1',
+      'resultData' : {}
+    }, {
+      'raceId' : 'raceId3',
+      'resultData' : {}
+    }];
+
+    var actualResults = util.removeRaceFromTeamResults(originalResults, 'raceId2');
+    assert.deepEqual(expectedResults, actualResults);
+    done();
+  }),
+
+  it('determines if race is team champs', function (done) {
+    var teamNames = ['A Normal Race', 'A Team Championships Race'];
+    var expectedResults = [false, true];
+    _.each(teamNames, function (name, i) {
+      assert.equal(expectedResults[i], util.getIsTeamChamps(name));
+    });
+    done();
+  }),
+
+  it('gets team name matches', function (done) {
+    var teamNames = ['N.Y. Fire Dept.', 'Greater Long Island'];
+    var expectedMatches = [
+      ['New York Fire Dept.', 'N.Y. Fire Dept', 'N.Y. Fire Dept.'],
+      ['Greater Long Island RC', 'Greater Long Island']
+    ];
+    _.each(teamNames, function (name, i) {
+      assert.deepEqual(expectedMatches[i], util.getNameMatches(name));
+    });
+    done();
+  }),
+
   it('gets small format date', function (done) {
     var inputs = ['October 4, 2013', 'September 26', 'January 6, 1999'];
     var expectedOutputs = ['10/4', '9/26', '1/6'];
