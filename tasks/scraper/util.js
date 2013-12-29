@@ -109,12 +109,14 @@ exports.createTeamResults = function (results, race, data) {
 /**
  * Get the URL for a race's results from its race id and year.
  */
-exports.getRaceURL = function (raceId, year) {                                                                                                 
+var getRaceURL = function (raceId, year) {                                                                                                 
   return constants.RACE_PAGE_BASE_URL + '?' +                                                                                           
     constants.URL_KEYS.RACE_ID + '=' +                                                                                             
     raceId + '&' + constants.URL_KEYS.YEAR +                                                                                       
     '=' + year;                                                                                                                    
 }; 
+
+exports.getRaceURL = getRaceURL;
 
 exports.getDivisionSex = function (divisionId) {
   if (divisionId.indexOf('WOMEN') !== -1 || divisionId.indexOf('Women') !== -1) {
@@ -320,6 +322,7 @@ exports.makeRaceData = function (id, name, year, details, clubPointsData, isMara
   raceData[constants.DATA_KEYS.NAME] = name;                                                                     
   raceData[constants.DATA_KEYS.YEAR] = year;                                                                          
   raceData[constants.DATA_KEYS.RACE.DETAILS] = details;
+  raceData[constants.DATA_KEYS.RACE.URL] = getRaceURL(id, year);
 
   var teamResultCounts = {
     men : 0,

@@ -2,11 +2,30 @@
   padding: 14px 0;
   float: left;
   text-align: left;
+  width: 100%;
+
   .race-title {
     font-size: 22px;
+    float: left;
   }
   .race-details {
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    float: left;
+    clear: left;
+  }
+  .race-link {
+    float: right;
+  }
+  .btn-group {
+    padding-top: 24px;
+    float: right;
+    clear: right;
+    .btn {
+      font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
   }
 }
 
@@ -34,17 +53,6 @@
 
 .team-results {
   clear: both;
-}
-
-.btn-group {
-  padding: 14px 0;
-  float: right;
-  .btn {
-    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-    font-size: 12px;
-    font-weight: bold;
-    text-transform: uppercase;
-  }
 }
 
 .overall-place {

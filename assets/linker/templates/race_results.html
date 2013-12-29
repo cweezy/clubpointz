@@ -5,12 +5,17 @@
       <div><%= key %>: <%= detail %></div>
     <% }); %>
   </div>
-</div>
 
+  <div class="race-link">
+    <% if (race.get('url')) { %>
+      <a href="<%= race.get('url') %>">View NYRR Results Page</a>
+    <% } %>
+  </div>
 
-<div class="btn-group">
-  <button class='nav-team-results active btn btn-default'>Team Results</button>
-  <button class='nav-indiv-results btn btn-default'>Individual Results</button>
+  <div class="btn-group">
+    <button class='nav-team-results active btn btn-default'>Team Results</button>
+    <button class='nav-indiv-results btn btn-default'>Individual Results</button>
+  </div>
 </div>
 
 <div class='team-results'>

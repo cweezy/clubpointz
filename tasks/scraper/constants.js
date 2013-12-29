@@ -81,7 +81,8 @@ var constants = function () {
       DETAILS : 'details',
       TEAM_RESULT_COUNT_MEN : 'teamResultCountMen',
       TEAM_RESULT_COUNT_WOMEN : 'teamResultCountWomen',
-      LABEL : 'label'
+      LABEL : 'label',
+      URL : 'url'
     },
     HEADING : {
       TEXT : 'text'
