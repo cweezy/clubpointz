@@ -1,2 +1,23 @@
-<div class='table-label'> <%= app.teams.get(tr.get('teamId')).get('name') %> | <%= tr.getTeamTime() %></div>
+<div class='team-heading'>
+  <div class='team-name'>
+    <span class='label'>Team</span>
+    <br />
+    <span class='val'><%= app.teams.get(tr.get('teamId')).get('name') %></span>
+  </div>
+  <div class='team-rank'>
+    <span class='label'>Team Rank</span>
+    <br />
+    <span class='val'><%= idx %></span>
+  </div>
+  <div class='team-time'>
+    <span class='label'>Team Time</span>
+    <br />
+    <span class='val'><%= tr.getTeamTime() %></span>
+  </div>
+  <div class='club-points'>
+    <span class='label'>Club Points Earned</span>
+    <br />
+    <span class='val'><%= tr.get('score') %></span>
+  </div>
+</div>
 <table class='team-result table table-condensed table-hover table-bordered'></table>
