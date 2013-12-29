@@ -8,6 +8,14 @@ body {
   }
   .table {
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    th {
+      font-size: 12px;
+      text-transform: uppercase;
+      text-align: center;
+    }
+    tbody tr td {
+      vertical-align: middle;
+    }
   }
 }
 

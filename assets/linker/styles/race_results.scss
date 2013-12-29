@@ -4,6 +4,25 @@
   padding-top: 14px;
 }
 
-.place-cell {
-  width: 100px;
+.btn-group .btn {
+  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.overall-place {
+  width: 67px;
+}
+
+.age_place-cell, .gender_place-cell, .overall_place-cell {
+  width: 65px;
+}
+
+.ag_gender_place-cell {
+  width: 90px;
+}
+
+.ag_percent-cell {
+  width: 70px;
 }
