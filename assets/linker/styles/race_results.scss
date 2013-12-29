@@ -1,7 +1,13 @@
 .race-header {
-  font-size: 22px;
   padding: 14px 0;
   float: left;
+  text-align: left;
+  .race-title {
+    font-size: 22px;
+  }
+  .race-details {
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+  }
 }
 
 .team-heading {

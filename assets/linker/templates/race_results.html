@@ -1,6 +1,12 @@
 <div class="race-header">
-  <%= race.get('name') %>
+  <div class="race-title"><%= race.get('name') %></div>
+  <div class="race-details">
+    <% _.each(race.get('details'), function (detail, key) { %>
+      <div><%= key %>: <%= detail %></div>
+    <% }); %>
+  </div>
 </div>
+
 
 <div class="btn-group">
   <button class='nav-team-results active btn btn-default'>Team Results</button>
