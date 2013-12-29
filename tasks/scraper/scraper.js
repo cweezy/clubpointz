@@ -179,7 +179,7 @@ var parseResults = function (raceURL, race, browser, callback) {
             var headings = $(browser.html()).find(constants.SELECTORS.HEADING);
             var headingData = util.getHeadingData(headings);
             var resultKeys = headingData.resultKeys;
-            headingData = headingData.headingData;
+            data.headingData = _.extend({}, data.headingData, headingData.headingData);
 
             var rowSelector = 'table:eq(3) tr[bgcolor!="EEEEEE"]';
             util.parseResults(browser, race, data, resultKeys, rowSelector, maxResults, resultsPerPage, {}, function (results, teamResults) {

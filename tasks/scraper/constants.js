@@ -155,7 +155,7 @@ var constants = function () {
     'Hoboken Elysianettes' : ['Hoboken Elysianettes Running Society'],
     'Jersey GirDrop RR' : ['Jersey Girls RR'],
     'Jersey GirDrop SS' : ['Jersey Girls SS'],
-    'N.Y. Fire Dept.' : ['New York Fire Dept.', 'N.Y. Fire Dept.'],
+    'N.Y. Fire Dept.' : ['New York Fire Dept.', 'N.Y. Fire Dept'],
     'N.Y. Fire Dept' : ['New York Fire Dept.', 'N.Y. Fire Dept.'],
     'New York Police Dept.' : ['NY Police Department', 'N.Y. Police Dept', 'N. Y. Police Dept', 'New York Police Dept.',
         'N.Y. Police Dept.', 'N.Y. Police Department'],
