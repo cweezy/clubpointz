@@ -83,22 +83,36 @@ describe('Scraper utility function', function () {
     }),
 
     it('makes race data', function (done) {
+        var details = {
+          'Mock Detail' : 'blah blah blah',
+          '123 Detail' : '1234!',
+          'Distance' : '3.1 miles, 5 kilometers',
+          'Date/Time' : 'January 1, 2013'
+        };
         var expectedResult = {
             '_id' : 'mock_id',
-            'name' : 'A Race!',
-            'isClubPointsMen' : false,
-            'isClubPointsWomen' : true,
+            'name' : 'Team Championships-Men',
+            'teamResultCountMen' : 10,
+            'teamResultCountWomen' : 0,
             'year' : '2013',
-            'details' : {
-                'Mock Detail' : 'blah blah blah',
-                '123 Detail' : '1234!'
-            },
-            'isTeamChamps' : false
+            'details' : details,
+            'label' : '1/1 5K'
         };
-        assert.deepEqual(expectedResult, util.makeRaceData(
-            'mock_id', 'A Race!', '2013', { 'Mock Detail' : 'blah blah blah', '123 Detail' : '1234!'},
-            [false, true], false)
+        var clubPointsData = {
+          men: {
+            raceLabel: '1/1 5K',
+            isClubPoints: true
+          },
+          women: {
+            raceLabel: '1/1 5K',
+            isClubPoints: false
+          }
+        };
+        var actualResult = util.makeRaceData(
+            'mock_id', 'Team Championships-Men', '2013', details,
+            clubPointsData, false
         );
+        assert.deepEqual(expectedResult, actualResult);
         done();
     }),
 
