@@ -61,6 +61,8 @@ app.RaceResultsView = Backbone.View.extend(
       filteredAttributes = {}
       _.each(result.attributes, (attr, key) ->
         if app.headings.get(key)
+          if key == 'net_time'
+            attr = result.getTime()
           filteredAttributes[key] = attr
       )
       result.attributes = filteredAttributes
