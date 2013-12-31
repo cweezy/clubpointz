@@ -1,6 +1,7 @@
 <tr>
-  <td><%= place %></td>
-  <td><%= result.get('first_name') %></td>
-  <td><%= result.get('last_name') %></td>
-  <td><%= result.getTime() %></td>
+  <td class="place-cell"><%= place %></td>
+  <% _.each(result, function (item, key) { %>
+    <% var classAttr = key == 'team' ? 'class="indiv-results"' : ''; %>
+    <td <%=classAttr %>><%= item %></td>
+  <% }); %>
 </tr>

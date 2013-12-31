@@ -1,17 +1,73 @@
 .race-header {
-  font-size: 22px;
-  text-align: center;
-  padding-top: 14px;
+  padding: 14px 0;
+  float: left;
+  text-align: left;
+  width: 100%;
+
+  .race-title {
+    font-size: 22px;
+    float: left;
+  }
+  .race-details {
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    float: left;
+    clear: left;
+  }
+  .race-link {
+    float: right;
+  }
+  .btn-group {
+    padding-top: 24px;
+    float: right;
+    clear: right;
+    .btn {
+      font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+  }
 }
 
-.team-result {
+.team-heading {
+  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+  background-color: #eee;
+  min-width: 800px;
 
-  border: 1px solid black;
-  margin: 5px;
-  
-  .team-result-header {
-    font-weight: bold;
-    border-bottom: 1px solid black;
-    background: lightgray;
+  div {
+    display: inline-block;
+    width: 24%;
+
+    .label {
+      text-transform: uppercase;
+      font-size: 12px;
+      font-weight: bold;
+      color: #999;
+    }
+
+    .val {
+      font-size: 19px;
+      font-weight: bold;
+    }
   }
+}
+
+.team-results {
+  clear: both;
+}
+
+.overall-place {
+  width: 67px;
+}
+
+.age_place-cell, .gender_place-cell, .overall_place-cell {
+  width: 65px;
+}
+
+.ag_gender_place-cell {
+  width: 90px;
+}
+
+.ag_percent-cell {
+  width: 70px;
 }
