@@ -1,4 +1,9 @@
+html {
+  height: 100%;
+}
+
 body {
+  height: 100%;
   font-family: 'Bitter', sans-serif;
   a {
     cursor: pointer;
@@ -53,14 +58,32 @@ body {
   }
 }
 
+#loading {
+  background-image: url("/linker/../images/spinner.gif");
+  background-repeat: no-repeat;
+  width: 30px;
+  height: 30px;
+  margin: auto;
+  position: relative;
+  top: 30%;
+}
+
 #title {
+  background-image: url("/linker/../images/main_bg.jpg");
+  background-size: 1944px 1296px;
+  background-repeat: no-repeat;
+  background-position: -340px -210px;
+  width: 100%;
+  min-width: 1000px;
+  display: inline-block;
+  text-align: center;
+
   a {
     color: #fff;
     &:hover {
       color: #fff;
     }
   }
-  min-width: 1000px;
 
   color: #fff;
   font-family: 'Roboto Condensed', sans-serif;
@@ -75,7 +98,7 @@ body {
   }
 }
 
-.main {
+.main #content {
   background-image: url("/linker/../images/main_bg.jpg");
   background-size: 1944px 1296px;
   background-repeat: no-repeat;
@@ -84,15 +107,6 @@ body {
 }
 
 .results {
-  #title {
-    background-image: url("/linker/../images/main_bg.jpg");
-    background-size: 1944px 1296px;
-    background-repeat: no-repeat;
-    background-position: -340px -210px;
-    width: 100%;
-    display: inline-block;
-    text-align: center;
-  }
   #content {
     text-align: center;
     .table-label {

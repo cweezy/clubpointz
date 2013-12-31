@@ -14,4 +14,13 @@ $(function() {
   app.headings.reset(sailsExports.headingsJson);
   app.divisions.reset(sailsExports.divisionsJson);
   Backbone.history.start();
+
+  $(document).ajaxSend(function() {
+    $('#content').hide();
+    $('#loading').show();
+  });
+  $(document).ajaxComplete(function() {
+    $('#loading').hide();
+    $('#content').show();
+  });
 });
