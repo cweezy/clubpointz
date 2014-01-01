@@ -32,8 +32,13 @@ app.RaceResultsView = Backbone.View.extend(
     @
 
   _renderResults: ->
+    @results = @results.sortBy( (result) ->
+      parseInt(result.get('overall_place'), 10)
+    )
+
     table = @$('.indiv-results')
-    headingData = @_getHeadings()
+    results = @_filterResults()
+    headingData = @_getHeadings(results[0])
     headings = @template('race_results_table_headings',
       headings : headingData
     )
@@ -41,8 +46,7 @@ app.RaceResultsView = Backbone.View.extend(
     @$('.team-result').append(headings)
 
     str = ""
-    results = @_filterResults()
-    results.each( (result, idx) =>
+    _.each(results, (result, idx) =>
       resRow = @template('race_results_row',
         result: result.attributes
         place: idx + 1
@@ -57,10 +61,10 @@ app.RaceResultsView = Backbone.View.extend(
   _filterResults: ->
     # remove attributes we don't have headings for
     results = _.clone(@results)
-    _.each(results.models, (result) ->
+    _.each(results, (result) ->
       filteredAttributes = {}
       _.each(result.attributes, (attr, key) ->
-        if app.headings.get(key)
+        if app.headings.get(key) && key != 'overall_place'
           if key == 'net_time'
             attr = result.getTime()
           filteredAttributes[key] = attr
@@ -69,8 +73,8 @@ app.RaceResultsView = Backbone.View.extend(
     )
     results 
 
-  _getHeadings: ->
-    _.map(_.keys(this.results.first().attributes), (key) ->
+  _getHeadings: (result) ->
+    _.map(_.keys(result.attributes), (key) ->
       app.headings.get(key)
     )
 
