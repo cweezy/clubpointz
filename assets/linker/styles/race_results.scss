@@ -2,6 +2,12 @@
   display: table;
 }
 
+.team-result .indiv-results {
+  display: none;
+  max-width: 0px;
+  min-width: 0px;
+}
+
 .race-header {
   padding: 14px 0;
   float: left;
@@ -101,7 +107,8 @@
 }
 
 .city-cell {
-  min-width: 80px;
+  min-width: 110px;
+  max-width: 110px;
 }
 
 .state-cell {
@@ -109,7 +116,8 @@
 }
 
 .country-cell {
-  min-width: 70px;
+  min-width: 100px;
+  max-width: 100px;
 }
 
 .pace_per_mile-cell {
