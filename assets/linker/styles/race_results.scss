@@ -1,3 +1,7 @@
+.team-section {
+  display: table;
+}
+
 .race-header {
   padding: 14px 0;
   float: left;
@@ -57,17 +61,61 @@
 }
 
 .overall-place {
-  width: 67px;
+  max-width: 67px;
+  min-width: 55px;
 }
 
 .age_place-cell, .gender_place-cell, .overall_place-cell {
-  width: 65px;
+  max-width: 65px;
+  min-width: 55px;
+}
+
+.sex_age-cell {
+  max-width: 55px;
+  min-width: 55px;
 }
 
 .ag_gender_place-cell {
-  width: 90px;
+  min-width: 65px;
+  max-width: 85px;
+}
+
+.ag_gender_place-cell {
+  min-width: 90px;
 }
 
 .ag_percent-cell {
-  width: 70px;
+  min-width: 70px;
+}
+
+.last_name-cell, .first_name-cell {
+  min-width: 100px;
+}
+
+.bib-cell {
+  min-width: 35px;
+}
+
+.team-cell {
+  min-width: 50px;
+}
+
+.city-cell {
+  min-width: 80px;
+}
+
+.state-cell {
+  min-width: 50px;
+}
+
+.country-cell {
+  min-width: 70px;
+}
+
+.pace_per_mile-cell {
+  min-width: 85px;
+}
+
+.ag_time-cell {
+  min-width: 53px;
 }

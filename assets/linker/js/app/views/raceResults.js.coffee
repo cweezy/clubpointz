@@ -50,7 +50,7 @@ app.RaceResultsView = Backbone.View.extend(
       str += resRow
       trDiv = @idToDiv[result.id]
       if trDiv?
-        $(trDiv[2]).append resRow
+        $(trDiv.find('.team-result')).append resRow
     )
     table.append(str)
 
