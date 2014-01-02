@@ -27,21 +27,21 @@ _addDivisionsToTeam = function (teams, divisions) {
 
 module.exports = {
   index: function (req, res) {
-	var promises = [
-      Race.find({year: (new Date()).getFullYear().toString()}).sort('_id'),
+    var promises = [
+      Race.find({year: '2013'}).sort('_id'),
       Team.find(),
       Division.find(),
       TeamResult.find(),
       Heading.find()
     ];
 
-	Q.allSettled(promises).then(function (results) {
+    Q.allSettled(promises).then(function (results) {
       races = results[0].value;
       teams = results[1].value;
       divisions = results[2].value;
       teamResults = results[3].value;
       headings = results[4].value;
-		 
+
       _addDivisionsToTeam(teams, divisions);
       res.view({
         races: races,

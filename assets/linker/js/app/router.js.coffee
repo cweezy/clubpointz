@@ -9,6 +9,7 @@ app.Router = Backbone.Router.extend(
 
   standings: ->
     this.standingsView or= new app.StandingsView()
+    this.standingsView.delegateEvents()
     @_showView(this.standingsView)
   
   raceResults: (id) ->

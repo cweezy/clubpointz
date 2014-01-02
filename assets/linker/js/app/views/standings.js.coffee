@@ -14,7 +14,7 @@ app.StandingsView = Backbone.View.extend(
     "click .race-link": "_goToRaceResults"
 
   initialize: ->
-    year = String(new Date().getFullYear())
+    year = "2013"
     @divisions = app.divisions.getDivisionsForYear(year)
 
   render: ->
