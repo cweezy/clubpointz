@@ -1,5 +1,11 @@
 <tr>
   <% _.each(cells, function (cell) { %>
-    <td class="<%= cell.cellClass %>"><%= cell.text %></td>
+    <td class="<%= cell.cellClass %>">
+      <% if (_.isUndefined(cell.link)) { %>
+        <%= cell.text %>
+      <% } else { %>
+        <a href="<%= cell.link %>"><%= cell.text %></a>
+      <% } %>
+    </td>
   <% }); %>
 </tr>
