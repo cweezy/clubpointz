@@ -1,15 +1,16 @@
 <div class="race-header">
   <div class="race-title"><%= race.get('name') %></div>
-  <div class="race-details">
-    <% _.each(race.get('details'), function (detail, key) { %>
-      <div><%= key %>: <%= detail %></div>
-    <% }); %>
-  </div>
 
   <div class="race-link">
     <% if (race.get('url')) { %>
       <a href="<%= race.get('url') %>">View NYRR Results Page</a>
     <% } %>
+  </div>
+
+  <div class="race-details">
+    <% _.each(race.get('details'), function (detail, key) { %>
+      <div><%= key %>: <%= detail %></div>
+    <% }); %>
   </div>
 
   <div class="btn-group">
