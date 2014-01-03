@@ -39,7 +39,7 @@ app.TeamView = Backbone.View.extend(
       results = tr.results.sort (a, b) ->
         if parseInt(a.overall_place) > parseInt(b.overall_place) then 1 else -1
       for r in results
-        trDiv.append(@template('race_results_row',
+        $(trDiv).find('.table').append(@template('race_results_row',
           result: r
           place: r.overall_place
         ))

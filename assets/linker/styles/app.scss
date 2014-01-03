@@ -153,4 +153,36 @@ body {
       }
     }
   }
+
+  .table-heading {
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    background-color: #eee;
+    min-width: 100%;
+    display: table;
+
+    div {
+      display: table-cell;
+      width: 24%;
+      height: 100%;
+      vertical-align: top;
+
+      .label {
+        text-transform: uppercase;
+        font-size: 12px;
+        font-weight: bold;
+        color: #999;
+        display: inline-block;
+      }
+
+      .val {
+        font-size: 19px;
+        font-weight: bold;
+      }
+    }
+  }
+
+  .results-section {
+    display: table;
+    min-width: 100%;
+  }
 }
