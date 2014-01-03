@@ -2,6 +2,7 @@ app.Router = Backbone.Router.extend(
   routes:
     '': 'standings'
     'race_results/:id': 'raceResults'
+    'team/:id': 'team'
   
   initialize: ->
     this.headerView = new app.HeaderView()
@@ -15,6 +16,11 @@ app.Router = Backbone.Router.extend(
   raceResults: (id) ->
     rrView = new app.RaceResultsView(model: app.races.get(id))
     @_showView(rrView)
+
+  team: (id) ->
+    team = app.teams.get(id)
+    teamView = new app.TeamView(model: team)
+    @_showView(teamView)
 
   _showView: (view) =>
     view.render()
