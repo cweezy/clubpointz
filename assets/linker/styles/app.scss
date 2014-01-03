@@ -122,4 +122,35 @@ body {
       color: #000;
     }
   }
+
+  .results-header {
+    padding: 14px 0;
+    float: left;
+    text-align: left;
+    width: 100%;
+    position: relative;
+    .title {
+      font-size: 22px;
+      float: left;
+    }
+    .details {
+      font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+      float: left;
+      clear: left;
+    }
+    .btn-group {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      padding-bottom: 14px;
+      float: right;
+      clear: right;
+      .btn {
+        font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: uppercase;
+      }
+    }
+  }
 }

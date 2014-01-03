@@ -4,6 +4,7 @@ app.TeamView = Backbone.View.extend(
     "click .nav-women": "_showWomen"
 
   bodyClass: 'results'
+  contentClass: 'team'
 
   initialize: ->
     @model.fetch()

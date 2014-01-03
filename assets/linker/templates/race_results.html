@@ -1,5 +1,5 @@
-<div class="race-header">
-  <div class="race-title"><%= race.get('name') %></div>
+<div class="results-header race-header">
+  <div class="title"><%= race.get('name') %></div>
 
   <div class="race-link">
     <% if (race.get('url')) { %>
@@ -7,7 +7,7 @@
     <% } %>
   </div>
 
-  <div class="race-details">
+  <div class="details">
     <% _.each(race.get('details'), function (detail, key) { %>
       <div><%= key %>: <%= detail %></div>
     <% }); %>
