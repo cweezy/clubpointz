@@ -72,6 +72,7 @@ exports.parseData = function (data, callback) {
   var raceData = {
     results: data.raceResults || {}
   };
+  var proResults = [];
 
   var race = data.raceData[RACE_ID];
   logger.info('Parsing pro results for ' + race[constants.DATA_KEYS.NAME]);
@@ -113,8 +114,41 @@ exports.parseData = function (data, callback) {
         if (result.bib) {
           result[constants.DATA_KEYS.DB_ID] = RACE_ID + constants.KEY_DELIMITER + result.bib;
           result[constants.DATA_KEYS.RACE_ID] = RACE_ID;
-          raceData.results[RACE_ID + constants.KEY_DELIMITER + result.bib] = result;
+          proResults.push(result);
+          //raceData.results[RACE_ID + constants.KEY_DELIMITER + result.bib] = result;
         }
+      });
+
+
+      // Reverse sort results
+      proResults = _.sortBy(proResults, function (result) {
+        return 0 - parseInt(result.overall_place, 10);
+      });
+
+      // Find the actual overall place for each pro result
+      var sortedResults = _.sortBy(raceData.results, function (result) {
+        return parseInt(result.overall_place, 10);
+      }); 
+      var modifiedProResults = [];
+      _.each(proResults, function (result, idx) {
+        var matchIndex = 0;
+        var match = _.find(sortedResults, function (testResult) {
+          if (parseInt(testResult.net_time, 10) > parseInt(result.net_time, 10)) {
+            return testResult;
+          }
+          matchIndex += 1;
+        });
+        if (match) {
+          var matchPlace = match.overall_place;
+          result.overall_place = String(parseFloat(matchPlace) - 0.001);
+          modifiedProResults.push(result);
+          if (idx === 2) console.log(modifiedProResults);
+          sortedResults.splice(matchIndex, 0, result);
+        }
+      });
+
+      _.each(modifiedProResults, function (result) {
+        raceData.results[RACE_ID + constants.KEY_DELIMITER + result.bib] = result;
       });
 
       // Recreate this race's team results
