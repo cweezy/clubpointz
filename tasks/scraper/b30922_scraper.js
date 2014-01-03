@@ -22,7 +22,33 @@ var DATA_KEYS = [
   'team',
   'net_time'
 ];
+var ALL_SORTED_DATA_KEYS = [
+  'last_name',
+  'first_name',
+  'sex_age',
+  'bib',
+  'team',
+  'city',
+  'state',
+  'country',
+  'overall_place',
+  'gender_place',
+  'age_place',
+  'net_time',
+  'pace_per_mile',
+  'ag_time',
+  'ag_gender_place',
+  'ag_%'
+];
 var unfoundTeams = [];
+
+var getFormattedResult = function (result) {
+  var formattedResult = {};
+  _.each(ALL_SORTED_DATA_KEYS, function (key) {
+    formattedResult[key] = result[key] || '';
+  });
+  return formattedResult;
+};
 
 var getDivisionSex = function (divisionText) {
   if (divisionText.indexOf('Women') !== -1) {
@@ -83,6 +109,7 @@ exports.parseData = function (data, callback) {
           var divisionCell = $(row).find('td')[0];
           sex = getDivisionSex($(divisionCell).text());
         }
+        result = getFormattedResult(result);
         if (result.bib) {
           result[constants.DATA_KEYS.DB_ID] = RACE_ID + constants.KEY_DELIMITER + result.bib;
           result[constants.DATA_KEYS.RACE_ID] = RACE_ID;
