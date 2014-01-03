@@ -297,6 +297,7 @@ exports.getScoredTeamResults = function (teamResults) {
       } else {
         result[constants.DATA_KEYS.TEAM_RESULT.SCORE] = constants.DEFAULT_POINT_VALUE;
       }
+      result[constants.DATA_KEYS.TEAM_RESULT.RANK] = i + 1;
       allResults[result[constants.DATA_KEYS.DB_ID]] = result;
     });
 
