@@ -153,6 +153,7 @@ var parseRaceDetails = function (raceId, pageBody) {
                 data.teamData[id] = {};
                 data.teamData[id][constants.DATA_KEYS.DB_ID] = id;
                 data.teamData[id][constants.DATA_KEYS.NAME] = util.getNameMatches(name.trim())[0];
+                data.teamData[id][constants.DATA_KEYS.TEAM.WEBSITE] = constants.TEAM_WEBSITES[id];
                 data.foundTeams.push(util.getNameMatches(name.trim()));
             }
         }
