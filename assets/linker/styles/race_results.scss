@@ -11,33 +11,6 @@
   }
 }
 
-.team-heading {
-  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-  background-color: #eee;
-  min-width: 800px;
-
-  div {
-    display: inline-block;
-    width: 24%;
-
-    .label {
-      text-transform: uppercase;
-      font-size: 12px;
-      font-weight: bold;
-      color: #999;
-    }
-
-    .val {
-      font-size: 19px;
-      font-weight: bold;
-    }
-  }
-}
-
-.team-results {
-  clear: both;
-}
-
 .overall-place {
   max-width: 67px;
   min-width: 55px;
