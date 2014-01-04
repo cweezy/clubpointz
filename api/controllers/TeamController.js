@@ -38,7 +38,7 @@ module.exports = {
     } else {
       Team.find().done(function (err, teams) {
         res.json(teams);
-      })
+      });
     }
   }
 };
