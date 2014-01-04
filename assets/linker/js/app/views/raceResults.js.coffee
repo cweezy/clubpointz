@@ -39,7 +39,7 @@ app.RaceResultsView = Backbone.View.extend(
     table = @$('.indiv-results')
     results = @_filterResults()
     headingData = @_getHeadings(results[0])
-    headings = @template('race_results_table_headings',
+    headings = @template('results_table_headings',
       headings : headingData
     )
     table.append(headings)

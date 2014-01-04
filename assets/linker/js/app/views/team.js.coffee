@@ -38,13 +38,31 @@ app.TeamView = Backbone.View.extend(
       }))
       results = tr.results.sort (a, b) ->
         if parseInt(a.overall_place) > parseInt(b.overall_place) then 1 else -1
+      $(trDiv).find('.table').append(@template('results_table_headings',
+        {headings: @_getHeadings(results[0])}))
       for r in results
         $(trDiv).find('.table').append(@template('race_results_row',
-          result: r
+          result: @_filterAttributes(r)
           place: r.overall_place
         ))
       allDivs.push trDiv
     allDivs
+
+  # TODO reuse same function here and in race results
+  _getHeadings: (result) ->
+    _.map(_.keys(result), (key) ->
+      if key isnt 'overall_place'
+        app.headings.get(key)
+    )
+
+  # TODO reuse same function here and in race results
+  _filterAttributes: (result) ->
+    filteredResult = {}
+    _.each(result, (attr, key) ->
+      if app.headings.get(key) && key != 'overall_place'
+        filteredResult[key] = attr
+    )
+    filteredResult
 
   _showMen: ->
     @$('.nav-men').addClass 'active'
