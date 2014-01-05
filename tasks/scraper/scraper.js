@@ -10,7 +10,6 @@ var genericUtils = require('./../util');
 var alertMailer = require('./../alertMailer').mailer;
 var logger = require('./../logger');
 var scrapeReporter = require('./scrapeReporter');
-var getTeamDropdown = require('./b31103_scraper').getTeamDropdown;
 
 var maxResults = constants.MAX_RESULTS;
 var resultsPerPage = constants.RESULTS_PER_PAGE;
