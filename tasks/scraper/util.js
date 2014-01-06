@@ -117,6 +117,9 @@ exports.createTeamResults = function (results, race, data) {
   return teamResults;
 };
 
+/**
+ * Return sex key ('M' or 'F') for a division based on its ID.
+ */
 exports.getDivisionSex = function (divisionId) {
   if (divisionId.indexOf('WOMEN') !== -1 || divisionId.indexOf('Women') !== -1) {
     return 'F';
@@ -125,7 +128,6 @@ exports.getDivisionSex = function (divisionId) {
   }
   logger.warning('No sex found for division ' + divisionId);
 };
-
 
 /**
  * Get the request parameters from a URL string and return as
@@ -202,7 +204,7 @@ exports.getHeadingData = function (headings, headingData) {
  * Parses all results of a race, page by page
  * Arguments:
  *    browser: browser instance
- *    race: race date object
+ *    race: race data object
  *    data: object containing all data that has been scraped so far
  *    resultKeys: list of data keys we're concerned with parsing
  *    rowSelector: CSS selector for a table row of data
@@ -212,7 +214,8 @@ exports.getHeadingData = function (headings, headingData) {
  *      if data needs transformation
  *    callback
  */
-exports.parseResults = function (browser, race, data, resultKeys, rowSelector, maxResults, resultsPerPage, dataTransforms, callback) {
+exports.parseResults = function (browser, race, data, resultKeys,
+    rowSelector, maxResults, resultsPerPage, dataTransforms, callback) {
   if (race[constants.DATA_KEYS.NAME]) {
     logger.infoGroup('Parsing results for ' + race[constants.DATA_KEYS.NAME] +
        (race[constants.DATA_KEYS.YEAR] ? ' ' + race[constants.DATA_KEYS.YEAR] : ''), true);
@@ -249,7 +252,6 @@ exports.parseResults = function (browser, race, data, resultKeys, rowSelector, m
 
       teamResults = addTeamResult(data, teamResults, result, resultId, race);
     });
-
 
     var nextButton = $(pageBody).find('a:contains("' + constants.NEXT_BTN_TEXT + ' ' + resultsPerPage + '")');
     var resultLength = _.keys(results).length;
@@ -312,8 +314,9 @@ exports.getScoredTeamResults = function (teamResults) {
  * Arguments:
  *  id : race id
  *  name : race name
+ *  year : year of the race
  *  details : object of race details
- *  isClubPoints : object
+ *  clubPointsData : object
  *  isMarathon (optional) : default false
  */
 exports.makeRaceData = function (id, name, year, details, clubPointsData, isMarathon) {
@@ -342,6 +345,7 @@ exports.makeRaceData = function (id, name, year, details, clubPointsData, isMara
         teamResultCounts[key] = constants.TEAM_RESULT_COUNT.MARATHON;
       } else {
         teamResultCounts[key] = constants.TEAM_RESULT_COUNT.DEFAULT;
+        // if this is a team champs race, but not for this sex, result count is 0
         if (getIsTeamChamps(name)) teamResultCounts[key] = 0;
       }
     }
