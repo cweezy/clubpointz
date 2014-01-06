@@ -202,10 +202,9 @@ var parseResults = function (raceURL, race, browser, callback) {
     browser.wait(function () {
       var headings = $(browser.html()).find(constants.SELECTORS.HEADING);
       var headingData = util.getHeadingData(headings);
-      var resultKeys = headingData.resultKeys;
       data.headingData = _.extend({}, data.headingData, headingData.headingData);
 
-      util.parseResults(browser, race, data, resultKeys, constants.SELECTORS.RESULT_ROW,
+      util.parseResults(browser, race, data, headingData.resultKeys, constants.SELECTORS.RESULT_ROW,
                         maxResults, resultsPerPage, {}, function (results, teamResults) {
         teamResults = util.getScoredTeamResults(teamResults);
         callback(results, teamResults);
