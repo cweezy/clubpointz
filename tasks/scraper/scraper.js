@@ -94,48 +94,63 @@ var bail = function (errorMessage, callback) {
     waitForMessages(forceFail);
 };
 
-var determineIfClubPoints = function (race, details, browser, callback) {
-    var clubPointsData = {
-        men : {
-            isClubPoints : false,
-            raceLabel : ''
-        },
-        women : {
-            isClubPoints : false,
-            raceLabel : ''
-       }
-    };
+/**
+ * Returns an object containing data about whether a race counts for
+ * club points (for both men and women) and the label for the race
+ * (indicating its date and distance, i.e. 6/1 5K)
+ */ 
+var getClubPointsData = function (race, details, browser, callback) {
+  var clubPointsData = {
+    men : {
+      isClubPoints : false,
+      raceLabel : ''
+    },
+    women : {
+      isClubPoints : false,
+      raceLabel : ''
+    }
+  };
 
-    var allTeamsShown = false;
-    var awardWinnersUrl = $(browser.html()).find(constants.SELECTORS.AWARD_WINNERS_URL).attr('href');
-    browser.visit(awardWinnersUrl, function () {
-        allTeamsShown = $(browser.html()).find('pre').length > 50;
-        if (allTeamsShown) {
-            var raceDate = util.getSmallDate(details['Date/Time']);
-            var raceDistances = util.getSmallDistances(details['Distance']);
-            _.each(raceDistances, function (distance) {
-                var mensDivision = data.divisionData[constants.MENS_DIVISION_A + constants.KEY_DELIMITER + race.year];
-                var womensDivision = data.divisionData[constants.WOMENS_DIVISION_A + constants.KEY_DELIMITER  + race.year];
-                _.each([mensDivision, womensDivision], function (division) {
-                    _.each(division[constants.DATA_KEYS.DIVISION.RACES], function (divisionRace) {
-                        if (divisionRace[constants.DATA_KEYS.DIVISION.RACE.DATE] === raceDate &&
-                                divisionRace[constants.DATA_KEYS.DIVISION.RACE.DISTANCE] === distance) {
-                            if (division[constants.DATA_KEYS.DB_ID] === constants.MENS_DIVISION_A + constants.KEY_DELIMITER +
-                                    division[constants.DATA_KEYS.YEAR]) {
-                                clubPointsData.men.isClubPoints = true;
-                                clubPointsData.men.raceLabel = raceDate + ' ' + distance;
-                            } else if (division[constants.DATA_KEYS.DB_ID] === constants.WOMENS_DIVISION_A + constants.KEY_DELIMITER +
-                                    division[constants.DATA_KEYS.YEAR]) {
-                                clubPointsData.women.isClubPoints = true;
-                                clubPointsData.women.raceLabel = raceDate + ' ' + distance;
-                            }
-                        }
-                    });
-                });
-            });
-        }
-        callback(clubPointsData);
-    });
+  var raceDate = util.getSmallDate(details['Date/Time']);
+  var raceDistances = util.getSmallDistances(details['Distance']);
+  var mensDivision = data.divisionData[constants.MENS_DIVISION_A +
+      constants.KEY_DELIMITER + race.year];
+  var womensDivision = data.divisionData[constants.WOMENS_DIVISION_A +
+      constants.KEY_DELIMITER  + race.year];
+
+  var awardWinnersUrl = $(browser.html()).find(
+      constants.SELECTORS.AWARD_WINNERS_URL).attr('href');
+
+  browser.visit(awardWinnersUrl, function () {
+    // it is likely that a race counts towards club points if more than
+    // 50 teams are displayed on the awards page
+    var allTeamsShown = $(browser.html()).find('pre').length > 50;
+    if (allTeamsShown) {
+      _.each(raceDistances, function (distance) {
+        _.each([mensDivision, womensDivision], function (division) {
+          _.each(division[constants.DATA_KEYS.DIVISION.RACES], function (divisionRace) {
+            // now check if the race date and distance match a division race
+            if (divisionRace[constants.DATA_KEYS.DIVISION.RACE.DATE] === raceDate &&
+                divisionRace[constants.DATA_KEYS.DIVISION.RACE.DISTANCE] === distance) {
+              // if so, check if the division is men's or women's and update data
+              if (division[constants.DATA_KEYS.DB_ID] === constants.MENS_DIVISION_A +
+                                                          constants.KEY_DELIMITER +
+                                                          division[constants.DATA_KEYS.YEAR]) {
+                clubPointsData.men.isClubPoints = true;
+                clubPointsData.men.raceLabel = raceDate + ' ' + distance;
+              } else if (division[constants.DATA_KEYS.DB_ID] === constants.WOMENS_DIVISION_A +
+                                                                 constants.KEY_DELIMITER +
+                                                                 division[constants.DATA_KEYS.YEAR]) {
+                clubPointsData.women.isClubPoints = true;
+                clubPointsData.women.raceLabel = raceDate + ' ' + distance;
+              }
+            }
+          });
+        });
+      });
+    }
+    callback(clubPointsData);
+  });
 };
 
 var parseRaceDetails = function (raceId, pageBody) {
@@ -179,7 +194,7 @@ var parseRaceDetails = function (raceId, pageBody) {
 };
 
 var parseRaceData = function (race, details, browser, callback) {
-    determineIfClubPoints(race, details, browser, function (clubPointsData) {
+    getClubPointsData(race, details, browser, function (clubPointsData) {
         if (!data.raceData) data.raceData = {};
         data.raceData[race.id] = util.makeRaceData(race.id, race.name, race.year, details, clubPointsData);
 
