@@ -19,6 +19,13 @@ var data = {};
 var startTime;
 
 
+/**
+ * longName format: 'North Brooklyn Runners (NBR)'
+ * shortName format: 'North Brooklyn Runners'
+ *
+ * Strips parenthetical from longName and returns true
+ * if shortName matches the result.
+ */
 var getIsNameMatch = function (longName, shortName) {
     if (longName.indexOf('(') !== -1) {
         var fullName = longName.match(/.* \(/g)[0];
@@ -27,6 +34,10 @@ var getIsNameMatch = function (longName, shortName) {
     }
 };
 
+/**
+ * Add information to the scrape report about teams encountered in
+ * results for which we do not have division data.
+ */
 var reportUnfoundTeams = function () {
     var divisionTeams = [];
     var foundDivisionTeams = [];
@@ -52,6 +63,9 @@ var reportUnfoundTeams = function () {
     }
 };
 
+/**
+ * Wait for any pending email messages to finish sending.
+ */
 var waitForMessages = function (callback) {
     var count = 0;
     var checkMessages = function () {
@@ -68,6 +82,9 @@ var waitForMessages = function (callback) {
     setInterval(checkMessages, 1000);
 };
 
+/**
+ * Log error and force scrape to stop running.
+ */
 var bail = function (errorMessage, callback) {
     logger.error(errorMessage);
     var forceFail = function () {
@@ -421,7 +438,7 @@ describe('Scraper', function () {
         });
     }),
 
-    it('parses data', function (done) {
+    it('parses race data', function (done) {
         var browser = new Browser();
         browser.runScripts = false;
         browser.loadCSS = false;
