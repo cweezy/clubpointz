@@ -78,10 +78,21 @@ var addTeamResult = function (data, teamResults, result, resultId, race) {
   return teamResults;
 };
 
+/**
+ * Get the URL for a race's results from its race id and year.
+ */
+var getRaceURL = function (raceId, year) {                                                                                                 
+  return constants.RACE_PAGE_BASE_URL + '?' +                                                                                           
+    constants.URL_KEYS.RACE_ID + '=' +                                                                                             
+    raceId + '&' + constants.URL_KEYS.YEAR +                                                                                       
+    '=' + year;                                                                                                                    
+}; 
+
 // Export global functions
 exports.getIsTeamChamps = getIsTeamChamps;
 exports.getNameMatches = getNameMatches;
 exports.addTeamResult = addTeamResult;
+exports.getRaceURL = getRaceURL;
 
 /**
  * Remove a race from a list of team results and return the altered list.
@@ -105,18 +116,6 @@ exports.createTeamResults = function (results, race, data) {
   });
   return teamResults;
 };
-
-/**
- * Get the URL for a race's results from its race id and year.
- */
-var getRaceURL = function (raceId, year) {                                                                                                 
-  return constants.RACE_PAGE_BASE_URL + '?' +                                                                                           
-    constants.URL_KEYS.RACE_ID + '=' +                                                                                             
-    raceId + '&' + constants.URL_KEYS.YEAR +                                                                                       
-    '=' + year;                                                                                                                    
-}; 
-
-exports.getRaceURL = getRaceURL;
 
 exports.getDivisionSex = function (divisionId) {
   if (divisionId.indexOf('WOMEN') !== -1 || divisionId.indexOf('Women') !== -1) {
