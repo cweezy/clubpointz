@@ -171,14 +171,15 @@ var parseRaceDetails = function (raceId, pageBody) {
       } else {
         // TODO find this character in a better way
         var delimiterIndex = name.indexOf('�');
-        name = name.substring(0, delimiterIndex);
+        name = name.substring(0, delimiterIndex).trim();
       }
       if (id && name && !data.teamData[id]) {
-        data.teamData[id] = {};
-        data.teamData[id][constants.DATA_KEYS.DB_ID] = id;
-        data.teamData[id][constants.DATA_KEYS.NAME] = util.getNameMatches(name.trim())[0];
-        data.teamData[id][constants.DATA_KEYS.TEAM.WEBSITE] = constants.TEAM_WEBSITES[id];
-        data.foundTeams.push(util.getNameMatches(name.trim()));
+        var teamDataItem = {};
+        teamDataItem[constants.DATA_KEYS.DB_ID] = id;
+        teamDataItem[constants.DATA_KEYS.NAME] = util.getNameMatches(name)[0];
+        teamDataItem[constants.DATA_KEYS.TEAM.WEBSITE] = constants.TEAM_WEBSITES[id];
+        data.teamData[id] = teamDataItem;
+        data.foundTeams.push(util.getNameMatches(name));
       }
     }
   });
