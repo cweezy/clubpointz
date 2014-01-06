@@ -279,13 +279,11 @@ describe('Scraper', function () {
                     var url = $(link).attr('href');
                     if (url && url.indexOf(constants.RACE_PAGE_BASE_URL) !== -1) {
                         var urlParams = util.parseURLParams(url);
-                        var raceId = urlParams[constants.URL_KEYS.RACE_ID];
-                        var year = urlParams[constants.URL_KEYS.YEAR];
                         var raceData = {
-                            'id' : raceId,
-                            'year' : year
+                            'id' : urlParams[constants.URL_KEYS.RACE_ID],
+                            'year' : urlParams[constants.URL_KEYS.YEAR]
                         };
-                        if (_.contains(constants.IRREGULAR_RACES, raceId)) {
+                        if (_.contains(constants.IRREGULAR_RACES, raceData.id)) {
                             data.irregularRaces = data.irregularRaces || [];
                             data.irregularRaces.push(raceData);
                         } else {
