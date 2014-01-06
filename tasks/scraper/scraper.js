@@ -205,8 +205,8 @@ var parseResults = function (raceURL, race, browser, callback) {
       var resultKeys = headingData.resultKeys;
       data.headingData = _.extend({}, data.headingData, headingData.headingData);
 
-      var rowSelector = 'table:eq(3) tr[bgcolor!="EEEEEE"]';
-      util.parseResults(browser, race, data, resultKeys, rowSelector, maxResults, resultsPerPage, {}, function (results, teamResults) {
+      util.parseResults(browser, race, data, resultKeys, constants.SELECTORS.RESULT_ROW,
+                        maxResults, resultsPerPage, {}, function (results, teamResults) {
         teamResults = util.getScoredTeamResults(teamResults);
         callback(results, teamResults);
       });

@@ -62,7 +62,8 @@ var constants = function () {
     RACE_LINK : 'td[class="text"] a',
     HEADING : '.heading',
     SEARCH_BUTTON : 'input[value="SEARCH"]',
-    AWARD_WINNERS_URL : 'a:contains("Award Winners")'
+    AWARD_WINNERS_URL : 'a:contains("Award Winners")',
+    RESULT_ROW : 'table:eq(3) tr[bgcolor!="EEEEEE"]'
   };
 
   this.URL_KEYS = {
