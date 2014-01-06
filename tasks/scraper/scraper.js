@@ -113,10 +113,12 @@ var getClubPointsData = function (race, details, browser, callback) {
 
   var raceDate = util.getSmallDate(details['Date/Time']);
   var raceDistances = util.getSmallDistances(details['Distance']);
-  var mensDivision = data.divisionData[constants.MENS_DIVISION_A +
-      constants.KEY_DELIMITER + race.year];
-  var womensDivision = data.divisionData[constants.WOMENS_DIVISION_A +
-      constants.KEY_DELIMITER  + race.year];
+  var divisions = {
+    men : data.divisionData[constants.MENS_DIVISION_A +
+          constants.KEY_DELIMITER + race.year],
+    women : data.divisionData[constants.WOMENS_DIVISION_A +
+            constants.KEY_DELIMITER  + race.year]
+  };
 
   var awardWinnersUrl = $(browser.html()).find(
       constants.SELECTORS.AWARD_WINNERS_URL).attr('href');
@@ -127,23 +129,13 @@ var getClubPointsData = function (race, details, browser, callback) {
     var allTeamsShown = $(browser.html()).find('pre').length > 50;
     if (allTeamsShown) {
       _.each(raceDistances, function (distance) {
-        _.each([mensDivision, womensDivision], function (division) {
+        _.each(divisions, function (division, key) {
           _.each(division[constants.DATA_KEYS.DIVISION.RACES], function (divisionRace) {
             // now check if the race date and distance match a division race
             if (divisionRace[constants.DATA_KEYS.DIVISION.RACE.DATE] === raceDate &&
                 divisionRace[constants.DATA_KEYS.DIVISION.RACE.DISTANCE] === distance) {
-              // if so, check if the division is men's or women's and update data
-              if (division[constants.DATA_KEYS.DB_ID] === constants.MENS_DIVISION_A +
-                                                          constants.KEY_DELIMITER +
-                                                          division[constants.DATA_KEYS.YEAR]) {
-                clubPointsData.men.isClubPoints = true;
-                clubPointsData.men.raceLabel = raceDate + ' ' + distance;
-              } else if (division[constants.DATA_KEYS.DB_ID] === constants.WOMENS_DIVISION_A +
-                                                                 constants.KEY_DELIMITER +
-                                                                 division[constants.DATA_KEYS.YEAR]) {
-                clubPointsData.women.isClubPoints = true;
-                clubPointsData.women.raceLabel = raceDate + ' ' + distance;
-              }
+              clubPointsData[key].isClubPoints = true;
+              clubPointsData[key].raceLabel = raceDate + ' ' + distance;
             }
           });
         });
