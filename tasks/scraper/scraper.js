@@ -127,20 +127,22 @@ var getClubPointsData = function (race, details, browser, callback) {
     // it is likely that a race counts towards club points if more than
     // 50 teams are displayed on the awards page
     var allTeamsShown = $(browser.html()).find('pre').length > 50;
-    if (allTeamsShown) {
-      _.each(raceDistances, function (distance) {
-        _.each(divisions, function (division, key) {
-          _.each(division[constants.DATA_KEYS.DIVISION.RACES], function (divisionRace) {
-            // now check if the race date and distance match a division race
-            if (divisionRace[constants.DATA_KEYS.DIVISION.RACE.DATE] === raceDate &&
-                divisionRace[constants.DATA_KEYS.DIVISION.RACE.DISTANCE] === distance) {
-              clubPointsData[key].isClubPoints = true;
-              clubPointsData[key].raceLabel = raceDate + ' ' + distance;
-            }
-          });
-        });
-      });
+    if (!allTeamsShown) {
+      callback(clubPointsData);
+      return;
     }
+    _.each(divisions, function (division, key) {
+      _.each(division[constants.DATA_KEYS.DIVISION.RACES], function (divisionRace) {
+        // now check if the race date and distance match a division race
+        var distanceMatch = _.find(raceDistances, function (distance) {
+          return distance === divisionRace[constants.DATA_KEYS.DIVISION.RACE.DISTANCE];
+        });
+        if (distanceMatch && divisionRace[constants.DATA_KEYS.DIVISION.RACE.DATE] === raceDate) {
+          clubPointsData[key].isClubPoints = true;
+          clubPointsData[key].raceLabel = raceDate + ' ' + distanceMatch;
+        }
+      });
+    });
     callback(clubPointsData);
   });
 };
