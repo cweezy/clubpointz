@@ -27,11 +27,11 @@ var startTime;
  * if shortName matches the result.
  */
 var getIsNameMatch = function (longName, shortName) {
-    if (longName.indexOf('(') !== -1) {
-        var fullName = longName.match(/.* \(/g)[0];
-        fullName = fullName.substring(0, fullName.length - 1);
-        return fullName.trim() === shortName.trim();
-    }
+  if (longName.indexOf('(') !== -1) {
+    var fullName = longName.match(/.* \(/g)[0];
+    fullName = fullName.substring(0, fullName.length - 1);
+    return fullName.trim() === shortName.trim();
+  }
 };
 
 /**
@@ -39,59 +39,59 @@ var getIsNameMatch = function (longName, shortName) {
  * results for which we do not have division data.
  */
 var reportUnfoundTeams = function () {
-    var divisionTeams = [];
-    var foundDivisionTeams = [];
+  var divisionTeams = [];
+  var foundDivisionTeams = [];
 
-    _.each(data.divisionData, function (division) {
-        _.each(division.teams, function (team) {
-            divisionTeams.push(util.getNameMatches(team)[0]);
-        });
+  _.each(data.divisionData, function (division) {
+    _.each(division.teams, function (team) {
+      divisionTeams.push(util.getNameMatches(team)[0]);
     });
-    divisionTeams = _.uniq(divisionTeams);
+  });
+  divisionTeams = _.uniq(divisionTeams);
 
-    _.each(data.foundTeams, function (teamNames) {
-        _.each(teamNames, function (name) {
-            if (_.contains(divisionTeams, name)) foundDivisionTeams.push(name);
-        });
+  _.each(data.foundTeams, function (teamNames) {
+    _.each(teamNames, function (name) {
+      if (_.contains(divisionTeams, name)) foundDivisionTeams.push(name);
     });
+  });
 
-    var unfoundTeams = _.uniq(_.difference(divisionTeams, foundDivisionTeams));
-    if (unfoundTeams) {
-        scrapeReporter.addTeamInfo('Unfound teams' +
-            ' (' + unfoundTeams.length + '):<br>' +
-            unfoundTeams.join('<br>'));
-    }
+  var unfoundTeams = _.uniq(_.difference(divisionTeams, foundDivisionTeams));
+  if (unfoundTeams) {
+    scrapeReporter.addTeamInfo('Unfound teams' +
+      ' (' + unfoundTeams.length + '):<br>' +
+      unfoundTeams.join('<br>'));
+  }
 };
 
 /**
  * Wait for any pending email messages to finish sending.
  */
 var waitForMessages = function (callback) {
-    var count = 0;
-    var checkMessages = function () {
-        var pendingMessages = alertMailer.getPendingMessages();
-        if (pendingMessages === 0) {
-            callback();
-        } else {
-            logger.infoGroup('Waiting for ' + pendingMessages + ' pending ' +
-                        genericUtils.getSingularOrPlural('message', pendingMessages),
-                        count === 0);
-        }
-        count += 1;
-    };
-    setInterval(checkMessages, 1000);
+  var count = 0;
+  var checkMessages = function () {
+    var pendingMessages = alertMailer.getPendingMessages();
+    if (pendingMessages === 0) {
+      callback();
+    } else {
+      logger.infoGroup('Waiting for ' + pendingMessages + ' pending ' +
+                       genericUtils.getSingularOrPlural('message', pendingMessages),
+                       count === 0);
+    }
+    count += 1;
+  };
+  setInterval(checkMessages, 1000);
 };
 
 /**
  * Log error and force scrape to stop running.
  */
 var bail = function (errorMessage, callback) {
-    logger.error(errorMessage);
-    var forceFail = function () {
-        assert(false);
-        callback();
-    };
-    waitForMessages(forceFail);
+  logger.error(errorMessage);
+  var forceFail = function () {
+    assert(false);
+    callback();
+  };
+  waitForMessages(forceFail);
 };
 
 /**
@@ -148,82 +148,80 @@ var getClubPointsData = function (race, details, browser, callback) {
 };
 
 var parseRaceDetails = function (raceId, pageBody) {
-    var detailText = $($(pageBody).find(constants.SELECTORS.RACE_DETAILS).parent()).text();
-    var details = detailText.split('\r');
-    var raceDetails = {};
-    _.each(details, function (detail) {
-        var i = detail.indexOf(':');
-        var detailParts = [detail.slice(0, i), detail.slice(i+1)]; 
-        if (detailParts && detailParts.length > 1 && detailParts[0] !== '') {
-            raceDetails[$.trim(detailParts[0])] = $.trim(detailParts[1]);
-        }
-    });
+  var details = $($(pageBody).find(constants.SELECTORS.RACE_DETAILS).parent()).text().split('\r');
+  var raceDetails = {};
+  _.each(details, function (detail) {
+    var i = detail.indexOf(':');
+    var detailParts = [detail.slice(0, i), detail.slice(i+1)]; 
+    if (detailParts && detailParts.length > 1 && detailParts[0] !== '') {
+      raceDetails[$.trim(detailParts[0])] = $.trim(detailParts[1]);
+    }
+  });
 
-    // parse race teams
-    data.teamData = data.teamData || {};
-    data.foundTeams = data.foundTeams || [];
-    var teamDropdown = $(pageBody).find('select[name="team_code"]');
-    _.each($(teamDropdown).find('option'), function (team) {
-        var id = String($(team).attr('value'));
-        if (!data.teamData[id]) {
-            var name = $(team).text();
-            if (name.indexOf('(unnamed team)') !== -1) {
-                name = constants.NAMELESS_TEAMS[id];
-            } else {
-                // TODO find this character in a better way
-                var delimiterIndex = name.indexOf('�');
-                name = name.substring(0, delimiterIndex);
-            }
-            if (id && name && !data.teamData[id]) {
-                data.teamData[id] = {};
-                data.teamData[id][constants.DATA_KEYS.DB_ID] = id;
-                data.teamData[id][constants.DATA_KEYS.NAME] = util.getNameMatches(name.trim())[0];
-                data.teamData[id][constants.DATA_KEYS.TEAM.WEBSITE] = constants.TEAM_WEBSITES[id];
-                data.foundTeams.push(util.getNameMatches(name.trim()));
-            }
-        }
-    });
-
-    return raceDetails;
+  // parse race teams
+  data.teamData = data.teamData || {};
+  data.foundTeams = data.foundTeams || [];
+  var teamDropdown = $(pageBody).find('select[name="team_code"]');
+  _.each($(teamDropdown).find('option'), function (team) {
+    var id = String($(team).attr('value'));
+    if (!data.teamData[id]) {
+      var name = $(team).text();
+      if (name.indexOf('(unnamed team)') !== -1) {
+        name = constants.NAMELESS_TEAMS[id];
+      } else {
+        // TODO find this character in a better way
+        var delimiterIndex = name.indexOf('�');
+        name = name.substring(0, delimiterIndex);
+      }
+      if (id && name && !data.teamData[id]) {
+        data.teamData[id] = {};
+        data.teamData[id][constants.DATA_KEYS.DB_ID] = id;
+        data.teamData[id][constants.DATA_KEYS.NAME] = util.getNameMatches(name.trim())[0];
+        data.teamData[id][constants.DATA_KEYS.TEAM.WEBSITE] = constants.TEAM_WEBSITES[id];
+        data.foundTeams.push(util.getNameMatches(name.trim()));
+      }
+    }
+  });
+  return raceDetails;
 };
 
 var parseRaceData = function (race, details, browser, callback) {
-    getClubPointsData(race, details, browser, function (clubPointsData) {
-        if (!data.raceData) data.raceData = {};
-        data.raceData[race.id] = util.makeRaceData(race.id, race.name, race.year, details, clubPointsData);
+  getClubPointsData(race, details, browser, function (clubPointsData) {
+    if (!data.raceData) data.raceData = {};
+    data.raceData[race.id] = util.makeRaceData(race.id, race.name, race.year, details, clubPointsData);
 
-        data.raceData[race.id] = overrideRaceData(data.raceData[race.id]);
-        callback();
-    });
+    data.raceData[race.id] = overrideRaceData(data.raceData[race.id]);
+    callback();
+  });
 };
 
 var parseResults = function (raceURL, race, browser, callback) {
-    browser.visit(raceURL, function () {
-        browser.choose('input[value="' + resultsPerPage + '"]');
-        browser.pressButton(constants.SELECTORS.SEARCH_BUTTON);
-        browser.wait(function () {
-            var headings = $(browser.html()).find(constants.SELECTORS.HEADING);
-            var headingData = util.getHeadingData(headings);
-            var resultKeys = headingData.resultKeys;
-            data.headingData = _.extend({}, data.headingData, headingData.headingData);
+  browser.visit(raceURL, function () {
+    browser.choose('input[value="' + resultsPerPage + '"]');
+    browser.pressButton(constants.SELECTORS.SEARCH_BUTTON);
+    browser.wait(function () {
+      var headings = $(browser.html()).find(constants.SELECTORS.HEADING);
+      var headingData = util.getHeadingData(headings);
+      var resultKeys = headingData.resultKeys;
+      data.headingData = _.extend({}, data.headingData, headingData.headingData);
 
-            var rowSelector = 'table:eq(3) tr[bgcolor!="EEEEEE"]';
-            util.parseResults(browser, race, data, resultKeys, rowSelector, maxResults, resultsPerPage, {}, function (results, teamResults) {
-                teamResults = util.getScoredTeamResults(teamResults);
-                callback(results, teamResults);
-            });
-        });
+      var rowSelector = 'table:eq(3) tr[bgcolor!="EEEEEE"]';
+      util.parseResults(browser, race, data, resultKeys, rowSelector, maxResults, resultsPerPage, {}, function (results, teamResults) {
+        teamResults = util.getScoredTeamResults(teamResults);
+        callback(results, teamResults);
+      });
     });
+  });
 };
 
 var overrideRaceData = function (raceData) {
-    var overrideData = data.raceOverrideData[raceData[constants.DATA_KEYS.DB_ID]];
-    if (overrideData) {
-       _.each(overrideData, function (item, key) {
-           raceData[key] = item;
-       });
-    }
-    return raceData;
+  var overrideData = data.raceOverrideData[raceData[constants.DATA_KEYS.DB_ID]];
+  if (overrideData) {
+   _.each(overrideData, function (item, key) {
+     raceData[key] = item;
+   });
+  }
+  return raceData;
 };
 
 describe('Scraper', function () {
