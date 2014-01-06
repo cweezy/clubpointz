@@ -144,7 +144,9 @@ describe('Scraper utility function', function () {
       'teamResultCountWomen' : 0,
       'year' : '2013',
       'details' : details,
-      'label' : '1/1 5K'
+      'label' : '1/1 5K',
+      'url' : 'http://web2.nyrrc.org/cgi-bin/start.cgi/aes-programs/' +
+              'results/startup.html?result.id=mock_id&result.year=2013'
     };
     var clubPointsData = {
       men: {
@@ -160,6 +162,7 @@ describe('Scraper utility function', function () {
       'mock_id', 'Team Championships-Men', '2013', details,
       clubPointsData, false
     );
+    console.log(actualResult);
     assert.deepEqual(expectedResult, actualResult);
     done();
   }),
