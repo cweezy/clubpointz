@@ -326,14 +326,17 @@ describe('Scraper', function () {
             _.each(data.races, function (race) {
                 if (_.contains(constants.IRREGULAR_RACES, race.id)) {
                     data.irregularRaces.push(race);
-                    if (race.id === constants.FIFTH_AVE_MILE_2013) {
-                        // Fifth Ave Mile gets parsed regularly and separately
-                        regularRaces.push(race);
-                    }
                 } else {
                     regularRaces.push(race);
                 }
             });
+
+            // Fifth Ave Mile should be parsed as a regular and irregular race
+            var fifthAveMile = _.find(data.irregularRaces, function (race) {
+              return race.id === constants.FIFTH_AVE_MILE_2013;
+            });
+            if (fifthAveMile) regularRaces.push(fifthAveMile);
+
             data.races = regularRaces;
             reportRaces(data.races, data.irregularRaces, 'in file');
             done();
