@@ -12,7 +12,7 @@ var RACE_ID = 'b31103';
 var RACE_NAME = '2013 ING New York City Marathon';
 var RACE_DATE = 'November 3, 2013';
 var RACE_YEAR = '2013';
-var RACE_DISTANCE = '26.2 miles, 42.16 kilometers';
+var RACE_DISTANCE = '26.2 miles';
 
 
 var getRaceDetails = function () {
