@@ -29,17 +29,18 @@ var saveData = function (data, collectionName, id) {
     return query;
   };
   var collection = db.collection(collectionName);                                                                    
+  var message;
   if (!id) {
     _.each(data, function (item) {
       item[constants.DATA_KEYS.UPDATED_AT] = updateDate;                                                                        
       collection.update(getQuery(item), item, {upsert:true}, onDbError);
     });
-    var message = _.keys(data).length + ' items saved to ' + collectionName;
+    message = _.keys(data).length + ' items saved to ' + collectionName;
   } else {
     var queryItem = {};
     queryItem[constants.DATA_KEYS.DB_ID] = id;
     collection.update(queryItem, data, {upsert:true}, onDbError);
-    var message = '1 item saved to ' + collectionName;
+    message = '1 item saved to ' + collectionName;
   }
   logger.info(message);                                                                                                         
   scrapeReporter.addDataInfo(message);
