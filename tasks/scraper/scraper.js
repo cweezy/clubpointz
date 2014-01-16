@@ -18,6 +18,32 @@ var db;
 var data = {};
 var startTime;
 
+var saveData = function (data, collectionName, id) {
+  var updateDate = new Date();
+  var onDbError = function (err, objects) {
+    if (err) throw (err);
+  };
+  var getQuery = function (item) {
+    var query = {};
+    query[constants.DATA_KEYS.DB_ID] = item[constants.DATA_KEYS.DB_ID];
+    return query;
+  };
+  var collection = db.collection(collectionName);                                                                    
+  if (!id) {
+    _.each(data, function (item) {
+      item[constants.DATA_KEYS.UPDATED_AT] = updateDate;                                                                        
+      collection.update(getQuery(item), item, {upsert:true}, onDbError);
+    });
+    var message = _.keys(data).length + ' items saved to ' + collectionName;
+  } else {
+    var queryItem = {};
+    queryItem[constants.DATA_KEYS.DB_ID] = id;
+    collection.update(queryItem, data, {upsert:true}, onDbError);
+    var message = '1 item saved to ' + collectionName;
+  }
+  logger.info(message);                                                                                                         
+  scrapeReporter.addDataInfo(message);
+};
 
 /**
  * longName format: 'North Brooklyn Runners (NBR)'
@@ -190,7 +216,6 @@ var parseRaceData = function (race, details, browser, callback) {
   getClubPointsData(race, details, browser, function (clubPointsData) {
     if (!data.raceData) data.raceData = {};
     data.raceData[race.id] = util.makeRaceData(race.id, race.name, race.year, details, clubPointsData);
-
     data.raceData[race.id] = overrideRaceData(data.raceData[race.id]);
     callback();
   });
@@ -203,7 +228,7 @@ var parseResults = function (raceURL, race, browser, callback) {
     browser.wait(function () {
       var headings = $(browser.html()).find(constants.SELECTORS.HEADING);
       var headingData = util.getHeadingData(headings);
-      data.headingData = _.extend({}, data.headingData, headingData.headingData);
+      saveData(headingData.headingData, constants.DB_COLLECTIONS.HEADING);
 
       util.parseResults(browser, race, data, headingData.resultKeys, constants.SELECTORS.RESULT_ROW,
                         maxResults, resultsPerPage, {}, function (results, teamResults) {
@@ -459,8 +484,9 @@ describe('Scraper', function () {
                             race.name = $(browser.html()).find(constants.SELECTORS.RACE_NAME).text();
                             parseRaceData(race, raceDetails, browser, function () {
                                 parseResults(url, data.raceData[race.id], browser, function (results, teamResults) {
-                                    data.raceResults = _.extend({}, data.raceResults, results);
-                                    data.teamResults = _.extend({}, data.teamResults, teamResults);
+                                    saveData(results, constants.DB_COLLECTIONS.RESULT);
+                                    saveData(teamResults, constants.DB_COLLECTIONS.TEAM_RESULT);
+                                    saveData(data.raceData[race.id], constants.DB_COLLECTIONS.RACE, race.id);
                                     parseRace(i+1);
                                 });
                             });
@@ -481,16 +507,16 @@ describe('Scraper', function () {
         if (data.irregularRaces.length > 0) {
             var parseRace = function (i) {
                 if (data.irregularRaces[i]) {
-                    if (!data.savedRaces[data.irregularRaces[i].id]) {
+                    var raceId = data.irregularRaces[i].id;
+                    if (!data.savedRaces[raceId]) {
                         parseIrregularRaceData(data.irregularRaces[i], data, function (resultData) {
                             if (resultData) {
-                                data.raceResults = _.extend({}, data.raceResults, resultData.results);
-                                data.teamResults = _.extend({}, data.teamResults, util.getScoredTeamResults(resultData.teamResults));
+                                saveData(resultData.results, constants.DB_COLLECTIONS.RESULT);
+                                saveData(util.getScoredTeamResults(resultData.teamResults), constants.DB_COLLECTIONS.TEAM_RESULT);
                                 if (resultData.raceData) {
-                                    if (!data.raceData) data.raceData = {}; 
-                                    data.raceData[resultData.raceData[constants.DATA_KEYS.DB_ID]] = resultData.raceData;
+                                    saveData(resultData.raceData, constants.DB_COLLECTIONS.RACE, raceId);
                                 }
-                                data.headingData = _.extend({}, data.headingData, resultData.headingData);
+                                saveData(resultData.headingData, constants.DB_COLLECTIONS.HEADING);
                             }
                             parseRace(i+1);
                         });
@@ -532,39 +558,13 @@ describe('Scraper', function () {
         logger.info(message);
         scrapeReporter.addDataInfo(message);
 
+        collection = db.collection(constants.DB_COLLECTIONS.TEAM);
+        _.each(data.teamData, function (team) {
+            collection.update(getQuery(team), team, {upsert:true}, onDbError);
+        });
+
         if (!_.isEmpty(data.raceData)) {
             reportUnfoundTeams();
-
-            collection = db.collection(constants.DB_COLLECTIONS.RACE);
-            _.each(data.raceData, function (race, key) {
-                race[constants.DATA_KEYS.CREATED_AT] = createDate;
-                race[constants.DATA_KEYS.UPDATED_AT] = createDate;
-                collection.insert(race, {w:1}, onDbError); 
-            });
-
-            collection = db.collection(constants.DB_COLLECTIONS.TEAM);
-            _.each(data.teamData, function (team) {
-                collection.update(getQuery(team), team, {upsert:true}, onDbError);
-            });
-
-            collection = db.collection(constants.DB_COLLECTIONS.HEADING);
-            _.each(data.headingData, function (heading) {
-                collection.update(getQuery(heading), heading, {upsert:true}, onDbError);
-            });
-
-            collection = db.collection(constants.DB_COLLECTIONS.RESULT);
-            _.each(data.raceResults, function (result) {
-                collection.update(getQuery(result), result, {upsert:true}, onDbError);
-            });
-
-            collection = db.collection(constants.DB_COLLECTIONS.TEAM_RESULT);
-            _.each(data.teamResults, function (data) {
-                collection.insert(data, {w:1}, onDbError);
-            });
-
-            message = 'New race data saved';
-            logger.info(message);
-            scrapeReporter.addDataInfo(message);
             done();
         } else {
             message = 'No new race data saved';
