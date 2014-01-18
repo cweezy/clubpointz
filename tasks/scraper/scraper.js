@@ -18,6 +18,10 @@ var db;
 var data = {};
 var startTime;
 
+var getTeamId = function (idString) {
+  return constants.TEAM_ID_TRANSFORMS[idString] || idString;
+};
+
 var saveData = function (data, collectionName, id) {
   var updateDate = new Date();
   var onDbError = function (err, objects) {
@@ -190,7 +194,8 @@ var parseRaceDetails = function (raceId, pageBody) {
   data.foundTeams = data.foundTeams || [];
   var teamDropdown = $(pageBody).find('select[name="team_code"]');
   _.each($(teamDropdown).find('option'), function (team) {
-    var id = String($(team).attr('value'));
+    var id = getTeamId(String($(team).attr('value')));
+
     if (!data.teamData[id]) {
       var name = $(team).text();
       if (name.indexOf('(unnamed team)') !== -1) {

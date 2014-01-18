@@ -172,7 +172,9 @@ var constants = function () {
         'N.Y. Police Dept.', 'N.Y. Police Department'],
     'PODropKA Running Team' : ['POLSKA Running Team'],
     'Prospect Park Track' : ['Prospect Park TC'],
+    'Rabbits' : ['RRF Rabbits'],
     'RRF Ps 46' : ['RRF PS 46'],
+    'RRF Rabbits' : ['RRF Rabbits', 'Rabbits'],
     'Shore AC' : ['Shore Athletic Club'],
     'So Brooklyn Running Club' : ['South Brooklyn Running Club'],
     'Taconic RR' : ['Taconic Road Runners', 'Taconic Road Runners Club'],
@@ -191,6 +193,10 @@ var constants = function () {
     '321' : 'RRF PS 321',
     '46' : 'RRF PS 46',
     'NEST' : 'RRF Nest+m (m539)'
+  };
+
+  this.TEAM_ID_TRANSFORMS = {
+    'RRFT' : 'Y130'
   };
 
   return this;
