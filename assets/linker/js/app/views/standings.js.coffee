@@ -69,7 +69,7 @@ app.StandingsView = Backbone.View.extend(
       cells.push({text : team.team.get('name'), cellClass : 'team-name', link: "#/team/#{team.team.get('id')}"})
       cells.push({text : team.scoreSum})
       _.each(team.raceScores, (score) ->
-        cells.push({text : score})
+        cells.push({text : score || '0'})
       )
       @$(table).find('tbody').append(@template('standings_team_row', {cells : cells}))
     , @)
