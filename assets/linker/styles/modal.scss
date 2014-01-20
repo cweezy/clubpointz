@@ -22,3 +22,9 @@
 .modal-body {
   font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 }
+
+#contactModal {
+  .modal-body-sending, .modal-body-sent {
+    display: none;
+  }
+}
