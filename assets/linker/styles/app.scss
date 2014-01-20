@@ -41,6 +41,14 @@ body {
   .navbar-link {
     float: right;
   }
+
+  .header-button {
+    border: none;
+    line-height: 20px;
+    background-color: #222;
+    color: #ccc;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+  }
 }
 
 #content {

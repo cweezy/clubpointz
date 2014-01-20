@@ -34,8 +34,8 @@ var AlertMailer = {
             from : this.from,
             to : user,
             subject : subject,
-            text : text + TEXT_SUFFIX,
-            html : html + HTML_FOOTER
+            text : text !== '' ? text + TEXT_SUFFIX : null,
+            html : html !== '' ? html + HTML_FOOTER : null
         };
     },
 
