@@ -21,7 +21,9 @@ app.HeaderView = Backbone.View.extend(
         email: $('#contact-email').val()
         message: $('#contact-message').val()
     }).done( (data) ->
-      $('#contactModal').modal('hide')
+      setTimeout( ->
+        $('#contactModal').modal('hide')
+      , 1000)
     )
 
   _clearForm: ->

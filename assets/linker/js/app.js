@@ -27,6 +27,11 @@ $(function() {
     }
     return $('#loading');
   };
+  getCompleteMessage = function (url) {
+    if (url.indexOf('mail/send') > -1) {
+      return $('.modal-body-sent');
+    }
+  };
 
   $(document).ajaxSend(function(event, request, settings) {
     getContentHolder(settings.url).hide();
@@ -34,6 +39,15 @@ $(function() {
   });
   $(document).ajaxComplete(function(event, xhr, settings) {
     getLoadingHolder(settings.url).hide();
-    getContentHolder(settings.url).show();
+    var completeMessage = getCompleteMessage(settings.url);
+    if (completeMessage) {
+      completeMessage.show();
+      setTimeout(function () {
+        completeMessage.hide();
+        getContentHolder(settings.url).show();
+      }, 1000);
+    } else {
+      getContentHolder(settings.url).show();
+    }
   });
 });
