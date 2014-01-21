@@ -195,3 +195,9 @@ body {
     min-width: 100%;
   }
 }
+
+input, textarea {
+  margin: 8px 0;
+  border: 1px solid #ddd;
+  padding: 4px;
+}
