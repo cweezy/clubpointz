@@ -37,10 +37,13 @@ app.HeaderView = Backbone.View.extend(
         name: $('#contact-name').val()
         email: $('#contact-email').val()
         message: $('#contact-message').val()
-    }).done( (data) ->
-      setTimeout( ->
-        $('#contact-modal').modal('hide')
-      , 700)
+    }).done( (sent) ->
+      if sent
+        setTimeout( ->
+          $('#contact-modal').modal('hide')
+        , 700)
+      else
+        alert('error sending message')
     )
 
   _showContactFormFooter: ->

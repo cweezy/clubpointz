@@ -1,5 +1,7 @@
 var mailer = require('./../../tasks/alertMailer').mailer;
+var logger = require('./../../tasks/logger');
 
+TIMEOUT = 10;
 EMAIL_SUBJECT = 'ClubPointz Feedback';
   
 getEmailText = function (email, name, message) {
@@ -15,9 +17,13 @@ waitForMessage = function (callback) {
     var pendingMessages = mailer.getPendingMessages();
     if (pendingMessages === 0) {
       clearInterval(checkInterval); 
-      callback(count);
+      callback({'status' : 'success', 'waitTime' : count});
     }
     count += 1;
+    if (count >= TIMEOUT) {
+      clearInterval(checkInterval)
+      callback({'status' : 'timeout'});
+    }
   };
   var checkInterval = setInterval(checkMessages, 1000);
 };
@@ -38,8 +44,14 @@ module.exports = {
       subject: EMAIL_SUBJECT
     };
     mailer.sendFeedback(options);
-    waitForMessage(function (waitTime) {
-      res.send({waitTime : waitTime});
+    waitForMessage(function (response) {
+      if (response.status === 'success') {
+        logger.info('Sent feedback in ' + response.waitTime + ' seconds');
+        res.send(true);
+      } else if (response.status === 'timeout') {
+        logger.error('Timed out sending feedback');
+        res.send(false);
+      }
     });
   }
 };

@@ -16,7 +16,7 @@ exports.warning = function (message) {
 };
 
 exports.error = function (message) {
-  console.log(message);
+  console.log(ERROR_PREFIX + message);
   if (!noMail) {
     alertMailer.send({text : ERROR_PREFIX + message});
   }
