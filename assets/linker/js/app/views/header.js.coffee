@@ -12,6 +12,9 @@ app.HeaderView = Backbone.View.extend(
     $('#contactModal').on('hidden.bs.modal', (e) ->
       that._clearForm()
     )
+    $('#contactModal .required').on('change keydown paste input', ->
+      that._enableDisableSubmit()
+    )
 
   _submitContactForm: ->
     $.ajax({
@@ -30,5 +33,13 @@ app.HeaderView = Backbone.View.extend(
     $('.modal-body input').val('')
     $('.modal-body textarea').val('')
 
+  _enableDisableSubmit: ->
+    emptyInput = _.find($('.modal-body .required'), (input) ->
+      return $(input).val() == ''
+    )
+    if emptyInput
+      $('#contact-submit').attr('disabled', 'disabled')
+    else
+      $('#contact-submit').removeAttr('disabled')
 )
 

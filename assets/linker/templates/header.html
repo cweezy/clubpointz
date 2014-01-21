@@ -13,9 +13,9 @@
         <h4 class="modal-title" id="contactModal">Contact</h4>
       </div>
       <div class="modal-body">
-          <input id="contact-name" type="text" name="name" placeholder="Name"><br>
-          <input id="contact-email" type="text" name="email" placeholder="Email"><br>
-          <textarea id="contact-message" name="message" placeholder="Message" size="5000"></textarea>
+          <input id="contact-name" class="required" type="text" name="name" placeholder="Name"><br>
+          <input id="contact-email" class="required" type="text" name="email" placeholder="Email"><br>
+          <textarea id="contact-message" class="required"  name="message" placeholder="Message" size="5000"></textarea>
       </div>
       <div class="modal-body-loading">
         Sending...
@@ -25,7 +25,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button id="contact-submit" type="button" class="btn btn-primary">Submit</button>
+        <button id="contact-submit" disabled="disabled" type="button" class="btn btn-primary">Submit</button>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
