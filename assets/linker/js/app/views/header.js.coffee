@@ -1,25 +1,33 @@
 app.HeaderView = Backbone.View.extend(
 
   events:
-    "click #contact-submit": "_submitContactForm"
-    "blur #contactModal .required": "_toggleFieldNote"
+    "click #contact-modal .submit-button": "_submitContactForm"
+    "blur #contact-modal .required": "_toggleFieldNote"
   
   render: ->
     @$el.html(@template('header'))
+    @_appendModals()
     @
 
   start: ->
     that = @
-    $('#contactModal').on('hidden.bs.modal', (e) ->
+    $('#contact-modal').on('hidden.bs.modal', (e) ->
       that._clearForm()
       that._toggleSubmit()
       that._showContactFormFooter()
       that._hideAllFieldNotes()
     )
-    $('#contactModal .required').on('change keydown paste input', ->
+    $('#contact-modal .required').on('change keydown paste input', ->
       that._toggleSubmit()
       that._toggleFieldNote(@)
     )
+
+  _appendModals: ->
+    @$el.append(@template('modal',
+      modalId: 'contact-modal'
+      modalTitle: 'Contact'
+      modalBody: @template('contact_form_body')
+    ))  
 
   _submitContactForm: ->
     @_hideContactFormFooter()
@@ -31,28 +39,28 @@ app.HeaderView = Backbone.View.extend(
         message: $('#contact-message').val()
     }).done( (data) ->
       setTimeout( ->
-        $('#contactModal').modal('hide')
+        $('#contact-modal').modal('hide')
       , 700)
     )
 
   _showContactFormFooter: ->
-    $('.modal-footer').show()
+    $('#contact-modal .modal-footer').show()
 
   _hideContactFormFooter: ->
-    $('.modal-footer').hide()
+    $('#contact-modal .modal-footer').hide()
 
   _clearForm: ->
-    $('.modal-body input').val('')
-    $('.modal-body textarea').val('')
+    $('#contact-modal input').val('')
+    $('#contact-modal textarea').val('')
 
   _toggleSubmit: ->
-    emptyInput = _.find($('.modal-body .required'), (input) ->
+    emptyInput = _.find($('#contact-modal .required'), (input) ->
       return $(input).val() == ''
     )
     if emptyInput
-      $('#contact-submit').attr('disabled', 'disabled')
+      $('#contact-modal .submit-button').attr('disabled', 'disabled')
     else
-      $('#contact-submit').removeAttr('disabled')
+      $('#contact-modal .submit-button').removeAttr('disabled')
 
   _toggleFieldNote: (event) ->
     if event.type == 'focusout'
@@ -66,5 +74,5 @@ app.HeaderView = Backbone.View.extend(
         $('#' + $(event).attr('id') + '-note').removeClass('active')
 
   _hideAllFieldNotes: ->
-    $('.field-note').removeClass('active')
+    $('#contact-modal .field-note').removeClass('active')
 )

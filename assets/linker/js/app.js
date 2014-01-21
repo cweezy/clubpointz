@@ -17,19 +17,19 @@ $(function() {
 
   getContentHolder = function (url) {
     if (url.indexOf('mail/send') > -1) {
-      return $('.modal-body');
+      return $('#contact-modal .modal-body-default');
     }
     return $('#content');
   };
   getLoadingHolder = function (url) {
     if (url.indexOf('mail/send') > -1) {
-      return $('.modal-body-loading');
+      return $('#contact-modal .modal-body-loading');
     }
     return $('#loading');
   };
   getCompleteMessage = function (url) {
     if (url.indexOf('mail/send') > -1) {
-      return $('.modal-body-sent');
+      return $('#contact-modal .modal-body-sent');
     }
   };
 

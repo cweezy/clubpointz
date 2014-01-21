@@ -21,7 +21,7 @@
   }
 }
 
-.modal-body, .modal-body-loading, .modal-body-sent {
+.modal-body {
   font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
   padding-bottom: 0;
 }
@@ -41,10 +41,10 @@
   }
 }
 
-#contactModal {
+#contact-modal {
   .modal-body-loading, .modal-body-sent {
-    display: none;
     height: 228px;
+    display: none;
     text-align: center;
     .modal-loading-label {
       position: relative;

@@ -1,38 +1,6 @@
 <nav class='navbar navbar-inverse'>
   <span class='navbar-brand last-update'></span>
-  <button class="btn navbar-link header-button" data-toggle="modal" data-target="#contactModal">
+  <button class="btn navbar-link header-button" data-toggle="modal" data-target="#contact-modal">
     Contact
   </button>
 </nav>
-
-<div class="modal fade" id="contactModal" tabindex="-1" role="dialog" aria-labelledby="contactModal" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title" id="contactModal">Contact</h4>
-      </div>
-      <div class="modal-body">
-        <input id="contact-name" class="required" type="text" name="name" placeholder="Name">
-        <span id="contact-name-note" class="field-note">Name required</span>
-        <br>
-        <input id="contact-email" class="required" type="text" name="email" placeholder="Email">
-        <span id="contact-email-note" class="field-note">Email required</span>
-        <br>
-        <textarea id="contact-message" class="required"  name="message" placeholder="Message" size="5000"></textarea>
-        <span id="contact-message-note" class="field-note">Message required</span>
-      </div>
-      <div class="modal-body-loading">
-        <div class="modal-loading"></div>
-        <div class="modal-loading-label">Sending message...</div>
-      </div>
-      <div class="modal-body-sent">
-        <div class="modal-sent-label">Message sent!</div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button id="contact-submit" disabled="disabled" type="button" class="btn btn-primary">Submit</button>
-      </div>
-    </div><!-- /.modal-content -->
-  </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
