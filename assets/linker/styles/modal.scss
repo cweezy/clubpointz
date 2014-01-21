@@ -42,8 +42,9 @@
 }
 
 #contactModal {
-  .modal-body-sending, .modal-body-sent {
+  .modal-body-loading, .modal-body-sent {
     display: none;
+    height: 228px;
   }
   #contact-message {
     width: 440px;

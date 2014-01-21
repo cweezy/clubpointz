@@ -16,8 +16,6 @@ app.HeaderView = Backbone.View.extend(
     )
 
   _submitContactForm: ->
-    $('.modal-body-sending').show()
-    $('.modal-body').hide()
     $.ajax({
       url: 'mail/send',
       data:
@@ -25,8 +23,6 @@ app.HeaderView = Backbone.View.extend(
         email: $('#contact-email').val()
         message: $('#contact-message').val()
     }).done( (data) ->
-      $('.modal-body-sending').hide()
-      $('.modal-body-sent').show()
       $('#contactModal').modal('hide')
     )
 

@@ -15,12 +15,25 @@ $(function() {
   app.divisions.reset(sailsExports.divisionsJson);
   Backbone.history.start();
 
-  $(document).ajaxSend(function() {
-    $('#content').hide();
-    $('#loading').show();
+  getContentHolder = function (url) {
+    if (url.indexOf('mail/send') > -1) {
+      return $('.modal-body');
+    }
+    return $('#content');
+  };
+  getLoadingHolder = function (url) {
+    if (url.indexOf('mail/send') > -1) {
+      return $('.modal-body-loading');
+    }
+    return $('#loading');
+  };
+
+  $(document).ajaxSend(function(event, request, settings) {
+    getContentHolder(settings.url).hide();
+    getLoadingHolder(settings.url).show();
   });
-  $(document).ajaxComplete(function() {
-    $('#loading').hide();
-    $('#content').show();
+  $(document).ajaxComplete(function(event, xhr, settings) {
+    getLoadingHolder(settings.url).hide();
+    getContentHolder(settings.url).show();
   });
 });
