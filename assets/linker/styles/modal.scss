@@ -21,7 +21,7 @@
   }
 }
 
-.modal-body {
+.modal-body, .modal-body-loading, .modal-body-sent {
   font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
   padding-bottom: 0;
 }
@@ -45,6 +45,17 @@
   .modal-body-loading, .modal-body-sent {
     display: none;
     height: 228px;
+    text-align: center;
+    .modal-loading-label {
+      position: relative;
+      top: 30%;
+      padding-top: 10px;
+    }
+    .modal-sent-label {
+      position: relative;
+      top: 30%;
+      padding-top: 40px;
+    }
   }
   #contact-message {
     width: 440px;

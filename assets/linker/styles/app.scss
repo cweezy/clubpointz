@@ -68,7 +68,7 @@ body {
   }
 }
 
-#loading {
+#loading, .modal-loading {
   background-image: url("/linker/../images/spinner.gif");
   background-repeat: no-repeat;
   width: 30px;
@@ -76,6 +76,9 @@ body {
   margin: auto;
   position: relative;
   top: 30%;
+}
+
+#loading {
   display: none;
 }
 
