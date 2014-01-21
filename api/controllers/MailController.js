@@ -37,7 +37,7 @@ module.exports = {
                          req.param('message')),
       subject: EMAIL_SUBJECT
     };
-    mailer.send(options);
+    mailer.sendFeedback(options);
     waitForMessage(function (waitTime) {
       res.send({waitTime : waitTime});
     });

@@ -14,6 +14,7 @@ var AlertMailer = {
        this.emailUser = util.getEnvVar('EMAIL_USER');
        this.emailPass = util.getEnvVar('EMAIL_PASS');
        this.recipients = JSON.parse(util.getEnvVar('RECIPIENTS'));
+       this.feedbackRecipients = JSON.parse(util.getEnvVar('FEEDBACK_RECIPIENTS'));
        this.from = FROM_NAME + '<' + this.emailUser + '>';
        this.pendingMessages = 0;
 
@@ -53,17 +54,22 @@ var AlertMailer = {
         }, this);
     },
 
-    send : function (options) {
+    send : function (options, recipients) {
         var subject = options.subject || DEFAULT_SUBJECT;
         var text = options.text || '';
         var html = options.html || '';
         var allMailOptions = [];
+        recipients = recipients || this.recipients;
 
-        _.each(this.recipients, function (user) {
+        _.each(recipients, function (user) {
             var mailOptions = this._getMailOptions(user, subject, text, html);
             allMailOptions.push(mailOptions);
         }, this);
         this._sendMessages(allMailOptions);
+    },
+
+    sendFeedback : function (options) {
+      this.send(options, this.feedbackRecipients);
     },
 
     getPendingMessages : function () {
