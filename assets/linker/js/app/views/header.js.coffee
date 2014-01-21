@@ -7,12 +7,6 @@ app.HeaderView = Backbone.View.extend(
     @$el.html(@template('header'))
     @
 
-  start: ->
-    @defaultValues =
-      name: $('#contact-name').val()
-      email: $('#contact-email').val()
-      message: $('#contact-message').val()
-
   _submitContactForm: ->
     $('.modal-body-sending').show()
     $('.modal-body').hide()
