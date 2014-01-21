@@ -13,9 +13,14 @@
         <h4 class="modal-title" id="contactModal">Contact</h4>
       </div>
       <div class="modal-body">
-          <input id="contact-name" class="required" type="text" name="name" placeholder="Name"><br>
-          <input id="contact-email" class="required" type="text" name="email" placeholder="Email"><br>
-          <textarea id="contact-message" class="required"  name="message" placeholder="Message" size="5000"></textarea>
+        <input id="contact-name" class="required" type="text" name="name" placeholder="Name">
+        <span id="contact-name-note" class="field-note">Name required</span>
+        <br>
+        <input id="contact-email" class="required" type="text" name="email" placeholder="Email">
+        <span id="contact-email-note" class="field-note">Email required</span>
+        <br>
+        <textarea id="contact-message" class="required"  name="message" placeholder="Message" size="5000"></textarea>
+        <span id="contact-message-note" class="field-note">Message required</span>
       </div>
       <div class="modal-body-loading">
         Sending...

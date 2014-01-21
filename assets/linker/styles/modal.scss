@@ -50,4 +50,15 @@
     width: 440px;
     height: 100px;
   }
+  .field-note {
+    visibility: hidden;
+    font-style: italic;
+    color: #ccc;
+    &.active {
+      visibility: visible;
+    }
+  }
+  #contact-name-note, #contact-email-note {
+    padding-left: 5px;
+  }
 }

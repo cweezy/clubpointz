@@ -2,6 +2,7 @@ app.HeaderView = Backbone.View.extend(
 
   events:
     "click #contact-submit": "_submitContactForm"
+    "blur #contactModal .required": "_toggleFieldNote"
   
   render: ->
     @$el.html(@template('header'))
@@ -11,12 +12,15 @@ app.HeaderView = Backbone.View.extend(
     that = @
     $('#contactModal').on('hidden.bs.modal', (e) ->
       that._clearForm()
+      that._toggleSubmit()
     )
     $('#contactModal .required').on('change keydown paste input', ->
-      that._enableDisableSubmit()
+      that._toggleSubmit()
+      that._toggleFieldNote(@)
     )
 
   _submitContactForm: ->
+    $('.modal-footer').hide()
     $.ajax({
       url: 'mail/send',
       data:
@@ -26,14 +30,15 @@ app.HeaderView = Backbone.View.extend(
     }).done( (data) ->
       setTimeout( ->
         $('#contactModal').modal('hide')
-      , 1000)
+        $('.modal-footer').show()
+      , 700)
     )
 
   _clearForm: ->
     $('.modal-body input').val('')
     $('.modal-body textarea').val('')
 
-  _enableDisableSubmit: ->
+  _toggleSubmit: ->
     emptyInput = _.find($('.modal-body .required'), (input) ->
       return $(input).val() == ''
     )
@@ -41,5 +46,15 @@ app.HeaderView = Backbone.View.extend(
       $('#contact-submit').attr('disabled', 'disabled')
     else
       $('#contact-submit').removeAttr('disabled')
-)
 
+  _toggleFieldNote: (event) ->
+    if event.type == 'focusout'
+      inputId = $(event.target).attr('id')
+      if $(event.target).val() == ''
+        $('#' + inputId + '-note').addClass('active')
+      else
+        $('#' + inputId + '-note').removeClass('active')
+    else
+      if $(event).val() != ''
+        $('#' + $(event).attr('id') + '-note').removeClass('active')
+)

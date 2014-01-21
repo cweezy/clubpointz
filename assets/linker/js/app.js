@@ -45,7 +45,7 @@ $(function() {
       setTimeout(function () {
         completeMessage.hide();
         getContentHolder(settings.url).show();
-      }, 1000);
+      }, 1500);
     } else {
       getContentHolder(settings.url).show();
     }
