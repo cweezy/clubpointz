@@ -14,6 +14,7 @@ app.HeaderView = Backbone.View.extend(
       that._clearForm()
       that._toggleSubmit()
       that._showContactFormFooter()
+      that._hideAllFieldNotes()
     )
     $('#contactModal .required').on('change keydown paste input', ->
       that._toggleSubmit()
@@ -63,4 +64,7 @@ app.HeaderView = Backbone.View.extend(
     else
       if $(event).val() != ''
         $('#' + $(event).attr('id') + '-note').removeClass('active')
+
+  _hideAllFieldNotes: ->
+    $('.field-note').removeClass('active')
 )
