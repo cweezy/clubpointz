@@ -207,11 +207,12 @@ var parseRaceDetails = function (raceId, pageBody) {
       }
       if (id && name && !data.teamData[id]) {
         var teamDataItem = {};
+        var nameMatches = util.getNameMatches(name);
         teamDataItem[constants.DATA_KEYS.DB_ID] = id;
-        teamDataItem[constants.DATA_KEYS.NAME] = util.getNameMatches(name)[0];
+        teamDataItem[constants.DATA_KEYS.NAME] = nameMatches[0];
         teamDataItem[constants.DATA_KEYS.TEAM.WEBSITE] = constants.TEAM_WEBSITES[id];
         data.teamData[id] = teamDataItem;
-        data.foundTeams.push(util.getNameMatches(name));
+        data.foundTeams.push(nameMatches);
       }
     }
   });
