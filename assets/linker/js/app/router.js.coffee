@@ -7,6 +7,7 @@ app.Router = Backbone.Router.extend(
   initialize: ->
     this.headerView = new app.HeaderView()
     $('#header').html(this.headerView.render().el)
+    this.headerView.start()
 
   standings: ->
     this.standingsView or= new app.StandingsView()

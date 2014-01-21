@@ -7,6 +7,14 @@ app.HeaderView = Backbone.View.extend(
     @$el.html(@template('header'))
     @
 
+  start: ->
+    that = @
+    $('#contactModal').on('hidden.bs.modal', (e) ->
+      $('.modal-body-sent').hide() 
+      $('.modal-body').show()
+      that._clearForm()
+    )
+
   _submitContactForm: ->
     $('.modal-body-sending').show()
     $('.modal-body').hide()
@@ -20,12 +28,11 @@ app.HeaderView = Backbone.View.extend(
       $('.modal-body-sending').hide()
       $('.modal-body-sent').show()
       $('#contactModal').modal('hide')
-      $('#contactModal').on('hidden.bs.modal', (e) ->
-        $('.modal-body-sent').hide() 
-        $('.modal-body').show()
-        $('.modal-body input').val('')
-        $('.modal-body textarea').val('')
-      )
     )
+
+  _clearForm: ->
+    $('.modal-body input').val('')
+    $('.modal-body textarea').val('')
+
 )
 
