@@ -10,8 +10,6 @@ app.HeaderView = Backbone.View.extend(
   start: ->
     that = @
     $('#contactModal').on('hidden.bs.modal', (e) ->
-      $('.modal-body-sent').hide() 
-      $('.modal-body').show()
       that._clearForm()
     )
 
