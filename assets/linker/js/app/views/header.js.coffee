@@ -13,7 +13,7 @@ app.HeaderView = Backbone.View.extend(
     $('#contactModal').on('hidden.bs.modal', (e) ->
       that._clearForm()
       that._toggleSubmit()
-      that._toggleContactFormFooter()
+      that._showContactFormFooter()
     )
     $('#contactModal .required').on('change keydown paste input', ->
       that._toggleSubmit()
@@ -21,7 +21,7 @@ app.HeaderView = Backbone.View.extend(
     )
 
   _submitContactForm: ->
-    @_toggleContactFormFooter()
+    @_hideContactFormFooter()
     $.ajax({
       url: 'mail/send',
       data:
@@ -34,8 +34,11 @@ app.HeaderView = Backbone.View.extend(
       , 700)
     )
 
-  _toggleContactFormFooter: ->
-    $('.modal-footer').toggle()
+  _showContactFormFooter: ->
+    $('.modal-footer').show()
+
+  _hideContactFormFooter: ->
+    $('.modal-footer').hide()
 
   _clearForm: ->
     $('.modal-body input').val('')
