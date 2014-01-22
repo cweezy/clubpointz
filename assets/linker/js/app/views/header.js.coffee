@@ -21,6 +21,7 @@ app.HeaderView = Backbone.View.extend(
       that._toggleSubmit()
       that._toggleFieldNote(@)
     )
+    $('#info-modal .submit-button').hide()
 
   _appendModals: ->
     @$el.append(@template('modal',
@@ -28,6 +29,11 @@ app.HeaderView = Backbone.View.extend(
       modalTitle: 'Contact'
       modalBody: @template('contact_form_body')
     ))  
+    @$el.append(@template('modal',
+      modalId: 'info-modal'
+      modalTitle: 'Info'
+      modalBody: @template('info_body')
+    ))
 
   _submitContactForm: ->
     @_hideContactFormFooter()
