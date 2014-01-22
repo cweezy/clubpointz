@@ -21,7 +21,7 @@ waitForMessage = function (callback) {
     }
     count += 1;
     if (count >= TIMEOUT) {
-      clearInterval(checkInterval)
+      clearInterval(checkInterval);
       callback({'status' : 'timeout'});
     }
   };
