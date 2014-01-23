@@ -19,7 +19,8 @@ var path = require('path');
 var wrench = require('wrench');
 var Mocha = require('mocha');
 
-var SCRAPER_FILE_DIR = 'tasks/scraper';
+var SCRAPER_DIR = 'tasks/scraper';
+var SCRAPER_DATA_DIR = 'tasks/scraper/data';
 var TEST_DIR = 'tests';
 
 module.exports = function (grunt) {
@@ -491,19 +492,19 @@ module.exports = function (grunt) {
 
   grunt.registerTask('scrape', 'Scrapes recent race results from web\n' +
         '":from_file" parses races from tasks/scraper/races.json\n' +
-        '":cp" (with from_file) parses club points races from tasks/scraper/clubPointsRaces.json\n' +
+        '":cp" (with from_file) parses club points races from tasks/scraper/data/clubPointsRaces.json\n' +
         '":max_results=n" sets max results to n\n' +
         '":mail" send email notifications',
         function (arg1, arg2, arg3, arg4) {
     var args = [arg1, arg2, arg3, arg4].join(',');
-    var quietReporter = require('./' + path.join(SCRAPER_FILE_DIR, 'quietMochaReporter')).quietReporter;
+    var quietReporter = require('./' + path.join(SCRAPER_DIR, 'quietMochaReporter')).quietReporter;
 
     if (args.indexOf('from_file') !== -1) {
       var fileName = 'races.json';
       if (args.indexOf('cp') !== -1) {
         fileName = 'clubPointsRaces.json';
       } 
-      var file = fs.readFileSync(path.join(SCRAPER_FILE_DIR, fileName));
+      var file = fs.readFileSync(path.join(SCRAPER_DATA_DIR, fileName));
       process.env.RACES = file;
     }
 
@@ -522,7 +523,7 @@ module.exports = function (grunt) {
       timeout: 99999999,
       bail: true
     });
-    mocha.addFile(path.join(SCRAPER_FILE_DIR, 'scraper.js'));
+    mocha.addFile(path.join(SCRAPER_DIR, 'scraper.js'));
     mocha.run(function (failures) {
       done();
     });
