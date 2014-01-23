@@ -25,32 +25,6 @@ body {
   }
 }
 
-.navbar {
-  border-radius: 0;
-  min-height: 28px;
-  min-width: 1000px;
-  margin: 0;
-  background-image: none;
-
-  .navbar-brand {
-    font-size: 16px;
-    line-height: 28px;
-    padding: 0 10px 0 10px;
-  }
-
-  .navbar-link {
-    float: right;
-  }
-
-  .header-button {
-    border: none;
-    line-height: 20px;
-    background-color: #222;
-    color: #ccc;
-    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-  }
-}
-
 #content {
   min-width: 1000px;
   max-width: 100%;
