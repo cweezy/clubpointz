@@ -19,16 +19,6 @@ var constants = {
   POINT_VALUES : [15, 12, 10, 8, 6, 5, 4, 3, 2],
   DEFAULT_POINT_VALUE : 1,
 
-  DB_COLLECTIONS : {
-    RACE : 'race',
-    RESULT : 'result',
-    HEADING : 'heading',
-    RACE_OVERRIDE : 'race_override',
-    TEAM : 'team',
-    TEAM_RESULT : 'teamresult',
-    DIVISION : 'division',
-    SCRAPE_DATA : 'scrapedata'
-  },
 
   RESULT_MAIN_URL : 'http://web2.nyrrc.org/cgi-bin/htmlos.cgi/aes-programs/results/resultsarchive.htm',
   RACE_PAGE_BASE_URL : 'http://web2.nyrrc.org/cgi-bin/start.cgi/aes-programs/results/startup.html',

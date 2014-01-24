@@ -236,7 +236,7 @@ var parseResults = function (raceURL, race, browser, callback) {
     browser.wait(function () {
       var headings = $(browser.html()).find(constants.SELECTORS.HEADING);
       var headingData = util.getHeadingData(headings);
-      saveData(headingData.headingData, constants.DB_COLLECTIONS.HEADING);
+      saveData(headingData.headingData, config.DB_COLLECTIONS.HEADING);
 
       util.parseResults(browser, race, data, headingData.resultKeys, constants.SELECTORS.RESULT_ROW,
                         maxResults, resultsPerPage, {}, function (results, teamResults) {
@@ -359,7 +359,7 @@ describe('Scraper', function () {
             if (count === collectionCount) callback();
         };
 
-        var collection = db.collection(constants.DB_COLLECTIONS.RACE);
+        var collection = db.collection(config.DB_COLLECTIONS.RACE);
         var allRaces = _.uniq(data.races.concat(data.irregularRaces));
         _.each(allRaces, function (race, i) {
             var raceId = race.id;
@@ -376,7 +376,7 @@ describe('Scraper', function () {
         });
 
         data.divisionData = {};
-        collection = db.collection(constants.DB_COLLECTIONS.DIVISION);
+        collection = db.collection(config.DB_COLLECTIONS.DIVISION);
         collection.find().toArray(function (err, docs) {
             if (err) throw err;
             _.each(docs, function (doc) {
@@ -385,7 +385,7 @@ describe('Scraper', function () {
             done();
         });
 
-        collection = db.collection(constants.DB_COLLECTIONS.TEAM);
+        collection = db.collection(config.DB_COLLECTIONS.TEAM);
         collection.find().toArray(function (err, docs) {
             if (err) throw err;
             if (!_.isEmpty(docs)) data.teamData = docs;
@@ -469,7 +469,7 @@ describe('Scraper', function () {
     }),
 
     it('finds manual race override data', function (done) {
-        var collection = db.collection(constants.DB_COLLECTIONS.RACE_OVERRIDE);
+        var collection = db.collection(config.DB_COLLECTIONS.RACE_OVERRIDE);
         data.raceOverrideData = {};
         collection.find().toArray(function (err, docs) {
             _.each(docs, function (item) {
@@ -495,9 +495,9 @@ describe('Scraper', function () {
                             race.name = $(browser.html()).find(constants.SELECTORS.RACE_NAME).text();
                             parseRaceData(race, raceDetails, browser, function () {
                                 parseResults(url, data.raceData[race.id], browser, function (results, teamResults) {
-                                    saveData(results, constants.DB_COLLECTIONS.RESULT);
-                                    saveData(teamResults, constants.DB_COLLECTIONS.TEAM_RESULT);
-                                    saveData(data.raceData[race.id], constants.DB_COLLECTIONS.RACE, race.id);
+                                    saveData(results, config.DB_COLLECTIONS.RESULT);
+                                    saveData(teamResults, config.DB_COLLECTIONS.TEAM_RESULT);
+                                    saveData(data.raceData[race.id], config.DB_COLLECTIONS.RACE, race.id);
                                     parseRace(i+1);
                                 });
                             });
@@ -522,12 +522,12 @@ describe('Scraper', function () {
                     if (!data.savedRaces[raceId]) {
                         parseIrregularRaceData(data.irregularRaces[i], data, function (resultData) {
                             if (resultData) {
-                                saveData(resultData.results, constants.DB_COLLECTIONS.RESULT);
-                                saveData(util.getScoredTeamResults(resultData.teamResults), constants.DB_COLLECTIONS.TEAM_RESULT);
+                                saveData(resultData.results, config.DB_COLLECTIONS.RESULT);
+                                saveData(util.getScoredTeamResults(resultData.teamResults), config.DB_COLLECTIONS.TEAM_RESULT);
                                 if (resultData.raceData) {
-                                    saveData(resultData.raceData, constants.DB_COLLECTIONS.RACE, raceId);
+                                    saveData(resultData.raceData, config.DB_COLLECTIONS.RACE, raceId);
                                 }
-                                saveData(resultData.headingData, constants.DB_COLLECTIONS.HEADING);
+                                saveData(resultData.headingData, config.DB_COLLECTIONS.HEADING);
                             }
                             parseRace(i+1);
                         });
@@ -558,7 +558,7 @@ describe('Scraper', function () {
         var collection;
         var message;
         if (data.isNewDivisionData) {
-            collection = db.collection(constants.DB_COLLECTIONS.DIVISION);
+            collection = db.collection(config.DB_COLLECTIONS.DIVISION);
             _.each(data.divisionData, function (division, key) {
                 collection.update(getQuery(division), division, {upsert:true}, onDbError);
             });
@@ -569,7 +569,7 @@ describe('Scraper', function () {
         logger.info(message);
         scrapeReporter.addDataInfo(message);
 
-        collection = db.collection(constants.DB_COLLECTIONS.TEAM);
+        collection = db.collection(config.DB_COLLECTIONS.TEAM);
         _.each(data.teamData, function (team) {
             collection.update(getQuery(team), team, {upsert:true}, onDbError);
         });
