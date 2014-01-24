@@ -1,6 +1,6 @@
 var _ = require('underscore');
 var $ = require('jquery');
-var constants = require('./constants').constants;
+var constants = require('./constants');
 var logger = require('./../logger');
 var genericUtils = require('./../util');
 var scrapeReporter = require('./scrapeReporter');

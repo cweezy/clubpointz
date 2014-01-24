@@ -3,7 +3,8 @@ var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
 var $ = require('jquery');
 var _ = require('underscore');
-var constants = require('./constants').constants;
+var constants = require('./constants');
+var config = require('./config');
 var parseIrregularRaceData = require('./irregularRaceScraper').parseData;
 var util = require('./util');
 var genericUtils = require('./../util');
@@ -11,8 +12,8 @@ var alertMailer = require('./../alertMailer').mailer;
 var logger = require('./../logger');
 var scrapeReporter = require('./scrapeReporter');
 
-var maxResults = constants.MAX_RESULTS;
-var resultsPerPage = constants.RESULTS_PER_PAGE;
+var maxResults = config.MAX_RESULTS;
+var resultsPerPage = config.RESULTS_PER_PAGE;
 
 var db;
 var data = {};
@@ -262,7 +263,7 @@ describe('Scraper', function () {
         startTime = new Date();
         scrapeReporter.addGeneralInfo('Scrape start time ' + startTime.toString());
 
-        MongoClient.connect(constants.MONGO_URI, function (err, database) {
+        MongoClient.connect(config.MONGO_URI, function (err, database) {
             if (err) {
                 bail('Error establishing MongoDB connection - ' + err, done);
             } else {

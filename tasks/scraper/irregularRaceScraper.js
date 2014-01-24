@@ -1,6 +1,6 @@
 var parse_b31103 = require('./b31103_scraper').parseData; 
 var parse_b30922 = require('./b30922_scraper').parseData;
-var constants = require('./constants').constants;
+var constants = require('./constants');
 var logger = require('./../logger');
 var _ = require('underscore');
 
