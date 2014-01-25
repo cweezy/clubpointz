@@ -14,11 +14,13 @@ var SELECTORS = {
   RESULT_ROW: '#07InvitationalResults_32676 tr'
 };
 var HEADING_DATA = [{
-  _id: 'pro_place',
-  text: 'Pro Place'
+  _id: 'heat_place',
+  text: 'Heat Place'
 }];
+// At least one result time is definitely invalid
+var INVALID_BIBS = ['7980'];
 var DATA_KEYS = [
-  'pro_place',
+  'heat_place',
   'bib',
   'first_name',
   'last_name',
@@ -31,7 +33,7 @@ var DATA_KEYS = [
 ];
 var ALL_SORTED_DATA_KEYS = [
   'overall_place',
-  'pro_place',
+  'heat_place',
   'last_name',
   'first_name',
   'sex_age',
@@ -41,7 +43,8 @@ var ALL_SORTED_DATA_KEYS = [
   'state',
   'country',
   'net_time',
-  'ag_time'
+  'ag_time',
+  'heat'
 ];
 var unfoundTeams = [];
 
@@ -87,7 +90,7 @@ exports.parseData = function (data, callback) {
     var url = $(link).find('a').attr('href');
     browser.visit(url, function () { 
       var rows = $(browser.html()).find(SELECTORS.RESULT_ROW);
-      var sex;
+      var sex, heat;
       _.each(rows, function (row) {
         var result = {};
         var columns = $(row).find('td');
@@ -104,12 +107,14 @@ exports.parseData = function (data, callback) {
               }
               result[DATA_KEYS[i]] = val;
             }
+            result.heat = heat;
           });
         } else {
-          var divisionCell = $(row).find('td')[0];
-          sex = getDivisionSex($(divisionCell).text());
+          var heatCell = $(row).find('td')[0];
+          heat = $(heatCell).text();
+          sex = getDivisionSex(heat);
         }
-        if (result.bib) {
+        if (result.bib && !_.contains(INVALID_BIBS, result.bib)) {
           raceData.results[RACE_ID + constants.KEY_DELIMITER + result.bib] = result;
         }
       });
