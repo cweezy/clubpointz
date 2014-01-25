@@ -10,6 +10,9 @@ var $ = require('jquery');
 
 var RACE_ID = constants.FIFTH_AVE_MILE_2013;
 var EXPECTED_TITLE = 'NYRR Fifth Avenue Mile Presented by Nissan';
+var SELECTORS = {
+  RESULT_ROW: '#07InvitationalResults_32676 tr'
+};
 var DATA_KEYS = [
   'overall_place',
   'bib',
@@ -51,10 +54,7 @@ var getFormattedResult = function (result) {
 };
 
 var getDivisionSex = function (divisionText) {
-  if (divisionText.indexOf('Women') !== -1) {
-    return 'F';
-  }
-  return 'M';
+  return divisionText.indexOf('Women') !== -1 ? 'F' : 'M';
 };
 
 var findTeamId = function (name, data) {
@@ -86,7 +86,7 @@ exports.parseData = function (data, callback) {
     var link = $(browser.html()).find('nobr')[3];
     var url = $(link).find('a').attr('href');
     browser.visit(url, function () { 
-      var rows = $(browser.html()).find('#07InvitationalResults_32676 tr');
+      var rows = $(browser.html()).find(SELECTORS.RESULT_ROW);
       var sex;
       _.each(rows, function (row) {
         var result = {};
