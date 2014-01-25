@@ -34,10 +34,10 @@ var onDbError = function (err, objects) {
 };
 
 var saveData = function (data, collectionName, id) {
+  var message;
   if (data) {
     var updateDate = new Date();
     var collection = db.collection(collectionName);                                                                    
-    var message;
     if (!id) {
       _.each(data, function (item) {
         item[constants.DATA_KEYS.UPDATED_AT] = updateDate;                                                                        
