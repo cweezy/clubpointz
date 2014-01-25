@@ -13,8 +13,12 @@ var EXPECTED_TITLE = 'NYRR Fifth Avenue Mile Presented by Nissan';
 var SELECTORS = {
   RESULT_ROW: '#07InvitationalResults_32676 tr'
 };
+var HEADING_DATA = [{
+  _id: 'pro_place',
+  text: 'Pro Place'
+}];
 var DATA_KEYS = [
-  'overall_place',
+  'pro_place',
   'bib',
   'first_name',
   'last_name',
@@ -26,6 +30,8 @@ var DATA_KEYS = [
   'net_time'
 ];
 var ALL_SORTED_DATA_KEYS = [
+  'overall_place',
+  'pro_place',
   'last_name',
   'first_name',
   'sex_age',
@@ -34,14 +40,8 @@ var ALL_SORTED_DATA_KEYS = [
   'city',
   'state',
   'country',
-  'overall_place',
-  'gender_place',
-  'age_place',
   'net_time',
-  'pace_per_mile',
-  'ag_time',
-  'ag_gender_place',
-  'ag_%'
+  'ag_time'
 ];
 var unfoundTeams = [];
 
@@ -109,17 +109,26 @@ exports.parseData = function (data, callback) {
           var divisionCell = $(row).find('td')[0];
           sex = getDivisionSex($(divisionCell).text());
         }
-        result = getFormattedResult(result);
         if (result.bib) {
-          result[constants.DATA_KEYS.DB_ID] = RACE_ID + constants.KEY_DELIMITER + result.bib;
-          result[constants.DATA_KEYS.RACE_ID] = RACE_ID;
           raceData.results[RACE_ID + constants.KEY_DELIMITER + result.bib] = result;
         }
       });
+      var sortedResults = util.sortResults(raceData.results);
+      raceData.results = {};
+      _.each(sortedResults, function (result, i) {
+        result.overall_place = i;
+        var resultId = RACE_ID + constants.KEY_DELIMITER + result.bib;
+        var formattedResult = getFormattedResult(result);
+        if (formattedResult.bib) {
+          formattedResult[constants.DATA_KEYS.DB_ID] = resultId;
+          formattedResult[constants.DATA_KEYS.RACE_ID] = RACE_ID;
+        }
+        raceData.results[resultId] = formattedResult;
+      });
 
       // Recreate this race's team results
-      data.teamResults = util.removeRaceFromTeamResults(data.teamResults, RACE_ID);
       raceData.teamResults = util.createTeamResults(raceData.results, race, data);
+      raceData.headingData = HEADING_DATA;
 
       scrapeReporter.addTeamInfo('Unfound Fifth Ave. Mile teams:<br>' +
                                  unfoundTeams.join('<br>'));

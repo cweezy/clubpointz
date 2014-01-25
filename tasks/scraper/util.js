@@ -88,11 +88,20 @@ var getRaceURL = function (raceId, year) {
     '=' + year;                                                                                                                    
 }; 
 
+var sortResults = function (results) {
+  return _(results).chain().sortBy(results, function (result) {                                                                   
+    return result.pro_place || result.overall_place;
+  }).sortBy(function (result) {
+    return result.net_time;
+  }).value();
+};
+
 // Export global functions
 exports.getIsTeamChamps = getIsTeamChamps;
 exports.getNameMatches = getNameMatches;
 exports.addTeamResult = addTeamResult;
 exports.getRaceURL = getRaceURL;
+exports.sortResults = sortResults;
 
 /**
  * Remove a race from a list of team results and return the altered list.
@@ -106,9 +115,7 @@ exports.removeRaceFromTeamResults = function (teamResults, raceId) {
 
 exports.createTeamResults = function (results, race, data) {
   var teamResults = {};
-  var sortedResults = _.sortBy(results, function (result) {                                                                   
-    return result.net_time;                                                                                                           
-  });                                                                                                                                 
+  var sortedResults = sortResults(results);
   _.each(sortedResults, function (result) {                                                                                      
     if (result.team) {
       addTeamResult(data, teamResults, result, result[constants.DATA_KEYS.DB_ID], race);                                         

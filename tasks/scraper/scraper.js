@@ -501,9 +501,15 @@ describe('Scraper', function () {
                             race.name = $(browser.html()).find(constants.SELECTORS.RACE_NAME).text();
                             parseRaceData(race, raceDetails, browser, function () {
                                 parseResults(url, data.raceData[race.id], browser, function (results, teamResults) {
-                                    saveData(results, config.DB_COLLECTIONS.RESULT);
-                                    saveData(teamResults, config.DB_COLLECTIONS.TEAM_RESULT);
                                     saveData(data.raceData[race.id], config.DB_COLLECTIONS.RACE, race.id);
+                                    // Don't save 5th ave mile results until irregular results are parsed
+                                    if (race.id !== constants.FIFTH_AVE_MILE_2013) { 
+                                      saveData(results, config.DB_COLLECTIONS.RESULT);
+                                      saveData(teamResults, config.DB_COLLECTIONS.TEAM_RESULT);
+                                    } else {
+                                      data.raceResults = data.results || {};
+                                      data.raceResults = results;
+                                    }
                                     parseRace(i+1);
                                 });
                             });
@@ -533,7 +539,9 @@ describe('Scraper', function () {
                                 if (resultData.raceData) {
                                     saveData(resultData.raceData, config.DB_COLLECTIONS.RACE, raceId);
                                 }
-                                saveData(resultData.headingData, config.DB_COLLECTIONS.HEADING);
+                                if (resultData.headingData) {
+                                    saveData(resultData.headingData, config.DB_COLLECTIONS.HEADING);
+                                }
                             }
                             parseRace(i+1);
                         });
