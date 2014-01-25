@@ -23,29 +23,35 @@ var getTeamId = function (idString) {
   return constants.TEAM_ID_TRANSFORMS[idString] || idString;
 };
 
+var getDbQuery = function (item) {
+  var query = {};
+  query[constants.DATA_KEYS.DB_ID] = item[constants.DATA_KEYS.DB_ID];
+  return query;
+};
+
+var onDbError = function (err, objects) {
+  if (err) throw (err);
+};
+
 var saveData = function (data, collectionName, id) {
-  var updateDate = new Date();
-  var onDbError = function (err, objects) {
-    if (err) throw (err);
-  };
-  var getQuery = function (item) {
-    var query = {};
-    query[constants.DATA_KEYS.DB_ID] = item[constants.DATA_KEYS.DB_ID];
-    return query;
-  };
-  var collection = db.collection(collectionName);                                                                    
-  var message;
-  if (!id) {
-    _.each(data, function (item) {
-      item[constants.DATA_KEYS.UPDATED_AT] = updateDate;                                                                        
-      collection.update(getQuery(item), item, {upsert:true}, onDbError);
-    });
-    message = _.keys(data).length + ' items saved to ' + collectionName;
+  if (data) {
+    var updateDate = new Date();
+    var collection = db.collection(collectionName);                                                                    
+    var message;
+    if (!id) {
+      _.each(data, function (item) {
+        item[constants.DATA_KEYS.UPDATED_AT] = updateDate;                                                                        
+        collection.update(getDbQuery(item), item, {upsert:true}, onDbError);
+      });
+      message = _.keys(data).length + ' items saved to ' + collectionName;
+    } else {
+      var queryItem = {};
+      queryItem[constants.DATA_KEYS.DB_ID] = id;
+      collection.update(queryItem, data, {upsert:true}, onDbError);
+      message = '1 item saved to ' + collectionName;
+    }
   } else {
-    var queryItem = {};
-    queryItem[constants.DATA_KEYS.DB_ID] = id;
-    collection.update(queryItem, data, {upsert:true}, onDbError);
-    message = '1 item saved to ' + collectionName;
+    message = 'No new ' + collectionName + ' data saved';
   }
   logger.info(message);                                                                                                         
   scrapeReporter.addDataInfo(message);
@@ -544,43 +550,16 @@ describe('Scraper', function () {
         }
     }),
 
-    it('saves data', function (done) {
-        var createDate = new Date();
-        var onDbError = function (err, objects) {
-            if (err) throw (err);
-        };
-        var getQuery = function (item) {
-            var query = {};
-            query[constants.DATA_KEYS.DB_ID] = item[constants.DATA_KEYS.DB_ID];
-            return query;
-        };
-
-        var collection;
-        var message;
+    it('saves team and division data', function (done) {
+        saveData(data.teamData, config.DB_COLLECTIONS.TEAM);
         if (data.isNewDivisionData) {
-            collection = db.collection(config.DB_COLLECTIONS.DIVISION);
-            _.each(data.divisionData, function (division, key) {
-                collection.update(getQuery(division), division, {upsert:true}, onDbError);
-            });
-            message = 'Division data saved';
-        } else {
-            message = 'No new division data saved';
+            saveData(data.divisionData, config.DB_COLLECTIONS.DIVISION);
         }
-        logger.info(message);
-        scrapeReporter.addDataInfo(message);
-
-        collection = db.collection(config.DB_COLLECTIONS.TEAM);
-        _.each(data.teamData, function (team) {
-            collection.update(getQuery(team), team, {upsert:true}, onDbError);
-        });
 
         if (!_.isEmpty(data.raceData)) {
             reportUnfoundTeams();
             done();
         } else {
-            message = 'No new race data saved';
-            logger.info(message);
-            scrapeReporter.addDataInfo(message);
             done();
         }
     }),
