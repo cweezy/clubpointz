@@ -104,15 +104,15 @@ app.RaceResultsView = Backbone.View.extend(
 
   _showTeamResults: ->
     @$('.nav-team-results').addClass('active')
-    @$('.team-results').show()
+    @$('.team-results').css('display', 'block')
     @$('.nav-indiv-results').removeClass('active')
-    @$('.indiv-results').hide()
+    @$('.indiv-results').css('display', 'none')
 
   _showIndivResults: ->
     @$('.nav-indiv-results').addClass('active')
-    @$('.indiv-results').show()
+    @$('.indiv-results').css('display', 'block')
     @$('.nav-team-results').removeClass('active')
-    @$('.team-results').hide()
+    @$('.team-results').css('display', 'none')
     @_showPage()
 
   _pageBack: ->
