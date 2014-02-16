@@ -3,3 +3,5 @@ ln config/git/post-checkout.sh .git/hooks/post-checkout
 chmod +x .git/hooks/post-checkout
 
 rm -f .git/hooks/post-commit
+
+echo 'Git hooks updated for branch'
