@@ -17,8 +17,9 @@ var HEADING_DATA = [{
   _id: 'heat_place',
   text: 'Heat Place'
 }];
-// At least one result time is definitely invalid
-var INVALID_BIBS = ['7980'];
+// Wheelchair result bibs
+var INVALID_BIBS = ['7979', '7980', '7975', '7976', '7981',
+                    '7978', '7953', '5991', '7950'];
 var DATA_KEYS = [
   'heat_place',
   'bib',
