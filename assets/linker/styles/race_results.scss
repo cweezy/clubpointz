@@ -2,6 +2,13 @@
   display: none;
   max-width: 0px;
   min-width: 0px;
+  table {
+    table-layout: fixed;
+  }
+}
+
+.pagination li {
+  cursor: pointer;
 }
 
 .race-header {
@@ -9,6 +16,10 @@
     float: right;
     line-height: 31px;
   }
+}
+
+.results-page {
+  display: none;
 }
 
 .overall-place {

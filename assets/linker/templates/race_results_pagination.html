@@ -1,0 +1,7 @@
+<ul class="pagination">
+  <li class='backward'><span>&laquo;</span></li>
+  <% for(var i = 0; i < numPages; i++) { %>
+    <li class='num' data-val='<%= i %>'><span><%= i + 1 %></span></li>
+  <% } %>
+  <li class='forward'><span>&raquo;</span></li>
+</ul>

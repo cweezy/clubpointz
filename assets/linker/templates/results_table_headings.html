@@ -5,9 +5,6 @@
       <% if (heading) { %>
         <%
           var cssClass = heading.get('id').replace('%', 'percent') + '-cell';
-          if (heading.get('id') === 'team') {
-            cssClass += ' indiv-results';
-          }
           var classAttr = 'class="' + cssClass + '"';
         %>
         <th <%=classAttr %>><%= heading.get('text') %></th>
