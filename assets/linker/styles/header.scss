@@ -11,12 +11,20 @@
     padding: 0 10px 0 10px;
   }
 
-  .header-link {
-    float: right;
+  .app-links a, .offsite-links a {
+    display: inline-block;
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
     color: #ccc;
     padding: 0 10px;
     line-height: 28px;
+  }
+
+  .app-links {
+    float: right;
+  }
+
+  .offsite-links {
+    float: left;
   }
 }
 
