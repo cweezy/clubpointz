@@ -18,6 +18,8 @@ app.RaceResultsView = Backbone.View.extend(
     @idToDiv = {}
     @menAResults = app.teamResults.getResultsForRaceDivision(@model, 'OPEN MEN A-2013')
     @womenAResults = app.teamResults.getResultsForRaceDivision(@model, 'OPEN WOMEN A-2013')
+    @menBResults = app.teamResults.getResultsForRaceDivision(@model, 'OPEN MEN B-2013')
+    @womenBResults = app.teamResults.getResultsForRaceDivision(@model, 'OPEN WOMEN B-2013')
     @listenTo(@results, 'sync', @_renderResults)
 
   render: ->
@@ -27,15 +29,20 @@ app.RaceResultsView = Backbone.View.extend(
       womenAResults: @womenAResults
     ))
 
-    menAResultsBox = @$('.men-a-results')
-    for tr, idx in @menAResults
-      trDiv = $(@template 'race_results_team', {tr: tr, idx: idx + 1})
-      menAResultsBox.append trDiv
-      for resId in tr.get('resultIds')
-        @idToDiv[resId] = trDiv
+    @_createDivisionResults(@$('#open-men-a'), @menAResults)
+    @_createDivisionResults(@$('#open-women-a'), @womenAResults)
+    @_createDivisionResults(@$('#open-men-b'), @menBResults)
+    @_createDivisionResults(@$('#open-women-b'), @womenBResults)
 
     @$('.indiv-results').hide()
     @
+
+  _createDivisionResults: (box, results) ->
+    for tr, idx in results
+      trDiv = $(@template 'race_results_team', {tr: tr, idx: idx + 1})
+      box.append trDiv
+      for resId in tr.get('resultIds')
+        @idToDiv[resId] = trDiv
 
   _renderResults: ->
     @results = @results.sortBy( (result) ->

@@ -1,9 +1,9 @@
-.team-result .indiv-results {
-  display: none;
-  max-width: 0px;
-  min-width: 0px;
+.team-results, .indiv-results {
   table {
     table-layout: fixed;
+  }
+  .nav-tabs {
+    margin: 20px 0;
   }
 }
 
